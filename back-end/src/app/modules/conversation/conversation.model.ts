@@ -3,7 +3,7 @@ import { TConversation, TParticipant } from "./conversation.interface";
 
 const ParticipantSchema = new mongoose.Schema<TParticipant>({
     participant: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
     lastMessage: {

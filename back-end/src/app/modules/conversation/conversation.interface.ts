@@ -1,7 +1,7 @@
-import { Schema } from "mongoose"
+import { Types } from "mongoose"
 
 export type TParticipant = {
-    participant: Schema.Types.ObjectId,
+    participant: Types.ObjectId
     lastMessage: string,
 }
 
