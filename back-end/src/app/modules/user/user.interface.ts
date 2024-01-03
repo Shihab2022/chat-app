@@ -4,4 +4,6 @@ export type TUser = {
     img?: string,
     email: string,
     password: string,
+    status: string,
+    isDeleted: boolean
 }
