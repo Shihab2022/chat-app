@@ -1,8 +1,9 @@
 import { Button } from "@mui/material";
 import React, { FC } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-const router = createBrowserRouter([{ path: "*", Component: UserRoutes }]);
-function App(): FC {
+
+function App() {
+  const router = createBrowserRouter([{ path: "*", Component: UserRoutes }]);
   return (
     <>
       {/* <Button variant="text">Text</Button>

@@ -1,5 +1,6 @@
 import { useRoutes } from "react-router-dom";
-import Home from "../components/Homepage";
+import Homepage from "../components/Homepage";
+// import Home from "../components/Homepage";
 
 export const Router = () => {
   return useRoutes([
@@ -8,7 +9,7 @@ export const Router = () => {
       children: [
         {
           path: "/home",
-          element: <Home title="Hello" />,
+          element: <Homepage />,
         },
       ],
     },
