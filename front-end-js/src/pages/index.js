@@ -10,6 +10,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Homepage from "../components";
 import { demoUser } from "../constants/demoUserData";
+import SearchField from "../components/searchField";
 
 const drawerWidth = 340;
 
@@ -121,6 +122,15 @@ function ResponsiveDrawer(props) {
           eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
           posuere sollicitudin aliquam ultrices sagittis orci a.
         </Typography>
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 5,
+            width: { sm: `calc(100% - ${drawerWidth + 40}px)` },
+          }}
+        >
+          <SearchField />
+        </Box>
       </Box>
     </Box>
   );
