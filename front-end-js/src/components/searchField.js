@@ -13,7 +13,7 @@ export default function SearchField() {
         p: "2px 0px",
         display: "flex",
         alignItems: "center",
-        border: "1px solid red",
+        border: "1px solid gray",
       }}
     >
       <IconButton sx={{ p: "10px" }} aria-label="menu">
