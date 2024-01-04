@@ -12,8 +12,8 @@ export const messageData = [
     timestamp: "Thu Jan 04 2024 08:51:37 GMT+0000 (Coordinated Universal Time)",
   },
   {
-    senderId: 1,
-    receiverId: 2,
+    senderId: 2,
+    receiverId: 1,
     content: "Message 37",
     timestamp: "Thu Jan 04 2024 08:51:38 GMT+0000 (Coordinated Universal Time)",
   },
@@ -55,8 +55,8 @@ export const messageData = [
   },
 
   {
-    senderId: 2,
-    receiverId: 1,
+    senderId: 1,
+    receiverId: 2,
     content: "Message 8",
     timestamp: "Thu Jan 04 2024 08:51:09 GMT+0000 (Coordinated Universal Time)",
   },
@@ -91,8 +91,8 @@ export const messageData = [
     timestamp: "Thu Jan 04 2024 08:51:08 GMT+0000 (Coordinated Universal Time)",
   },
   {
-    senderId: 1,
-    receiverId: 2,
+    senderId: 2,
+    receiverId: 1,
     content: "Message 13",
     timestamp: "Thu Jan 04 2024 08:51:14 GMT+0000 (Coordinated Universal Time)",
   },
@@ -212,8 +212,8 @@ export const messageData = [
     timestamp: "Thu Jan 04 2024 08:51:33 GMT+0000 (Coordinated Universal Time)",
   },
   {
-    senderId: 1,
-    receiverId: 2,
+    senderId: 2,
+    receiverId: 1,
     content: "Message 33",
     timestamp: "Thu Jan 04 2024 08:51:34 GMT+0000 (Coordinated Universal Time)",
   },
@@ -224,8 +224,8 @@ export const messageData = [
     timestamp: "Thu Jan 04 2024 08:51:35 GMT+0000 (Coordinated Universal Time)",
   },
   {
-    senderId: 1,
-    receiverId: 2,
+    senderId: 2,
+    receiverId: 1,
     content: "Message 35",
     timestamp: "Thu Jan 04 2024 08:51:36 GMT+0000 (Coordinated Universal Time)",
   },
@@ -237,8 +237,8 @@ export const messageData = [
     timestamp: "Thu Jan 04 2024 08:51:40 GMT+0000 (Coordinated Universal Time)",
   },
   {
-    senderId: 1,
-    receiverId: 2,
+    senderId: 2,
+    receiverId: 1,
     content: "Message 40",
     timestamp: "Thu Jan 04 2024 08:51:41 GMT+0000 (Coordinated Universal Time)",
   },
@@ -249,8 +249,8 @@ export const messageData = [
     timestamp: "Thu Jan 04 2024 08:51:42 GMT+0000 (Coordinated Universal Time)",
   },
   {
-    senderId: 1,
-    receiverId: 2,
+    senderId: 2,
+    receiverId: 1,
     content: "Message 42",
     timestamp: "Thu Jan 04 2024 08:51:43 GMT+0000 (Coordinated Universal Time)",
   },
@@ -261,8 +261,8 @@ export const messageData = [
     timestamp: "Thu Jan 04 2024 08:51:44 GMT+0000 (Coordinated Universal Time)",
   },
   {
-    senderId: 1,
-    receiverId: 2,
+    senderId: 2,
+    receiverId: 1,
     content: "Message 44",
     timestamp: "Thu Jan 04 2024 08:51:45 GMT+0000 (Coordinated Universal Time)",
   },

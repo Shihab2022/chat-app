@@ -94,7 +94,9 @@ function ResponsiveDrawer(props) {
           width: { sm: `calc(100% - ${drawerWidth}px)` },
         }}
       >
-        <Message messageData={messageData} />
+        <Box sx={{ marginBottom: "50px" }}>
+          <Message messageData={messageData} />
+        </Box>
         <Box
           sx={{
             position: "fixed",

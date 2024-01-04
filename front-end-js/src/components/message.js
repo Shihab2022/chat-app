@@ -1,6 +1,14 @@
 import { Avatar, Stack, Typography } from "@mui/material";
 import React from "react";
 
+const ImgViewer = ({ img, mess }) => {
+  return (
+    <>
+      <Avatar sx={{ width: 24, height: 24 }} src={img} />
+    </>
+  );
+};
+
 const Message = ({ messageData }) => {
   const parseTimestamp = (timestamp) => new Date(timestamp);
 
@@ -22,19 +30,21 @@ const Message = ({ messageData }) => {
             }`}
             alignItems="center"
             spacing={2}
+            sx={{ marginY: "5px" }}
           >
             <Stack
-              direction="row"
-              justifyContent={`${
-                mess.senderId === 1 ? "flex-end" : "flex-end"
-              }`}
+              direction={`${mess.senderId === 1 ? "row" : "row-reverse"}`}
+              justifyContent="flex-start"
               alignItems="center"
               spacing={2}
             >
-              <Avatar
-                alt="Cindy Baker"
-                sx={{ width: 24, height: 24 }}
-                src="https://randomuser.me/api/portraits/men/1.jpg"
+              <ImgViewer
+                img={`${
+                  mess.senderId === 1
+                    ? "https://randomuser.me/api/portraits/men/1.jpg"
+                    : "https://randomuser.me/api/portraits/men/10.jpg"
+                }`}
+                mess={mess}
               />
               <Typography
                 key={i}
