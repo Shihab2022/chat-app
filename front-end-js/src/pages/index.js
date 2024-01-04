@@ -9,10 +9,11 @@ import ListItem from "@mui/material/ListItem";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Homepage from "../components";
-import { demoUser } from "../constants/demoUserData";
+import { demoUser, myProfile } from "../constants/demoUserData";
 import SearchField from "../components/searchField";
 import { messageData } from "../constants/messageData";
 import Message from "../components/message";
+import Profile from "../components/profile";
 
 const drawerWidth = 340;
 
@@ -28,7 +29,13 @@ function ResponsiveDrawer(props) {
   };
   const drawer = (
     <div>
-      <Toolbar />
+      {/* <Toolbar /> */}
+
+      <List>
+        <ListItem disablePadding>
+          <Profile user={myProfile} onClick={handleClick} />
+        </ListItem>
+      </List>
       <Divider />
       <List>
         {demoUser.map((user, i) => (

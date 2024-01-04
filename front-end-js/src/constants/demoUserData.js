@@ -79,3 +79,10 @@ export const demoUser = [
   },
   // ... and so on
 ];
+
+export const myProfile = {
+  name: "Alice",
+  lastMessage: "Hello there!",
+  time: "2h",
+  img: "https://randomuser.me/api/portraits/men/21.jpg",
+};

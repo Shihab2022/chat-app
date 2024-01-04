@@ -11,6 +11,18 @@ const LandingPage = () => {
           Chat
         </Button>
       </Link>
+      <br></br>
+      <Link to="/SignUp">
+        <Button variant="contained" endIcon={<ChatIcon />}>
+          SignUp
+        </Button>
+      </Link>
+      <br></br>
+      <Link to="/login">
+        <Button variant="contained" endIcon={<ChatIcon />}>
+          login
+        </Button>
+      </Link>
     </div>
   );
 };
