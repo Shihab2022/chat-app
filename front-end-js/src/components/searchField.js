@@ -6,6 +6,16 @@ import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import SendIcon from "@mui/icons-material/Send";
 export default function SearchField() {
+  const sendMessage = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/user/create");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const result = await response.json();
+      console.log("result", result);
+    } catch (error) {}
+  };
   return (
     <Paper
       component="form"
@@ -25,7 +35,12 @@ export default function SearchField() {
         inputProps={{ "aria-label": "search google maps" }}
       />
       <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-      <IconButton color="primary" sx={{ p: "10px" }} aria-label="directions">
+      <IconButton
+        onClick={sendMessage}
+        color="primary"
+        sx={{ p: "10px" }}
+        aria-label="directions"
+      >
         <SendIcon />
       </IconButton>
     </Paper>
