@@ -4,7 +4,7 @@ import { TUser } from "./user.interface";
 
 
 const UserSchema = new mongoose.Schema<TUser>({
-    username: {
+    userName: {
         type: String,
         required: [true, "User name is required and unique"],
         unique: true

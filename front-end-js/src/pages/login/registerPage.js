@@ -38,16 +38,45 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    if (!data.get("email")) {
-      showToast(FAILED, "put your email");
+    const email = data.get("email");
+    const password = data.get("password");
+    const userName = data.get("userName");
+    const name = data.get("name");
+
+    if (!email) {
+      showToast(FAILED, "Email is required ");
     }
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    if (!password) {
+      showToast(FAILED, "Password is required ");
+    }
+    if (!userName) {
+      showToast(FAILED, "User name is required ");
+    }
+    const userData = {
+      email,
+      password,
+      userName,
+      name: name ? name : userName,
+    };
+    try {
+      const response = await fetch("http://localhost:5000/api/user/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const result = await response.json();
+      console.log("result", result);
+    } catch (error) {
+      showToast(FAILED, "Something is wrong ! ");
+    }
   };
 
   return (
@@ -77,23 +106,23 @@ export default function SignUp() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  autoComplete="given-name"
-                  name="firstName"
+                  // autoComplete="given-name"
+                  name="userName"
                   required
                   fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
+                  id="userName"
+                  label="User Name"
+                  // autoFocus
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  required
+                  // required
                   fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="family-name"
+                  id="name"
+                  label=" Name"
+                  name="name"
+                  // autoComplete="family-name"
                 />
               </Grid>
               <Grid item xs={12}>
@@ -114,7 +143,7 @@ export default function SignUp() {
                   label="Password"
                   type="password"
                   id="password"
-                  autoComplete="new-password"
+                  // autoComplete="new-password"
                 />
               </Grid>
               {/* <Grid item xs={12}>
