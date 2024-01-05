@@ -11,9 +11,9 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { showToast } from "../../utils/toast";
-import { FAILED } from "../../constants/common";
+import { FAILED, SUCCESS } from "../../constants/common";
 
 function Copyright(props) {
   return (
@@ -38,6 +38,8 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
+  const navigate = useNavigate();
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -73,8 +75,13 @@ export default function SignUp() {
         throw new Error("Network response was not ok");
       }
       const result = await response.json();
+      if (result.success) {
+        showToast(SUCCESS, "Your registration is successfully !");
+        navigate("/chat");
+      }
       console.log("result", result);
     } catch (error) {
+      console.log("error", error?.message);
       showToast(FAILED, "Something is wrong ! ");
     }
   };
