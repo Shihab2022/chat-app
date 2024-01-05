@@ -4,12 +4,12 @@ const handleDuplicateError = (error: any): Partial<TGenericErrorResponse> => {
 
     const match = error.message.match(/"([^"]*)"/)
     const extractedMessage = match && match[1]
-    const errorDetails: TErrorSource = [
-        {
-            path: '',
-            message: `${extractedMessage} is already exits !`
-        }
-    ]
+    const errorDetails: TErrorSource =
+    {
+        path: '',
+        message: `${extractedMessage} is already exits !`
+    }
+
 
     const statusCode = 400
     return {

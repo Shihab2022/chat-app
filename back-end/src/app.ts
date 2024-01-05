@@ -1,6 +1,7 @@
 import express, { json } from "express"
 import cors from "cors"
 import { rootRouter } from "./app/routes"
+import globalErrorHandler from "./app/middlewares/globalErrorHandllers"
 const app = express()
 
 

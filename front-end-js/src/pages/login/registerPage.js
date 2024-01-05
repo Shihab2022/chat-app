@@ -14,6 +14,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Link, useNavigate } from "react-router-dom";
 import { showToast } from "../../utils/toast";
 import { FAILED, SUCCESS } from "../../constants/common";
+import Loader from "../../components/loader";
 
 function Copyright(props) {
   return (
@@ -39,9 +40,10 @@ const defaultTheme = createTheme();
 
 export default function SignUp() {
   const navigate = useNavigate();
-
+  Loader(true);
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
     const password = data.get("password");
@@ -71,17 +73,16 @@ export default function SignUp() {
         },
         body: JSON.stringify(userData),
       });
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
       const result = await response.json();
       if (result.success) {
         showToast(SUCCESS, "Your registration is successfully !");
         navigate("/chat");
+      } else {
+        showToast(FAILED, result?.errorDetails?.message);
       }
       console.log("result", result);
     } catch (error) {
-      console.log("error", error?.message);
+      console.log("error", error);
       showToast(FAILED, "Something is wrong ! ");
     }
   };
