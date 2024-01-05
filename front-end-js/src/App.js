@@ -5,6 +5,7 @@ import LandingPage from "./components/homePage";
 import SignUp from "./pages/login/registerPage";
 import SignIn from "./pages/login/login";
 import ForgetPassword from "./pages/login/forgetPassword";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<SignIn />}></Route>
         <Route path="/forgetPassword" element={<ForgetPassword />}></Route>
       </Routes>
+      <Toaster />
     </div>
   );
 }
