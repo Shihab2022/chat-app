@@ -11,7 +11,9 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { emailRegex, FAILED, SUCCESS } from "../../constants/common";
+import { showToast } from "../../utils/toast";
 
 function Copyright(props) {
   return (
@@ -36,13 +38,44 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-  const handleSubmit = (event) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    const email = data.get("emailOrUserName");
+    const password = data.get("password");
+    let userData;
+    if (emailRegex.test(email)) {
+      userData = {
+        password,
+        email,
+      };
+    } else {
+      userData = {
+        password,
+        userName: email,
+      };
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+      const result = await response.json();
+      if (result.success) {
+        navigate("/chat");
+        showToast(SUCCESS, result.message);
+      } else {
+        showToast(FAILED, "Something is wrong ! ");
+      }
+    } catch (error) {
+      showToast(FAILED, "Something is wrong ! ");
+    }
   };
 
   return (
@@ -74,10 +107,10 @@ export default function SignIn() {
               required
               fullWidth
               id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
+              label="Email Address Or User Name"
+              name="emailOrUserName"
+              // autoComplete="email"
+              // autoFocus
             />
             <TextField
               margin="normal"
@@ -87,7 +120,7 @@ export default function SignIn() {
               label="Password"
               type="password"
               id="password"
-              autoComplete="current-password"
+              // autoComplete="current-password"
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
