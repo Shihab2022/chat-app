@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 import { TUser } from "./user.interface";
-
+import config from "../../config";
+import bcrypt from "bcrypt"
 
 
 const UserSchema = new mongoose.Schema<TUser>({
-    username: {
+    userName: {
         type: String,
         required: [true, "User name is required and unique"],
         unique: true
@@ -31,6 +32,15 @@ const UserSchema = new mongoose.Schema<TUser>({
     }
 
 })
+UserSchema.pre('save', async function (next) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const user = this
+    user.password = await bcrypt.hash(
+        user.password,
+        Number(config.bcrypt_salt_rounds)
+    )
+    next()
 
+})
 
 export const User = mongoose.model('User', UserSchema);

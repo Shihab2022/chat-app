@@ -4,8 +4,8 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
-
-export default function Homepage({ onClick, user }) {
+import AddIcon from "@mui/icons-material/Add";
+export default function Profile({ onClick, user }) {
   const { name, lastMessage, img, time } = user;
   return (
     <Card
@@ -33,10 +33,10 @@ export default function Homepage({ onClick, user }) {
             component="div"
           >
             {lastMessage}
-            <span> . {time}</span>
           </Typography>
         </CardContent>
       </Box>
+      <AddIcon />
     </Card>
   );
 }
