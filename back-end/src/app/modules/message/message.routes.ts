@@ -4,7 +4,7 @@ const router = Router()
 
 
 router.post('/send', MessageController.createMessage)
-router.get('/getMessage', MessageController.getMessage)
+router.post('/getMessage', MessageController.getMessage)
 
 
 export const MessageRoutes = router

@@ -4,24 +4,28 @@ export const demoUser = [
     lastMessage: "Hello there!",
     time: "2h",
     img: "https://randomuser.me/api/portraits/men/1.jpg",
+    id: "659798b8df9f194773891c12",
   },
   {
     name: "Bob",
     lastMessage: "How's it going?",
     time: "3h",
     img: "https://randomuser.me/api/portraits/men/2.jpg",
+    id: "659798b8df9f194773891c12",
   },
   {
     name: "Charlie",
     lastMessage: "Can you help me out?",
     time: "4h",
     img: "https://randomuser.me/api/portraits/men/3.jpg",
+    id: "659798b8df9f194773891c12",
   },
   {
     name: "David",
     lastMessage: "Impressive work!",
     time: "5h",
     img: "https://randomuser.me/api/portraits/men/4.jpg",
+    id: "659798b8df9f194773891c12",
   },
   {
     name: "Eva",
@@ -85,4 +89,5 @@ export const myProfile = {
   lastMessage: "Hello there!",
   time: "2h",
   img: "https://randomuser.me/api/portraits/men/21.jpg",
+  id: "65979a29bb6f04bd494e6bbb",
 };

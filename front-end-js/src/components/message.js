@@ -1,5 +1,6 @@
 import { Avatar, Stack, Typography } from "@mui/material";
 import React from "react";
+import { myProfile } from "../constants/demoUserData";
 
 const ImgViewer = ({ img, mess }) => {
   return (
@@ -26,21 +27,23 @@ const Message = ({ messageData }) => {
           <Stack
             direction="row"
             justifyContent={`${
-              mess.senderId === 1 ? "flex-start" : "flex-end"
+              mess.senderId === myProfile?.id ? "flex-start" : "flex-end"
             }`}
             alignItems="center"
             spacing={2}
             sx={{ marginY: "5px" }}
           >
             <Stack
-              direction={`${mess.senderId === 1 ? "row" : "row-reverse"}`}
+              direction={`${
+                mess.senderId === myProfile?.id ? "row" : "row-reverse"
+              }`}
               justifyContent="flex-start"
               alignItems="center"
               spacing={2}
             >
               <ImgViewer
                 img={`${
-                  mess.senderId === 1
+                  mess.senderId === myProfile?.id
                     ? "https://randomuser.me/api/portraits/men/1.jpg"
                     : "https://randomuser.me/api/portraits/men/10.jpg"
                 }`}
@@ -48,7 +51,11 @@ const Message = ({ messageData }) => {
               />
               <Typography
                 key={i}
-                sx={{ textAlign: `${mess.senderId === 1 ? "left" : "right"}` }}
+                sx={{
+                  textAlign: `${
+                    mess.senderId === myProfile?.id ? "left" : "right"
+                  }`,
+                }}
                 paragraph
               >
                 {mess.content}

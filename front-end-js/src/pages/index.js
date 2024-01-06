@@ -14,18 +14,47 @@ import SearchField from "../components/searchField";
 import { messageData } from "../constants/messageData";
 import Message from "../components/message";
 import Profile from "../components/profile";
+import { showToast } from "../utils/toast";
+import { FAILED, SUCCESS } from "../constants/common";
 
 const drawerWidth = 340;
 
 function ResponsiveDrawer(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [messages, setMessages] = React.useState(messageData);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-  const handleClick = (user) => {
-    console.log("handleClick", user);
+  const handleClick = async (user) => {
+    const messagesId = {
+      senderId: myProfile.id,
+      receiverId: user.id,
+    };
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/message/getMessage",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(messagesId),
+        }
+      );
+      const result = await response.json();
+      if (result.success) {
+        setMessages(result?.data);
+        showToast(SUCCESS, result.message);
+      } else {
+        setMessages(messageData);
+        showToast(FAILED, "Something is wrong ! ");
+      }
+    } catch (error) {
+      showToast(FAILED, "Something is wrong ! ");
+    }
   };
   const drawer = (
     <div>
@@ -102,7 +131,7 @@ function ResponsiveDrawer(props) {
         }}
       >
         <Box sx={{ marginBottom: "50px" }}>
-          <Message messageData={messageData} />
+          <Message messageData={messages} />
         </Box>
         <Box
           sx={{
