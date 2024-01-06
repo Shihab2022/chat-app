@@ -5,8 +5,7 @@ import { UserServices } from "./user.services";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log('req', req.body)
-        const result = await UserServices.createStudentIntoDB(req.body)
+        const result = await UserServices.createUserIntoDB(req.body)
 
         sendResponse(res, {
             statusCode: httpStatus.OK,
@@ -20,7 +19,24 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 
 }
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await UserServices.LoginUserIntoDB(req.body)
+
+        sendResponse(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: "User login successfully !!!",
+            data: result
+        })
+
+    } catch (error) {
+        next(error)
+    }
+
+}
 
 export const UserController = {
-    createUser
+    createUser,
+    loginUser
 }
