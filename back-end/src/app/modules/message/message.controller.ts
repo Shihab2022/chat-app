@@ -19,41 +19,26 @@ const createMessage = async (req: Request, res: Response, next: NextFunction) =>
     }
 
 }
-// const loginUser = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const result = await UserServices.LoginUserIntoDB(req.body)
 
-//         sendResponse(res, {
-//             statusCode: httpStatus.OK,
-//             success: true,
-//             message: "User login successfully !!!",
-//             data: result
-//         })
+const getMessage = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await MessageServices.getMessageFromDB(req.body)
 
-//     } catch (error) {
-//         next(error)
-//     }
+        sendResponse(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: "Message get successfully !!!",
+            data: result
+        })
 
-// }
-// const forgetPassword = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const result = await UserServices.forgetPassword(req.body)
+    } catch (error) {
+        next(error)
+    }
 
-//         sendResponse(res, {
-//             statusCode: httpStatus.OK,
-//             success: true,
-//             message: "Password is updated successfully !!!",
-//             data: result
-//         })
+}
 
-//     } catch (error) {
-//         next(error)
-//     }
-
-// }
 
 export const MessageController = {
     createMessage,
-    // loginUser,
-    // forgetPassword
+    getMessage
 }
