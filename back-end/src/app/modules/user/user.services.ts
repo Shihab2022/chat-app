@@ -26,8 +26,25 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
     return newData
 
 }
+const forgetPassword = async (payload: Partial<TUser>) => {
+    const { userName, email } = payload
+
+
+    const user = await User.findOne({ $or: [{ userName }, { email }] })
+    if (!user) {
+        throw new AppError(404, 'User is not found !')
+    }
+
+
+    const objData: Partial<TUser> = user.toObject();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...newData } = objData
+    return newData
+
+}
 
 export const UserServices = {
     createUserIntoDB,
-    LoginUserIntoDB
+    LoginUserIntoDB,
+    forgetPassword
 }

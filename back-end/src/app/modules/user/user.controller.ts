@@ -35,8 +35,25 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 
 }
+const forgetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await UserServices.forgetPassword(req.body)
+
+        sendResponse(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: "Password is updated successfully !!!",
+            data: result
+        })
+
+    } catch (error) {
+        next(error)
+    }
+
+}
 
 export const UserController = {
     createUser,
-    loginUser
+    loginUser,
+    forgetPassword
 }
