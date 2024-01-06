@@ -35,11 +35,9 @@ const forgetPassword = async (payload: Partial<TUser>) => {
         throw new AppError(404, 'User is not found !')
     }
 
+    await User.findOneAndUpdate({ $or: [{ userName }, { email }] }, { password: payload.password })
 
-    const objData: Partial<TUser> = user.toObject();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...newData } = objData
-    return newData
+    return null
 
 }
 
