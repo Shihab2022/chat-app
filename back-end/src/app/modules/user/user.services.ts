@@ -1,3 +1,4 @@
+import config from "../../config";
 import AppError from "../../error/appError";
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
@@ -34,8 +35,11 @@ const forgetPassword = async (payload: Partial<TUser>) => {
     if (!user) {
         throw new AppError(404, 'User is not found !')
     }
-
-    await User.findOneAndUpdate({ $or: [{ userName }, { email }] }, { password: payload.password })
+    const hashPassword = await bcrypt.hash(
+        payload.password as string,
+        Number(config.bcrypt_salt_rounds)
+    )
+    await User.findOneAndUpdate({ $or: [{ userName }, { email }] }, { password: hashPassword })
 
     return null
 
