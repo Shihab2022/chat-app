@@ -4,7 +4,9 @@ export const demoUser = [
     lastMessage: "Hello there!",
     time: "2h",
     img: "https://randomuser.me/api/portraits/men/1.jpg",
-    id: "659798b8df9f194773891c12",
+
+    id: "65979a29bb6f04bd494e6bbb",
+    // id: "659798b8df9f194773891c12",
   },
   {
     name: "Bob",
@@ -89,5 +91,6 @@ export const myProfile = {
   lastMessage: "Hello there!",
   time: "2h",
   img: "https://randomuser.me/api/portraits/men/21.jpg",
-  id: "65979a29bb6f04bd494e6bbb",
+  // id: "65979a29bb6f04bd494e6bbb",
+  id: "659798b8df9f194773891c12",
 };

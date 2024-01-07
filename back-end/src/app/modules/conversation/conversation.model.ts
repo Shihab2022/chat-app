@@ -8,11 +8,18 @@ const ParticipantSchema = new mongoose.Schema<TParticipant>({
     },
     lastMessage: {
         type: String,
+    },
+    timestamp: {
+        type: String
     }
 })
 
 
 const ConversationSchema = new mongoose.Schema<TConversation>({
+    admin: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
     participants: {
         type: [ParticipantSchema],
         required: [true, "This is required"]

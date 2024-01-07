@@ -5,7 +5,7 @@ import { TMessages } from "./message.interface";
 import { Message } from "./message.model";
 const createMessageIntoDB = async (payload: TMessages) => {
 
-    const result = (await Message.create(payload)).isSelected("-password")
+    const result = await Message.create(payload)
     return result
 
 }
