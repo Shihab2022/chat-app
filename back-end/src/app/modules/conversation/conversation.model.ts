@@ -8,7 +8,8 @@ const ParticipantSchema = new mongoose.Schema<TParticipant>({
     },
     lastMessage: {
         type: String,
-    },
+    }
+    ,
     timestamp: {
         type: String
     }
