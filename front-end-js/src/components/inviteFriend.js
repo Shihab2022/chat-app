@@ -3,8 +3,6 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Box from "@mui/material/Box";
 import Diversity3Icon from "@mui/icons-material/Diversity3";
 import Typography from "@mui/material/Typography";
@@ -18,7 +16,6 @@ const defaultTheme = createTheme();
 
 export default function InviteUser() {
   const location = useLocation();
-  // const userData = state?.user || {};
   const admin = location?.state?.user;
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -26,35 +23,31 @@ export default function InviteUser() {
     const email = data.get("email");
     const lastMessage = data.get("message");
 
-    let userdata = {
+    let userData = {
       admin: admin.id,
       participants: {
-        email,
+        participant: email,
         lastMessage,
         timestamp: new Date(),
       },
     };
-
-    // try {
-    //   const response = await fetch(
-    //     "http://localhost:5000/api/user/forget-password",
-    //     {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify(userData),
-    //     }
-    //   );
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     showToast(SUCCESS, result.message);
-    //   } else {
-    //     showToast(FAILED, "Something is wrong ! ");
-    //   }
-    // } catch (error) {
-    //   showToast(FAILED, "Something is wrong ! ");
-    // }
+    try {
+      const response = await fetch("http://localhost:5000/api/invite/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+      const result = await response.json();
+      if (result.success) {
+        showToast(SUCCESS, result.message);
+      } else {
+        showToast(FAILED, "Something is wrong ! ");
+      }
+    } catch (error) {
+      showToast(FAILED, "Something is wrong ! ");
+    }
   };
 
   return (

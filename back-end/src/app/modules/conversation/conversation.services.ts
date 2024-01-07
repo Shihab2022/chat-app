@@ -1,17 +1,15 @@
 import AppError from "../../error/appError";
 import { TConversation } from "./conversation.interface";
 import { Conversation } from "./conversation.model";
-import { httpStatus } from 'http-Status';
 
 const inviteUserIntoDB = async (payload: any) => {
     const { admin, participants } = payload
     const isAdminPresent = await Conversation.findOne({ admin })
+    let returnData
     if (isAdminPresent) {
-        console.log('this is present')
-        const remain = isAdminPresent.participants.filter(data => data.participant.equals(participants.participant))
-        console.log('remain', remain)
+        const remain = isAdminPresent.participants.filter(data => data.participant === participants.participant)
         if (remain.length === 0) {
-            const nn = await Conversation.findOneAndUpdate(
+            returnData = await Conversation.findOneAndUpdate(
                 {
                     admin: admin,
                     "participants.participant": { $ne: participants.participant }
@@ -29,13 +27,12 @@ const inviteUserIntoDB = async (payload: any) => {
 
     }
     else {
-        console.log('this is not  present')
-        const result = await Conversation.create({ admin: admin, participants: [participants] })
+        returnData = await Conversation.create({ admin: admin, participants: [participants] })
     }
 
 
 
-    return isAdminPresent
+    return returnData
 
 }
 // const getMessageFromDB = async (payload: Partial<TMessages>) => {

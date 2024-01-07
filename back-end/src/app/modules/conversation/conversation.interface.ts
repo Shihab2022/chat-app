@@ -1,7 +1,7 @@
 import { Types } from "mongoose"
 
 export type TParticipant = {
-    participant: Types.ObjectId
+    participant: string
     lastMessage: string,
     timestamp: string,
 }
