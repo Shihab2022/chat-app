@@ -35,35 +35,21 @@ const inviteUserIntoDB = async (payload: any) => {
     return returnData
 
 }
-// const getMessageFromDB = async (payload: Partial<TMessages>) => {
-//     const { senderId, receiverId } = payload
-//     const searchCriteria = {
-//         $or: [
-//             {
-//                 $and: [
-//                     { senderId },
-//                     { receiverId }
-//                 ]
-//             },
-//             {
-//                 $and: [
-//                     { receiverId: senderId },
-//                     { senderId: receiverId }
-//                 ]
-//             }
-//         ]
-//     };
+const getConversation = async (payload: string) => {
 
-//     const messages = await Message.find(searchCriteria)
-//     return messages
+    const result = await Conversation.findOne({ admin: payload })
+    if (!result) {
+        throw new AppError(404, "You have no conversation ")
+    }
+    return result
 
 
-// }
+}
 
 
 export const InviterUserServices = {
     inviteUserIntoDB,
-    // getMessageFromDB
+    getConversation
 }
 
 

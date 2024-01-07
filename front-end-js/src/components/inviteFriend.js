@@ -10,12 +10,13 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { showToast } from "../utils/toast";
 import { FAILED, SUCCESS } from "../constants/common";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const defaultTheme = createTheme();
 
 export default function InviteUser() {
   const location = useLocation();
+  const navigate = useNavigate();
   const admin = location?.state?.user;
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -42,6 +43,7 @@ export default function InviteUser() {
       const result = await response.json();
       if (result.success) {
         showToast(SUCCESS, result.message);
+        navigate("/chat");
       } else {
         showToast(FAILED, "Something is wrong ! ");
       }

@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 export default function Profile({ onClick, user }) {
   const navigate = useNavigate();
   const { name, lastMessage, img, time } = user;
-  console.log("user", user);
   return (
     <Card
       sx={{

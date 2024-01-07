@@ -21,25 +21,27 @@ const InviteUser = async (req: Request, res: Response, next: NextFunction) => {
 
 }
 
-// const getMessage = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const result = await MessageServices.getMessageFromDB(req.body)
+const getConversation = async (req: Request, res: Response, next: NextFunction) => {
 
-//         sendResponse(res, {
-//             statusCode: httpStatus.OK,
-//             success: true,
-//             message: "Message get successfully !!!",
-//             data: result
-//         })
+    try {
+        const id = req.params.id;
+        const result = await InviterUserServices.getConversation(id)
 
-//     } catch (error) {
-//         next(error)
-//     }
+        sendResponse(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: "Conversation get successfully !!!",
+            data: result
+        })
 
-// }
+    } catch (error) {
+        next(error)
+    }
+
+}
 
 
 export const InviteUserController = {
     InviteUser,
-    // getMessage
+    getConversation
 }

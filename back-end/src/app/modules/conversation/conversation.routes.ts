@@ -4,7 +4,7 @@ const router = Router()
 
 
 router.post('/send', InviteUserController.InviteUser)
-// router.post('/getMessage', MessageController.getMessage)
+router.get('/getConversation/:id', InviteUserController.getConversation)
 
 
 export const InviteUserRoutes = router
