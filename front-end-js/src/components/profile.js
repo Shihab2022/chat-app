@@ -5,7 +5,9 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
 export default function Profile({ onClick, user }) {
+  const navigate = useNavigate();
   const { name, lastMessage, img, time } = user;
   return (
     <Card
@@ -19,7 +21,6 @@ export default function Profile({ onClick, user }) {
         paddingLeft: "20px",
         cursor: "pointer",
       }}
-      onClick={() => onClick(user)}
     >
       <Avatar alt="Cindy Baker" src={img} />
       <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -36,7 +37,7 @@ export default function Profile({ onClick, user }) {
           </Typography>
         </CardContent>
       </Box>
-      <AddIcon />
+      <AddIcon onClick={() => navigate("/inviteUser", { state: { user } })} />
     </Card>
   );
 }

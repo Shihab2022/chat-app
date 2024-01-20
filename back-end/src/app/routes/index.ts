@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserRoutes } from "../modules/user/user.route";
 import { MessageRoutes } from "../modules/message/message.routes";
+import { InviteUserRoutes } from "../modules/conversation/conversation.routes";
 
 const router = Router()
 
@@ -12,6 +13,10 @@ const moduleRoutes = [
     {
         path: '/message',
         endPoint: MessageRoutes
+    },
+    {
+        path: '/invite',
+        endPoint: InviteUserRoutes
     },
 ]
 

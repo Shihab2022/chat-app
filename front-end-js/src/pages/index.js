@@ -23,10 +23,40 @@ function ResponsiveDrawer(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [messages, setMessages] = React.useState(messageData);
+  const [friends, setFriends] = React.useState(messageData);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+  const getUser = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/invite/getConversation/${id}`
+      );
+      const result = await response.json();
+      if (result.success) {
+        let data = [];
+        result?.data?.participants?.forEach((d, i) => {
+          data.push({
+            ...d,
+            img: `https://randomuser.me/api/portraits/men/${i + 1}.jpg`,
+            name: d.participant.slice(0, 10),
+            time: `${i + 1}h`,
+          });
+        });
+        setFriends(data);
+        showToast(SUCCESS, result.message);
+      } else {
+        // setMessages(messageData);
+        showToast(FAILED, "Something is wrong ! ");
+      }
+    } catch (error) {
+      showToast(FAILED, "Something is wrong ! ");
+    }
+  };
+  React.useEffect(() => {
+    getUser(myProfile.id);
+  }, []);
   const handleClick = async (user) => {
     const messagesId = {
       senderId: myProfile.id,
@@ -67,7 +97,7 @@ function ResponsiveDrawer(props) {
       </List>
       <Divider />
       <List>
-        {demoUser.map((user, i) => (
+        {friends?.map((user, i) => (
           <>
             <ListItem key={i} disablePadding>
               <Homepage user={user} onClick={handleClick} />
