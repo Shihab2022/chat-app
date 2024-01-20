@@ -1,5 +1,12 @@
 import { Avatar, Stack, Typography } from "@mui/material";
-import { myProfile } from "../constants/demoUserData";
+import { myProfile, myRandomProfile } from "../constants/demoUserData";
+
+export type TMessage = {
+  senderId: number;
+  receiverId: number;
+  content: string;
+  timestamp: string;
+};
 
 const ImgViewer = ({ img, mess }) => {
   return (
@@ -9,7 +16,7 @@ const ImgViewer = ({ img, mess }) => {
   );
 };
 
-const Message = ({ messageData }) => {
+const Message = ({ messageData }: TMessage[]) => {
   const parseTimestamp = (timestamp) => new Date(timestamp);
 
   // Sorting the array based on the timestamp property
@@ -26,7 +33,7 @@ const Message = ({ messageData }) => {
           <Stack
             direction="row"
             justifyContent={`${
-              mess.senderId === myProfile?.id ? "flex-start" : "flex-end"
+              mess.senderId === myRandomProfile?.id ? "flex-start" : "flex-end"
             }`}
             alignItems="center"
             spacing={2}
@@ -34,7 +41,7 @@ const Message = ({ messageData }) => {
           >
             <Stack
               direction={`${
-                mess.senderId === myProfile?.id ? "row" : "row-reverse"
+                mess.senderId === myRandomProfile?.id ? "row" : "row-reverse"
               }`}
               justifyContent="flex-start"
               alignItems="center"
@@ -42,7 +49,7 @@ const Message = ({ messageData }) => {
             >
               <ImgViewer
                 img={`${
-                  mess.senderId === myProfile?.id
+                  mess.senderId === myRandomProfile?.id
                     ? "https://randomuser.me/api/portraits/men/1.jpg"
                     : "https://randomuser.me/api/portraits/men/10.jpg"
                 }`}
@@ -52,7 +59,7 @@ const Message = ({ messageData }) => {
                 key={i}
                 sx={{
                   textAlign: `${
-                    mess.senderId === myProfile?.id ? "left" : "right"
+                    mess.senderId === myRandomProfile?.id ? "left" : "right"
                   }`,
                 }}
                 paragraph
