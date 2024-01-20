@@ -23,6 +23,7 @@ function Copyright(props) {
       color="text.secondary"
       align="center"
       {...props}
+      className="text-5xl"
     >
       {"Copyright © "}
       <Link color="inherit" href="https://mui.com/">
@@ -65,26 +66,26 @@ export default function SignUp() {
       userName,
       name: name ? name : userName,
     };
-    try {
-      const response = await fetch("http://localhost:5000/api/user/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-      const result = await response.json();
-      if (result.success) {
-        showToast(SUCCESS, "Your registration is successfully !");
-        navigate("/chat");
-      } else {
-        showToast(FAILED, result?.errorDetails?.message);
-      }
-      console.log("result", result);
-    } catch (error) {
-      console.log("error", error);
-      showToast(FAILED, "Something is wrong ! ");
-    }
+    // try {
+    //   const response = await fetch("http://localhost:5000/api/user/create", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(userData),
+    //   });
+    //   const result = await response.json();
+    //   if (result.success) {
+    //     showToast(SUCCESS, "Your registration is successfully !");
+    //     navigate("/chat");
+    //   } else {
+    //     showToast(FAILED, result?.errorDetails?.message);
+    //   }
+    //   console.log("result", result);
+    // } catch (error) {
+    //   console.log("error", error);
+    //   showToast(FAILED, "Something is wrong ! ");
+    // }
   };
 
   return (
@@ -102,7 +103,7 @@ export default function SignUp() {
           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h5">
+          <Typography className="text-4xl " component="h1" variant="h5">
             Sign up
           </Typography>
           <Box
