@@ -6,8 +6,6 @@ import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import Homepage from "../components";
 import { demoUser, myProfile } from "../constants/demoUserData";
 import SearchField from "../components/searchField";
