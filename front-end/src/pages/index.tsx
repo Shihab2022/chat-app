@@ -7,13 +7,16 @@ import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Homepage from "../components";
-import { demoUser, myProfile } from "../constants/demoUserData";
+import { myProfile } from "../constants/demoUserData";
 import SearchField from "../components/searchField";
 import { messageData } from "../constants/messageData";
 import Message from "../components/message";
 import Profile from "../components/profile";
 import { showToast } from "../utils/toast";
 import { FAILED, SUCCESS } from "../constants/common";
+import { useGetConversationQuery } from "../redux/features/chat/getConversation";
+import { useAppDispatch } from "../redux/hooks";
+import { setConversation } from "../redux/features/chat/getConversationSlice";
 
 const drawerWidth = 340;
 
@@ -22,39 +25,34 @@ function ResponsiveDrawer(props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [messages, setMessages] = React.useState(messageData);
   const [friends, setFriends] = React.useState(messageData);
-
+  const { data, isSuccess, isError } = useGetConversationQuery(undefined);
+  const dispatch = useAppDispatch();
+  console.log("data", data);
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-  const getUser = async (id) => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/invite/getConversation/${id}`
-      );
-      const result = await response.json();
-      if (result.success) {
-        let data = [];
-        result?.data?.participants?.forEach((d, i) => {
-          data.push({
-            ...d,
-            img: `https://randomuser.me/api/portraits/men/${i + 1}.jpg`,
-            name: d.participant.slice(0, 10),
-            time: `${i + 1}h`,
-          });
-        });
-        setFriends(data);
-        showToast(SUCCESS, result.message);
-      } else {
-        // setMessages(messageData);
-        showToast(FAILED, "Something is wrong ! ");
-      }
-    } catch (error) {
-      showToast(FAILED, "Something is wrong ! ");
-    }
-  };
+
   React.useEffect(() => {
-    getUser(myProfile.id);
-  }, []);
+    if (isSuccess) {
+      const conversation = data?.data?.participants?.map((d, i) => ({
+        ...d,
+        img: `https://randomuser.me/api/portraits/men/${i + 1}.jpg`,
+        name: d.participant.slice(0, 10),
+        time: `${i + 1}h`,
+      }));
+
+      if (conversation.length > 0) {
+        dispatch(setConversation(conversation));
+        setFriends(conversation);
+        showToast(SUCCESS, data.message);
+      }
+    }
+
+    if (isError) {
+      showToast(FAILED, "Something is wrong!");
+    }
+  }, [data, isSuccess, isError]);
+
   const handleClick = async (user) => {
     const messagesId = {
       senderId: myProfile.id,
