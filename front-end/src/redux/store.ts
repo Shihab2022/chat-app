@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { baseApi } from './api/baseApi'
+import conversationSlice from './features/chat/getConversationSlice'
 
 export const store = configureStore({
     reducer: {
         [baseApi.reducerPath]: baseApi.reducer,
+        conversation: conversationSlice
 
     },
     middleware: (getDefaultMiddleware) =>
