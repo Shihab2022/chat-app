@@ -9,14 +9,22 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Link, useNavigate } from "react-router-dom";
 import { showToast } from "../../utils/toast";
-import { FAILED, SUCCESS } from "../../constants/common";
+import { FAILED, REGISTER_SUCCESS, SUCCESS } from "../../constants/common";
 import Loader from "../../components/loader";
 import { useRegisterMutation } from "../../redux/features/auth/authApi";
 
 export default function SignUp() {
   const navigate = useNavigate();
   // Loader(true);
-  const [register] = useRegisterMutation();
+  const [register, { data, isLoading, isSuccess }] = useRegisterMutation();
+
+  if (isLoading) {
+    return <Loader />;
+  }
+  if (isSuccess) {
+    showToast(SUCCESS, REGISTER_SUCCESS);
+    // navigate("/login");
+  }
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -42,26 +50,6 @@ export default function SignUp() {
       name: name ? name : userName,
     };
     register(userData);
-    // try {
-    //   const response = await fetch("http://localhost:5000/api/user/create", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(userData),
-    //   });
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     showToast(SUCCESS, "Your registration is successfully !");
-    //     navigate("/chat");
-    //   } else {
-    //     showToast(FAILED, result?.errorDetails?.message);
-    //   }
-    //   console.log("result", result);
-    // } catch (error) {
-    //   console.log("error", error);
-    //   showToast(FAILED, "Something is wrong ! ");
-    // }
   };
 
   return (

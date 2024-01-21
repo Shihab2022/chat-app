@@ -8,20 +8,30 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { emailRegex, FAILED, SUCCESS } from "../../constants/common";
+import { emailRegex, FORGET_PASSWORD, SUCCESS } from "../../constants/common";
 import { showToast } from "../../utils/toast";
 import { useForgetPasswordMutation } from "../../redux/features/auth/authApi";
+import Loader from "../../components/loader";
+import { useNavigate } from "react-router-dom";
 
 export default function ForgetPassword() {
-  const [forgetPassword] = useForgetPasswordMutation();
-
+  const navigate = useNavigate();
+  const [forgetPassword, { data, isLoading, isSuccess }] =
+    useForgetPasswordMutation();
+  if (isLoading) {
+    return <Loader />;
+  }
+  if (isSuccess) {
+    showToast(SUCCESS, FORGET_PASSWORD);
+    navigate("/login");
+  }
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get("emailOrUserName");
     const password = data.get("password");
     let userData;
-    if (emailRegex.test(email)) {
+    if (emailRegex.test(email as string)) {
       userData = {
         password,
         email,
@@ -34,26 +44,6 @@ export default function ForgetPassword() {
     }
 
     forgetPassword(userData);
-    // try {
-    //   const response = await fetch(
-    //     "http://localhost:5000/api/user/forget-password",
-    //     {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify(userData),
-    //     }
-    //   );
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     showToast(SUCCESS, result.message);
-    //   } else {
-    //     showToast(FAILED, "Something is wrong ! ");
-    //   }
-    // } catch (error) {
-    //   showToast(FAILED, "Something is wrong ! ");
-    // }
   };
 
   return (
