@@ -17,7 +17,14 @@ const conversationApi = baseApi.injectEndpoints({
                 body: userInfo
             })
         }),
+        inviteUser: builder.mutation({
+            query: (userInfo) => ({
+                url: "/invite/send",
+                method: 'POST',
+                body: userInfo
+            })
+        }),
     })
 })
 
-export const { useGetConversationQuery, useGetMessageMutation } = conversationApi
+export const { useGetConversationQuery, useGetMessageMutation, useInviteUserMutation } = conversationApi
