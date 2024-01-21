@@ -14,7 +14,10 @@ import Message from "../components/message";
 import Profile from "../components/profile";
 import { showToast } from "../utils/toast";
 import { FAILED, SUCCESS } from "../constants/common";
-import { useGetConversationQuery } from "../redux/features/chat/getConversation";
+import {
+  useGetConversationQuery,
+  useGetMessageMutation,
+} from "../redux/features/chat/getConversation";
 import { useAppDispatch } from "../redux/hooks";
 import { setConversation } from "../redux/features/chat/getConversationSlice";
 
@@ -25,13 +28,23 @@ function ResponsiveDrawer(props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [messages, setMessages] = React.useState(messageData);
   const [friends, setFriends] = React.useState(messageData);
-  const { data, isSuccess, isError } = useGetConversationQuery(undefined);
+  const { data, isSuccess, isError } = useGetConversationQuery(
+    "659798b8df9f194773891c12"
+  );
+  const [getMessage, { data: message, isSuccess: isMessageSuccess }] =
+    useGetMessageMutation();
   const dispatch = useAppDispatch();
-  console.log("data", data);
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
+  React.useEffect(() => {
+    if (isMessageSuccess) {
+      // setMessages(message.data);
+      showToast(SUCCESS, data.message);
+    }
+  }, [isMessageSuccess, message]);
   React.useEffect(() => {
     if (isSuccess) {
       const conversation = data?.data?.participants?.map((d, i) => ({
@@ -58,29 +71,7 @@ function ResponsiveDrawer(props) {
       senderId: myProfile.id,
       receiverId: user.id,
     };
-
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/message/getMessage",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(messagesId),
-        }
-      );
-      const result = await response.json();
-      if (result.success) {
-        setMessages(result?.data);
-        showToast(SUCCESS, result.message);
-      } else {
-        setMessages(messageData);
-        showToast(FAILED, "Something is wrong ! ");
-      }
-    } catch (error) {
-      showToast(FAILED, "Something is wrong ! ");
-    }
+    getMessage(messagesId);
   };
   const drawer = (
     <div>

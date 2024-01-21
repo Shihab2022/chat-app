@@ -5,12 +5,19 @@ import { baseApi } from "../../api/baseApi"
 const conversationApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getConversation: builder.query({
-            query: () => ({
-                url: "/invite/getConversation/659798b8df9f194773891c12",
+            query: (id) => ({
+                url: `/invite/getConversation/${id}`,
                 method: 'GET',
             })
-        })
+        }),
+        getMessage: builder.mutation({
+            query: (userInfo) => ({
+                url: "/message/getMessage",
+                method: 'POST',
+                body: userInfo
+            })
+        }),
     })
 })
 
-export const { useGetConversationQuery } = conversationApi
+export const { useGetConversationQuery, useGetMessageMutation } = conversationApi
