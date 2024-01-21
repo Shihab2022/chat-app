@@ -12,10 +12,11 @@ import Container from "@mui/material/Container";
 import { Link, useNavigate } from "react-router-dom";
 import { emailRegex, FAILED, SUCCESS } from "../../constants/common";
 import { showToast } from "../../utils/toast";
+import { useLoginMutation } from "../../redux/features/auth/authApi";
 
 export default function SignIn() {
   const navigate = useNavigate();
-
+  const [loginUser] = useLoginMutation();
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -33,25 +34,26 @@ export default function SignIn() {
         userName: email,
       };
     }
-
-    try {
-      const response = await fetch("http://localhost:5000/api/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-      const result = await response.json();
-      if (result.success) {
-        navigate("/chat");
-        showToast(SUCCESS, result.message);
-      } else {
-        showToast(FAILED, "Something is wrong ! ");
-      }
-    } catch (error) {
-      showToast(FAILED, "Something is wrong ! ");
-    }
+    loginUser(userData);
+    // try {
+    //   const response = await fetch("http://localhost:5000/api/user/login", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(userData),
+    //   });
+    //   const result = await response.json();
+    //   console.log("result", result);
+    //   if (result.success) {
+    //     navigate("/chat");
+    //     showToast(SUCCESS, result.message);
+    //   } else {
+    //     showToast(FAILED, "Something is wrong ! ");
+    //   }
+    // } catch (error) {
+    //   showToast(FAILED, "Something is wrong ! ");
+    // }
   };
 
   return (

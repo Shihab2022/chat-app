@@ -11,10 +11,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { showToast } from "../../utils/toast";
 import { FAILED, SUCCESS } from "../../constants/common";
 import Loader from "../../components/loader";
+import { useRegisterMutation } from "../../redux/features/auth/authApi";
 
 export default function SignUp() {
   const navigate = useNavigate();
-  Loader(true);
+  // Loader(true);
+  const [register] = useRegisterMutation();
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -39,6 +41,7 @@ export default function SignUp() {
       userName,
       name: name ? name : userName,
     };
+    register(userData);
     // try {
     //   const response = await fetch("http://localhost:5000/api/user/create", {
     //     method: "POST",

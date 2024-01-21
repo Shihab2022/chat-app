@@ -10,8 +10,11 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { emailRegex, FAILED, SUCCESS } from "../../constants/common";
 import { showToast } from "../../utils/toast";
+import { useForgetPasswordMutation } from "../../redux/features/auth/authApi";
 
 export default function ForgetPassword() {
+  const [forgetPassword] = useForgetPasswordMutation();
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -30,26 +33,27 @@ export default function ForgetPassword() {
       };
     }
 
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/user/forget-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(userData),
-        }
-      );
-      const result = await response.json();
-      if (result.success) {
-        showToast(SUCCESS, result.message);
-      } else {
-        showToast(FAILED, "Something is wrong ! ");
-      }
-    } catch (error) {
-      showToast(FAILED, "Something is wrong ! ");
-    }
+    forgetPassword(userData);
+    // try {
+    //   const response = await fetch(
+    //     "http://localhost:5000/api/user/forget-password",
+    //     {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify(userData),
+    //     }
+    //   );
+    //   const result = await response.json();
+    //   if (result.success) {
+    //     showToast(SUCCESS, result.message);
+    //   } else {
+    //     showToast(FAILED, "Something is wrong ! ");
+    //   }
+    // } catch (error) {
+    //   showToast(FAILED, "Something is wrong ! ");
+    // }
   };
 
   return (
