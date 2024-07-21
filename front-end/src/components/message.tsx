@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Avatar, Stack, Typography } from "@mui/material";
-import { myProfile, myRandomProfile } from "../constants/demoUserData";
+import { myRandomProfile } from "../constants/demoUserData";
 
 export type TMessage = {
   senderId: number;
@@ -8,7 +9,7 @@ export type TMessage = {
   timestamp: string;
 };
 
-const ImgViewer = ({ img, mess }) => {
+const ImgViewer = ({ img }: { img: any }) => {
   return (
     <>
       <Avatar sx={{ width: 24, height: 24 }} src={img} />
@@ -16,19 +17,25 @@ const ImgViewer = ({ img, mess }) => {
   );
 };
 
-const Message = ({ messageData }: TMessage[]) => {
-  const parseTimestamp = (timestamp) => new Date(timestamp);
+const Message = ({ messageData }: { messageData: any }) => {
+  const parseTimestamp = (timestamp: string | number | Date) =>
+    new Date(timestamp);
 
   // Sorting the array based on the timestamp property
-  const sortedData = messageData.sort((a, b) => {
-    const dateA = parseTimestamp(a.timestamp);
-    const dateB = parseTimestamp(b.timestamp);
+  const sortedData = messageData.sort(
+    (
+      a: { timestamp: string | Date | any },
+      b: { timestamp: string | Date | any }
+    ) => {
+      const dateA: Date = parseTimestamp(a.timestamp);
+      const dateB = parseTimestamp(b.timestamp);
 
-    return dateA - dateB;
-  });
+      return dateA - dateB;
+    }
+  );
   return (
     <>
-      {sortedData.map((mess, i) => (
+      {sortedData.map((mess: TMessage, i: number) => (
         <>
           <Stack
             direction="row"
@@ -53,7 +60,6 @@ const Message = ({ messageData }: TMessage[]) => {
                     ? "https://randomuser.me/api/portraits/men/1.jpg"
                     : "https://randomuser.me/api/portraits/men/10.jpg"
                 }`}
-                mess={mess}
               />
               <Typography
                 key={i}

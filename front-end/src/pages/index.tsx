@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
@@ -23,7 +25,7 @@ import { setConversation } from "../redux/features/chat/getConversationSlice";
 
 const drawerWidth = 340;
 
-function ResponsiveDrawer(props) {
+function ResponsiveDrawer(props: { window: any }) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [messages, setMessages] = React.useState(messageData);
@@ -66,7 +68,7 @@ function ResponsiveDrawer(props) {
     }
   }, [data, isSuccess, isError]);
 
-  const handleClick = async (user) => {
+  const handleClick = async (user: { id: any }) => {
     const messagesId = {
       senderId: myProfile.id,
       receiverId: user.id,

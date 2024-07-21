@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -16,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function ForgetPassword() {
   const navigate = useNavigate();
-  const [forgetPassword, { data, isLoading, isSuccess }] =
+  const [forgetPassword, { isLoading, isSuccess }] =
     useForgetPasswordMutation();
   if (isLoading) {
     return <Loader />;
@@ -25,7 +26,10 @@ export default function ForgetPassword() {
     showToast(SUCCESS, FORGET_PASSWORD);
     navigate("/login");
   }
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement | undefined;
+  }) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get("emailOrUserName");

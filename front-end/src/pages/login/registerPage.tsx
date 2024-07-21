@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -7,16 +8,15 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { showToast } from "../../utils/toast";
 import { FAILED, REGISTER_SUCCESS, SUCCESS } from "../../constants/common";
 import Loader from "../../components/loader";
 import { useRegisterMutation } from "../../redux/features/auth/authApi";
 
 export default function SignUp() {
-  const navigate = useNavigate();
   // Loader(true);
-  const [register, { data, isLoading, isSuccess }] = useRegisterMutation();
+  const [register, { isLoading, isSuccess }] = useRegisterMutation();
 
   if (isLoading) {
     return <Loader />;
@@ -25,7 +25,10 @@ export default function SignUp() {
     showToast(SUCCESS, REGISTER_SUCCESS);
     // navigate("/login");
   }
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement | undefined;
+  }) => {
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);

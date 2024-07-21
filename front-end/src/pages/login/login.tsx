@@ -30,7 +30,10 @@ export default function SignIn() {
     dispatch(setUser(data.data));
     navigate("/chat");
   }
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement | undefined;
+  }) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get("emailOrUserName");
