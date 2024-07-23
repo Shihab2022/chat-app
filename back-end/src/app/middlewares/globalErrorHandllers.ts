@@ -22,7 +22,7 @@ const globalErrorHandler = (error: any, req: Request, res: Response, next: NextF
     let errorMessage = 'Something went wrong !'
     let stack = error?.stack
     let name
-    let errorDetails: TErrorSource = [
+    let errorDetails: TErrorSource[] = [
         {
             path: '',
             message: 'Something went wrong'
