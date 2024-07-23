@@ -2,7 +2,7 @@
 import Pool from "pg";
 import config from "../app/config";
 
-const pool = new Pool({
+export const pool = new Pool({
     user: config.pg_info.pg_db_user,
     host: config.pg_info.pg_db_host,
     database: config.pg_info.pg_db_url,
