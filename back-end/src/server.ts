@@ -2,12 +2,13 @@ import mongoose from "mongoose";
 import app from "./app"
 import config from "./app/config"
 import { Server } from "http"
+import { appName } from "./constant";
 async function main() {
     try {
         await mongoose.connect(config.database_url as string);
         const port = config.port
         const server: Server = app.listen(port, () => {
-            console.log(`Chat app server is running on  ${port}`)
+            console.log(`${appName} server is running on  ${port}`)
         })
         const exitHandler = () => {
             if (server) {
