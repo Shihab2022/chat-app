@@ -1,9 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 // import httpStatus from "http-status";
 import { appName } from ".";
-export const testingRoute = (req: Request, res: Response) => {
+import { pgRequest } from "../utils/postgres";
+export const testingRoute = async (req: Request, res: Response) => {
+    const query = 'Select * from users'
+    const responce = await pgRequest(query)
     res.send({
         message: `Hi Guys, Welcome to ${appName} Server !`,
+        responce
     });
 };
 

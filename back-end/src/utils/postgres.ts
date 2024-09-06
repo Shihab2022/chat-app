@@ -13,7 +13,7 @@ export const pool = new Pool({
 export const pgRequest = async (query: any) => {
     const response = await pool
         .query(query)
-        .then((res: any) => ({ data: res?.rows[0], err: null, success: true }))
+        .then((res: any) => ({ data: res?.rows, err: null, success: true }))
         // .then((res: any) => ({ data: res, err: null }))
         .catch((e: any) => {
             return { error: e, success: false };
