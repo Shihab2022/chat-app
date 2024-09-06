@@ -1,13 +1,12 @@
 
-import Pool from "pg";
+import { Pool } from "pg";
 import config from "../app/config";
-
 export const pool = new Pool({
     user: config.pg_info.pg_db_user,
     host: config.pg_info.pg_db_host,
     database: config.pg_info.pg_db_url,
     password: config.pg_info.pg_db_pass,
-    port: config.pg_info.pg_db_port,
+    port: config.pg_info.pg_db_port as unknown as number,
 });
 
 
