@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -7,15 +8,27 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { showToast } from "../../utils/toast";
-import { FAILED, SUCCESS } from "../../constants/common";
+import { FAILED, REGISTER_SUCCESS, SUCCESS } from "../../constants/common";
 import Loader from "../../components/loader";
+import { useRegisterMutation } from "../../redux/features/auth/authApi";
 
 export default function SignUp() {
-  const navigate = useNavigate();
-  Loader(true);
-  const handleSubmit = async (event) => {
+  // Loader(true);
+  const [register, { isLoading, isSuccess }] = useRegisterMutation();
+
+  if (isLoading) {
+    return <Loader />;
+  }
+  if (isSuccess) {
+    showToast(SUCCESS, REGISTER_SUCCESS);
+    // navigate("/login");
+  }
+  const handleSubmit = async (event: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement | undefined;
+  }) => {
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
@@ -39,26 +52,7 @@ export default function SignUp() {
       userName,
       name: name ? name : userName,
     };
-    // try {
-    //   const response = await fetch("http://localhost:5000/api/user/create", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(userData),
-    //   });
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     showToast(SUCCESS, "Your registration is successfully !");
-    //     navigate("/chat");
-    //   } else {
-    //     showToast(FAILED, result?.errorDetails?.message);
-    //   }
-    //   console.log("result", result);
-    // } catch (error) {
-    //   console.log("error", error);
-    //   showToast(FAILED, "Something is wrong ! ");
-    // }
+    register(userData);
   };
 
   return (

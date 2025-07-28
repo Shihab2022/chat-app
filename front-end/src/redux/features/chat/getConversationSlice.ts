@@ -15,9 +15,7 @@ const conversationSlice = createSlice({
     initialState,
     reducers: {
         setConversation: (state, action) => {
-            console.log('payload', action.payload)
             state.push(action.payload)
-            console.log(state)
         }
     }
 

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -5,9 +7,9 @@ import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
-export default function Profile({ onClick, user }) {
+export default function Profile({ user }: { user: any }) {
   const navigate = useNavigate();
-  const { name, lastMessage, img, time } = user;
+  const { name, lastMessage, img } = user;
   return (
     <Card
       sx={{

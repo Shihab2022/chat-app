@@ -1,10 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 
-export default function Homepage({ onClick, user }) {
+export default function Homepage({
+  onClick,
+  user,
+}: {
+  onClick: any;
+  user: any;
+}) {
   const { name, lastMessage, img, time } = user;
   return (
     <Card

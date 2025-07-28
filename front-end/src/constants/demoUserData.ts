@@ -91,6 +91,14 @@ export const myProfile = {
   lastMessage: "Hello there!",
   time: "2h",
   img: "https://randomuser.me/api/portraits/men/21.jpg",
-  // id: "65979a29bb6f04bd494e6bbb",
+  // id: 1,
   id: "659798b8df9f194773891c12",
+};
+export const myRandomProfile = {
+  name: "Alice",
+  lastMessage: "Hello there!",
+  time: "2h",
+  img: "https://randomuser.me/api/portraits/men/21.jpg",
+  id: 1,
+  // id: "659798b8df9f194773891c12",
 };

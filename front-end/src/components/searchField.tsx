@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import Paper from "@mui/material/Paper";
 import InputBase from "@mui/material/InputBase";
@@ -30,12 +31,14 @@ export default function SearchField() {
       }
       const result = await response.json();
       if (result.success) {
-        setMessage("");
+        setMessage(null);
         showToast(SUCCESS, result.message);
       } else {
         showToast(FAILED, "Something is wrong ! ");
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log({ error });
+    }
   };
 
   return (
@@ -52,7 +55,7 @@ export default function SearchField() {
         <AddIcon />
       </IconButton>
       <InputBase
-        onChange={(e) => setMessage(e.target.value)}
+        onChange={(e: any) => setMessage(e.target.value)}
         value={message}
         sx={{ ml: 1, flex: 1 }}
         placeholder="Ab"

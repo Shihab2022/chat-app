@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { baseApi } from './api/baseApi'
 import conversationSlice from './features/chat/getConversationSlice'
+import authSlice from './features/auth/authSlice'
 
 export const store = configureStore({
     reducer: {
         [baseApi.reducerPath]: baseApi.reducer,
-        conversation: conversationSlice
+        conversation: conversationSlice,
+        auth: authSlice
 
     },
     middleware: (getDefaultMiddleware) =>

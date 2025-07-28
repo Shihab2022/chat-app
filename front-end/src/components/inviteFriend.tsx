@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -7,17 +8,19 @@ import Diversity3Icon from "@mui/icons-material/Diversity3";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { showToast } from "../utils/toast";
-import { FAILED, SUCCESS } from "../constants/common";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useInviteUserMutation } from "../redux/features/chat/getConversation";
 
 const defaultTheme = createTheme();
 
 export default function InviteUser() {
+  const [inviteUser] = useInviteUserMutation();
   const location = useLocation();
-  const navigate = useNavigate();
   const admin = location?.state?.user;
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement | undefined;
+  }) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
@@ -31,24 +34,25 @@ export default function InviteUser() {
         timestamp: new Date(),
       },
     };
-    try {
-      const response = await fetch("http://localhost:5000/api/invite/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-      const result = await response.json();
-      if (result.success) {
-        showToast(SUCCESS, result.message);
-        navigate("/chat");
-      } else {
-        showToast(FAILED, "Something is wrong ! ");
-      }
-    } catch (error) {
-      showToast(FAILED, "Something is wrong ! ");
-    }
+    inviteUser(userData);
+    // try {
+    //   const response = await fetch("http://localhost:5000/api/invite/send", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(userData),
+    //   });
+    //   const result = await response.json();
+    //   if (result.success) {
+    //     showToast(SUCCESS, result.message);
+    //     navigate("/chat");
+    //   } else {
+    //     showToast(FAILED, "Something is wrong ! ");
+    //   }
+    // } catch (error) {
+    //   showToast(FAILED, "Something is wrong ! ");
+    // }
   };
 
   return (

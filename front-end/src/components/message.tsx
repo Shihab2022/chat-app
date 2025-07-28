@@ -1,7 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Avatar, Stack, Typography } from "@mui/material";
-import { myProfile } from "../constants/demoUserData";
+import { myRandomProfile } from "../constants/demoUserData";
 
-const ImgViewer = ({ img, mess }) => {
+export type TMessage = {
+  senderId: number;
+  receiverId: number;
+  content: string;
+  timestamp: string;
+};
+
+const ImgViewer = ({ img }: { img: any }) => {
   return (
     <>
       <Avatar sx={{ width: 24, height: 24 }} src={img} />
@@ -9,24 +17,30 @@ const ImgViewer = ({ img, mess }) => {
   );
 };
 
-const Message = ({ messageData }) => {
-  const parseTimestamp = (timestamp) => new Date(timestamp);
+const Message = ({ messageData }: { messageData: any }) => {
+  const parseTimestamp = (timestamp: string | number | Date) =>
+    new Date(timestamp);
 
   // Sorting the array based on the timestamp property
-  const sortedData = messageData.sort((a, b) => {
-    const dateA = parseTimestamp(a.timestamp);
-    const dateB = parseTimestamp(b.timestamp);
+  const sortedData = messageData.sort(
+    (
+      a: { timestamp: string | Date | any },
+      b: { timestamp: string | Date | any }
+    ) => {
+      const dateA: Date = parseTimestamp(a.timestamp);
+      const dateB = parseTimestamp(b.timestamp);
 
-    return dateA - dateB;
-  });
+      return dateA - dateB;
+    }
+  );
   return (
     <>
-      {sortedData.map((mess, i) => (
+      {sortedData.map((mess: TMessage, i: number) => (
         <>
           <Stack
             direction="row"
             justifyContent={`${
-              mess.senderId === myProfile?.id ? "flex-start" : "flex-end"
+              mess.senderId === myRandomProfile?.id ? "flex-start" : "flex-end"
             }`}
             alignItems="center"
             spacing={2}
@@ -34,7 +48,7 @@ const Message = ({ messageData }) => {
           >
             <Stack
               direction={`${
-                mess.senderId === myProfile?.id ? "row" : "row-reverse"
+                mess.senderId === myRandomProfile?.id ? "row" : "row-reverse"
               }`}
               justifyContent="flex-start"
               alignItems="center"
@@ -42,17 +56,16 @@ const Message = ({ messageData }) => {
             >
               <ImgViewer
                 img={`${
-                  mess.senderId === myProfile?.id
+                  mess.senderId === myRandomProfile?.id
                     ? "https://randomuser.me/api/portraits/men/1.jpg"
                     : "https://randomuser.me/api/portraits/men/10.jpg"
                 }`}
-                mess={mess}
               />
               <Typography
                 key={i}
                 sx={{
                   textAlign: `${
-                    mess.senderId === myProfile?.id ? "left" : "right"
+                    mess.senderId === myRandomProfile?.id ? "left" : "right"
                   }`,
                 }}
                 paragraph

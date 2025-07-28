@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
 import { FAILED, INFO, SUCCESS, WARNING } from "../constants/common";
 
-export function showToast(type, message) {
+export function showToast(type: string, message: string) {
   let parsedMessage = "";
   if (typeof message === "string") {
     parsedMessage = message;
