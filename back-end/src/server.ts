@@ -1,41 +1,38 @@
-import mongoose from "mongoose";
-import app from "./app"
-import config from "./app/config"
-import { Server } from "http"
-import { appName } from "./constant";
-import { runPgMigrations } from "./utils/runPgMIigrations";
-import { pool } from "./utils/postgres";
-async function main() {
-    try {
-        // await mongoose.connect(config.database_url as string);
-        //!---->This function is only call when we need to create and run new migration ...<----!//
-        // await runPgMigrations()
-        const client = await pool.connect();
-        await client.release();
-        const port = config.port
-        const server: Server = app.listen(port, () => {
-            console.log(`${appName} server is running on  ${port}`)
-        })
-        const exitHandler = () => {
-            if (server) {
-                server.close(() => {
-                    console.info("Server closed!")
-                })
-            }
-            process.exit(1);
-        };
-        process.on('uncaughtException', (error) => {
-            console.log(error);
-            exitHandler();
-        });
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
+import mongoose from 'mongoose';
+import config from './app/config';
+import app from './app';
+import { Server } from 'http';
 
-        process.on('unhandledRejection', (error) => {
-            console.log(error);
-            exitHandler();
-        })
-    } catch (error) {
-        console.log({ error });
-    }
+let server: Server;
+
+async function main() {
+  try {
+    await mongoose.connect(config.database_url as string);
+    console.log('database is connect ');
+    server = app.listen(config.port, () => {
+      console.log(`App listening on port ${config.port}`);
+    });
+  } catch (error) {
+    console.log('error', error);
+  }
 }
 
 main();
+
+process.on('unhandledRejection', () => {
+  console.log('unhandledRejection is detected  , shutting down ..........');
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  }
+  process.exit(1);
+});
+
+process.on('uncaughtException', () => {
+  console.log(' uncaughtException is detected  , shutting down ..........');
+
+  process.exit(1);
+});
