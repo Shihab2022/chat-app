@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { TUser } from './user.interface';
 import config from '../../config';
 import bcrypt from 'bcrypt';
+import { passwordMinLength, userStatus } from '../../../constant';
 
 const UserSchema = new mongoose.Schema<TUser>(
   {
@@ -20,11 +21,11 @@ const UserSchema = new mongoose.Schema<TUser>(
     password: {
       type: String,
       required: [true, 'Password is required'],
-      minlength: 4,
+      minlength: passwordMinLength,
     },
     status: {
       type: String,
-      default: 'active',
+      default: userStatus?.ACTIVE,
     },
   },
   { timestamps: true },
