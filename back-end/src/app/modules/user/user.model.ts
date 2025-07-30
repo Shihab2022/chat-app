@@ -1,46 +1,42 @@
-import mongoose from "mongoose";
-import { TUser } from "./user.interface";
-import config from "../../config";
-import bcrypt from "bcrypt"
+import mongoose from 'mongoose';
+import { TUser } from './user.interface';
+import config from '../../config';
+import bcrypt from 'bcrypt';
 
-
-const UserSchema = new mongoose.Schema<TUser>({
-    userName: {
-        type: String,
-        required: [true, "User name is required and unique"],
-        unique: true
-    },
+const UserSchema = new mongoose.Schema<TUser>(
+  {
     name: {
-        type: String,
-
-    }
-    ,
+      type: String,
+    },
     img: {
-        type: String,
+      type: String,
+      default: '',
     },
     email: {
-        type: String,
-        required: [true, "Email is required and unique"],
-        unique: true
+      type: String,
+      required: [true, 'Email is required and unique'],
+      unique: true,
     },
     password: {
-        type: String,
-        required: [true, "Password is required"]
+      type: String,
+      required: [true, 'Password is required'],
+      minlength: 4,
     },
     status: {
-        type: String
-    }
-
-})
+      type: String,
+      default: 'active',
+    },
+  },
+  { timestamps: true },
+);
 UserSchema.pre('save', async function (next) {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const user = this
-    user.password = await bcrypt.hash(
-        user.password,
-        Number(config.bcrypt_salt_rounds)
-    )
-    next()
-
-})
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const user = this;
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_rounds),
+  );
+  next();
+});
 
 export const User = mongoose.model('User', UserSchema);
