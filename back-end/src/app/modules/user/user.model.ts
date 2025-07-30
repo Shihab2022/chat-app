@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { TUser } from './user.interface';
 import config from '../../config';
 import bcrypt from 'bcrypt';
-import { passwordMinLength, userStatus } from '../../../constant';
+import { passwordMinLength, userRole, userStatus } from '../../../constant';
 
 const UserSchema = new mongoose.Schema<TUser>(
   {
@@ -26,6 +26,10 @@ const UserSchema = new mongoose.Schema<TUser>(
     status: {
       type: String,
       default: userStatus?.ACTIVE,
+    },
+    role: {
+      type: String,
+      default: userRole?.USER,
     },
   },
   { timestamps: true },

@@ -9,3 +9,9 @@ export const userStatus = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
 };
+
+export const userRole = {
+  ADMIN: 'admin',
+  USER: 'user',
+  SUPER_ADMIN: 'super-admin',
+};

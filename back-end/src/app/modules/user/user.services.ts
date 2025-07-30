@@ -1,4 +1,5 @@
 import { passwordMinLength, userStatus } from '../../../constant';
+import { createToken } from '../../../utils/auth';
 import config from '../../config';
 import AppError from '../../error/appError';
 import { TUser } from './user.interface';
@@ -19,7 +20,7 @@ const createUserIntoDB = async (payload: TUser) => {
   }
   const user = await User.findOne({ email });
 
-  if (user) {
+  if (!!user) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
   }
   const usersInfo = {
@@ -32,11 +33,14 @@ const createUserIntoDB = async (payload: TUser) => {
   return result;
 };
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
-  const { userName, email } = payload;
+  const { email } = payload;
 
-  const user = await User.findOne({ $or: [{ userName }, { email }] });
+  const user = await User.findOne({ email });
   if (!user) {
-    throw new AppError(404, 'User is not found !');
+    throw new AppError(httpStatus.NOT_FOUND, 'User is not found !');
+  }
+  if (user?.status === userStatus?.INACTIVE) {
+    throw new AppError(httpStatus.LOCKED, 'User is in active !');
   }
   const isPassMatch = await bcrypt.compare(
     payload?.password as string,
@@ -47,8 +51,20 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   }
   const objData: Partial<TUser> = user.toObject();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { _id, name, role } = user;
+  const jwtPayload = {
+    userId: _id,
+    name,
+    role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expire_in as string,
+  );
   const { password, ...newData } = objData;
-  return newData;
+  return { data: newData, accessToken };
 };
 const forgetPassword = async (payload: Partial<TUser>) => {
   const { userName, email } = payload;
