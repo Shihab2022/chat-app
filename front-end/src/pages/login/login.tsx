@@ -16,6 +16,7 @@ import { useLoginMutation } from "../../redux/features/auth/authApi";
 import Loader from "../../components/loader";
 import { useAppDispatch } from "../../redux/hooks";
 import { setUser } from "../../redux/features/auth/authSlice";
+import { setToken } from "../../utils/auth";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -35,22 +36,34 @@ export default function SignIn() {
     currentTarget: HTMLFormElement | undefined;
   }) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const email = data.get("emailOrUserName");
-    const password = data.get("password");
-    let userData;
-    if (emailRegex.test(email)) {
-      userData = {
-        password,
-        email,
-      };
-    } else {
-      userData = {
-        password,
-        userName: email,
-      };
+    try {
+      const data = new FormData(event.currentTarget);
+      const email = data.get("emailOrUserName");
+      const password = data.get("password");
+      let userData;
+      if (emailRegex.test(email)) {
+        userData = {
+          password,
+          email,
+        };
+      } else {
+        userData = {
+          password,
+          userName: email,
+        };
+      }
+      const res = await loginUser(userData);
+      if (res?.data?.success) {
+        const accessToken = res?.data?.data?.accessToken;
+        const userData = res?.data?.data?.data;
+        setToken(accessToken);
+        console.log({ userData });
+      }
+
+      console.log({ res });
+    } catch (error) {
+      console.log({ error });
     }
-    loginUser(userData);
   };
 
   return (
