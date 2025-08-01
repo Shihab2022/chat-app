@@ -43,9 +43,6 @@ export default function SignUp() {
     if (!password) {
       showToast(FAILED, "Password is required ");
     }
-    if (!userName) {
-      showToast(FAILED, "User name is required ");
-    }
     const userData = {
       email,
       password,
