@@ -8,14 +8,19 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { showToast } from "../../utils/toast";
-import { FAILED, REGISTER_SUCCESS, SUCCESS } from "../../constants/common";
+import {
+  COMMON_ERROR_MESSAGE,
+  FAILED,
+  REGISTER_SUCCESS,
+  SUCCESS,
+} from "../../constants/common";
 import Loader from "../../components/loader";
 import { useRegisterMutation } from "../../redux/features/auth/authApi";
 
 export default function SignUp() {
-  // Loader(true);
+  const navigate = useNavigate();
   const [register, { isLoading, isSuccess }] = useRegisterMutation();
 
   if (isLoading) {
@@ -29,27 +34,36 @@ export default function SignUp() {
     preventDefault: () => void;
     currentTarget: HTMLFormElement | undefined;
   }) => {
-    event.preventDefault();
+    try {
+      event.preventDefault();
 
-    const data = new FormData(event.currentTarget);
-    const email = data.get("email");
-    const password = data.get("password");
-    const userName = data.get("userName");
-    const name = data.get("name");
+      const data = new FormData(event.currentTarget);
+      const email = data.get("email");
+      const password = data.get("password");
+      const userName = data.get("userName");
+      const name = data.get("name");
 
-    if (!email) {
-      showToast(FAILED, "Email is required ");
+      if (!email) {
+        showToast(FAILED, "Email is required ");
+      }
+      if (!password) {
+        showToast(FAILED, "Password is required ");
+      }
+      const userData = {
+        email,
+        password,
+        userName,
+        name: name ? name : userName,
+      };
+      const res = await register(userData);
+      if (res?.data?.success) {
+        navigate("/login");
+      }
+      console.log(res);
+    } catch (error) {
+      showToast(FAILED, COMMON_ERROR_MESSAGE);
+      console.log({ error });
     }
-    if (!password) {
-      showToast(FAILED, "Password is required ");
-    }
-    const userData = {
-      email,
-      password,
-      userName,
-      name: name ? name : userName,
-    };
-    register(userData);
   };
 
   return (
@@ -84,7 +98,7 @@ export default function SignUp() {
                   required
                   fullWidth
                   id="userName"
-                  label="User Name"
+                  label="First Name"
                   // autoFocus
                 />
               </Grid>
@@ -93,7 +107,7 @@ export default function SignUp() {
                   // required
                   fullWidth
                   id="name"
-                  label=" Name"
+                  label="Last Name"
                   name="name"
                   // autoComplete="family-name"
                 />

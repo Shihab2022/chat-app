@@ -5,6 +5,7 @@ export const INFO = "info";
 export const FORGET_PASSWORD = "Your password is updated";
 export const LOGIN_SUCCESS = "Your login successfully";
 export const REGISTER_SUCCESS = "Your register successfully";
+export const COMMON_ERROR_MESSAGE = "Something went wrong !";
 
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
