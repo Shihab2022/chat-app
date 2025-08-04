@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import sendResponse from "../../../utils/sentResponce";
 import httpStatus from 'http-Status'
 import { UserServices } from "./user.services";
+import { setTokenOnCookie } from "../../../utils/auth";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -22,7 +23,8 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const result = await UserServices.LoginUserIntoDB(req.body)
-
+        const token = result?.accessToken
+        setTokenOnCookie(token, res)
         sendResponse(res, {
             statusCode: httpStatus.OK,
             success: true,
