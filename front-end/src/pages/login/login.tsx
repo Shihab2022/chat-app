@@ -1,131 +1,160 @@
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Link, useNavigate } from "react-router-dom";
-import { emailRegex, LOGIN_SUCCESS, SUCCESS } from "../../constants/common";
+import { LOGIN_SUCCESS, SUCCESS } from "../../constants/common";
 import { showToast } from "../../utils/toast";
 import { useLoginMutation } from "../../redux/features/auth/authApi";
 import Loader from "../../components/loader";
 import { useAppDispatch } from "../../redux/hooks";
 import { setUser } from "../../redux/features/auth/authSlice";
 import { setToken } from "../../utils/auth";
-
+import { useForm, SubmitHandler } from "react-hook-form";
+import { useState } from "react";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  InputAdornment,
+  TextField,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+interface SignInFormInputs {
+  email: string;
+  password: string;
+}
 export default function SignIn() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [loginUser, { data, isLoading, isSuccess }] = useLoginMutation();
+  const [showPassword, setShowPassword] = useState(false);
 
-  if (isLoading) {
-    return <Loader />;
-  }
-  if (isSuccess) {
-    showToast(SUCCESS, LOGIN_SUCCESS);
-    dispatch(setUser(data.data));
-    navigate("/chat");
-  }
-  const handleSubmit = async (event: {
-    preventDefault: () => void;
-    currentTarget: HTMLFormElement | undefined;
-  }) => {
-    event.preventDefault();
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+  const [loginUser, { isLoading }] = useLoginMutation();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInFormInputs>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  const onSubmit: SubmitHandler<SignInFormInputs> = async (data) => {
     try {
-      const data = new FormData(event.currentTarget);
-      const email = data.get("emailOrUserName");
-      const password = data.get("password");
-      let userData;
-      if (emailRegex.test(email)) {
-        userData = {
-          password,
-          email,
-        };
-      } else {
-        userData = {
-          password,
-          userName: email,
-        };
-      }
-      const res = await loginUser(userData);
+      const res = await loginUser(data);
       if (res?.data?.success) {
         const accessToken = res?.data?.data?.accessToken;
         const userData = res?.data?.data?.data;
         setToken(accessToken);
-        console.log({ userData });
+        showToast(SUCCESS, LOGIN_SUCCESS);
+        dispatch(setUser(userData));
+        navigate("/chat");
       }
-
-      console.log({ res });
     } catch (error) {
       console.log({ error });
     }
   };
-
   return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email Address Or User Name"
-            name="emailOrUserName"
-            // autoComplete="email"
-            // autoFocus
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            // autoComplete="current-password"
-          />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+    <>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+          <Box
+            component="form"
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            sx={{ mt: 1 }}
           >
-            Sign In
-          </Button>
-          <Grid container>
-            <Grid item xs>
-              <Link to="/forgetPassword">Forgot password?</Link>
+            <TextField
+              margin="normal"
+              fullWidth
+              label="Email Address"
+              id="email"
+              {...register("email", {
+                required: "Email  is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Invalid email format",
+                },
+              })}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
+
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Password"
+              id="password"
+              type={showPassword ? "text" : "password"}
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+              })}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleTogglePassword} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign In
+            </Button>
+
+            <Grid container>
+              <Grid item xs>
+                <Link to="/forgetPassword">Forgot password?</Link>
+              </Grid>
+              <Grid item>
+                <Link to="/signUp">{"Don't have an account? Sign Up"}</Link>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Link to="/signUp">{"Don't have an account? Sign Up"}</Link>
-            </Grid>
-          </Grid>
+          </Box>
         </Box>
-      </Box>
-    </Container>
+      </Container>
+
+      {isLoading && <Loader />}
+    </>
   );
 }

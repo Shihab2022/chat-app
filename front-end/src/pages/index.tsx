@@ -81,7 +81,7 @@ function ResponsiveDrawer(props: { window: any }) {
 
       <List>
         <ListItem disablePadding>
-          <Profile user={myProfile} onClick={handleClick} />
+          <Profile user={myProfile} />
         </ListItem>
       </List>
       <Divider />
