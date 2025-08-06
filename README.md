@@ -1,4 +1,3 @@
-
 ## Hey Guys , Welcome to chat app .
 
 ### This is real time chat app. You can chat each of another . There have some step to start chart to other person .
@@ -10,11 +9,13 @@
 # He/She gets a gmail , then he login by this gmail .
 
 # Then you and he/she can chat each on other .
+
 # Chat App
 
 Welcome to the Chat App project! This application is designed to provide users with a seamless and real-time messaging experience similar to popular messaging apps like Messenger.
 
 ## Table of Contents
+
 - [Features](#features)
 - [Technologies](#technologies)
 - [Setup](#setup)
@@ -24,6 +25,7 @@ Welcome to the Chat App project! This application is designed to provide users w
 - [Contact](#contact)
 
 ## Features
+
 - **Real-Time Messaging**: Instant messaging with real-time updates.
 - **User Authentication**: Secure login and registration using JWT.
 - **One-on-One Chats**: Private messaging between users.
@@ -36,6 +38,7 @@ Welcome to the Chat App project! This application is designed to provide users w
 - **Emoji Support**: Send and receive emojis in messages.
 
 ## Technologies
+
 - **Frontend**: React, HTML, CSS, JavaScript
 - **Backend**: Node.js, Express
 - **Database**: MongoDB
@@ -43,14 +46,23 @@ Welcome to the Chat App project! This application is designed to provide users w
 - **Authentication**: JWT
 
 ## Setup
+
 To get a local copy up and running, follow these simple steps.
 
 ### Prerequisites
+
 - Node.js
 - npm or yarn
 - MongoDB
 
 ### Installation
+
 1. Clone the repository
    ```sh
    git clone https://github.com/your-username/chat-app.git
+   ```
+
+### For get impression from this github and you tube chanel
+
+`https://github.com/burakorkmez/fullstack-chat-app `
+`https://youtu.be/ntKkVrQqBYY?si=OUmNm1jL7eiSsnzM `
