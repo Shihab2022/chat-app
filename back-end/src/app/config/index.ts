@@ -20,4 +20,8 @@ export default {
     pg_db_pass: process.env.PG_DB_PASSWORD,
     pg_db_port: process.env.PG_DB_PORT,
   },
+  cloudinary: {
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  },
 };
