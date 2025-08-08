@@ -1,20 +1,22 @@
-import express, { json } from "express"
-import cors from "cors"
+import express, { json } from 'express';
+import cors from 'cors';
 // import cookieParser from 'cookie-parser'
-import { rootRouter } from "./app/routes"
-import globalErrorHandler from "./app/middlewares/globalErrorHandllers"
-import { notFound, testingRoute } from "./constant/route"
-import { corsAllowOrigin } from "./constant"
-const app = express()
+import { rootRouter } from './app/routes';
+import globalErrorHandler from './app/middlewares/globalErrorHandllers';
+import { notFound, testingRoute } from './constant/route';
+import { corsAllowOrigin } from './constant';
+import { app, server } from './utils/socket';
+import config from './app/config';
 
-
-app.use(json())
-app.use(cors(corsAllowOrigin))
+app.use(json());
+app.use(cors(corsAllowOrigin));
 // app.use(cookieParser())
-app.get('/', testingRoute)
-app.use('/api', rootRouter)
-app.use(globalErrorHandler)
-app.use(notFound)
+app.get('/', testingRoute);
+app.use('/api', rootRouter);
+app.use(globalErrorHandler);
+app.use(notFound);
 
-
-export default app
+server.listen(config.port, () => {
+  console.log(`App listening on port ${config.port}`);
+});
+// export default app;
