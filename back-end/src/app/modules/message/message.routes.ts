@@ -1,10 +1,8 @@
-import { Router } from "express";
-import { MessageController } from "./message.controller";
-const router = Router()
+import { Router } from 'express';
+import { MessageController } from './message.controller';
+const router = Router();
+router.get('/users', MessageController.getUsersForSidebar);
+router.post('/send', MessageController.createMessage);
+router.get('/:id', MessageController.getMessage);
 
-
-router.post('/send', MessageController.createMessage)
-router.post('/getMessage', MessageController.getMessage)
-
-
-export const MessageRoutes = router
+export const MessageRoutes = router;
