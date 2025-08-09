@@ -7,6 +7,7 @@ import { notFound, testingRoute } from './constant/route';
 import { corsAllowOrigin } from './constant';
 import { app, server } from './utils/socket';
 import config from './app/config';
+import { connectDB } from './utils/db';
 
 app.use(json());
 app.use(cors(corsAllowOrigin));
@@ -18,5 +19,6 @@ app.use(notFound);
 
 server.listen(config.port, () => {
   console.log(`App listening on port ${config.port}`);
+  connectDB();
 });
 // export default app;
