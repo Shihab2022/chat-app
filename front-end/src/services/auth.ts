@@ -1,4 +1,5 @@
 import { httpMethod } from "../constants/common";
+import { connectSocket } from "../utils/socketService";
 import { apiHandler } from "./instances";
 
 export const loginUserApi = async (params: any) => {
@@ -9,6 +10,10 @@ export const loginUserApi = async (params: any) => {
     formData: false,
     params: params,
   });
+  const userId = res?.data?.data?._id;
+  if (userId) {
+    connectSocket(userId); // ✅ Connect after login success
+  }
   return res;
 };
 

@@ -3,7 +3,7 @@ import { COMMON_ERROR_MESSAGE } from "../constants/common";
 import { getToken } from "../utils/auth";
 import { instanceParams } from "../types";
 
-export const apiHandler = ({
+export const apiHandler: any = ({
   baseURL = import.meta.env.VITE_BASE_API_URL,
   params,
   path,
@@ -56,7 +56,7 @@ export const apiHandler = ({
   };
   return axios(options)
     .then((res) => ({
-      data: res.data,
+      data: res?.data?.data,
       success: res?.data?.success === false ? false : true,
       error: res?.data?.error,
       params,

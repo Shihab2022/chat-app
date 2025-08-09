@@ -1,20 +1,21 @@
-import { configureStore } from '@reduxjs/toolkit'
-import { baseApi } from './api/baseApi'
-import conversationSlice from './features/chat/getConversationSlice'
-import authSlice from './features/auth/authSlice'
+import { configureStore } from "@reduxjs/toolkit";
+// import { baseApi } from './api/baseApi'
+import conversationSlice from "./features/chat/getConversationSlice";
+import authSlice from "./features/auth/authSlice";
+import activitiesSlice from "./features/userActivities";
 
 export const store = configureStore({
-    reducer: {
-        [baseApi.reducerPath]: baseApi.reducer,
-        conversation: conversationSlice,
-        auth: authSlice
-
-    },
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(baseApi.middleware),
-})
+  reducer: {
+    // [baseApi.reducerPath]: baseApi.reducer,
+    conversation: conversationSlice,
+    auth: authSlice,
+    activities: activitiesSlice,
+  },
+  // middleware: (getDefaultMiddleware) =>
+  //     getDefaultMiddleware().concat(baseApi.middleware),
+});
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>
+export type RootState = ReturnType<typeof store.getState>;
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
-export type AppDispatch = typeof store.dispatch
+export type AppDispatch = typeof store.dispatch;
