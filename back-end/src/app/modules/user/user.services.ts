@@ -34,7 +34,6 @@ const createUserIntoDB = async (payload: TUser) => {
 };
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const { email } = payload;
-
   const user = await User.findOne({ email });
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'User is not found !');

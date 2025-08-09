@@ -52,9 +52,7 @@ export const apiHandler = ({
     },
     method: axiosMethod,
     url: parsedPath,
-    ...(axiosMethod === "get"
-      ? params && { params: {} }
-      : { data: formData ? params : JSON.stringify(params) }),
+    data: formData ? params : JSON.stringify(params),
   };
   return axios(options)
     .then((res) => ({
