@@ -11,43 +11,46 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { emailRegex, FORGET_PASSWORD, SUCCESS } from "../../constants/common";
 import { showToast } from "../../utils/toast";
-import { useForgetPasswordMutation } from "../../redux/features/auth/authApi";
 import Loader from "../../components/loader";
 import { useNavigate } from "react-router-dom";
+import { forgotPasswordApi } from "../../services/auth";
+import { useState } from "react";
 
 export default function ForgetPassword() {
   const navigate = useNavigate();
-  const [forgetPassword, { isLoading, isSuccess }] =
-    useForgetPasswordMutation();
-  if (isLoading) {
-    return <Loader />;
-  }
-  if (isSuccess) {
-    showToast(SUCCESS, FORGET_PASSWORD);
-    navigate("/login");
-  }
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = async (event: {
     preventDefault: () => void;
     currentTarget: HTMLFormElement | undefined;
   }) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const email = data.get("emailOrUserName");
-    const password = data.get("password");
-    let userData;
-    if (emailRegex.test(email as string)) {
-      userData = {
-        password,
-        email,
-      };
-    } else {
-      userData = {
-        password,
-        userName: email,
-      };
-    }
+    try {
+      setIsLoading(true);
+      const data = new FormData(event.currentTarget);
+      const email = data.get("emailOrUserName");
+      const password = data.get("password");
+      let userData;
+      if (emailRegex.test(email as string)) {
+        userData = {
+          password,
+          email,
+        };
+      } else {
+        userData = {
+          password,
+          userName: email,
+        };
+      }
 
-    forgetPassword(userData);
+      await forgotPasswordApi(userData);
+      showToast(SUCCESS, FORGET_PASSWORD);
+      navigate("/login");
+    } catch (error) {
+      console.log({ error });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -109,6 +112,8 @@ export default function ForgetPassword() {
           </Box>
         </Box>
       </Container>
+
+      {isLoading && <Loader />}
     </>
   );
 }

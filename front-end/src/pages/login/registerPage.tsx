@@ -14,7 +14,6 @@ import {
   SUCCESS,
 } from "../../constants/common";
 import Loader from "../../components/loader";
-import { useRegisterMutation } from "../../redux/features/auth/authApi";
 import {
   Box,
   Button,
@@ -37,7 +36,6 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
   const [isLoading, setIsLoading] = useState(false);
-  // const [registerUser, { isLoading }] = useRegisterMutation();
   const {
     register,
     handleSubmit,
