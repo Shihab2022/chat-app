@@ -18,11 +18,12 @@ export function getReceiverSocketId(userId: string) {
 
 // used to store online users
 // {userId: socketId}
-
+// console.log({ io });
 io.on('connection', (socket) => {
   console.log('A user connected', socket.id);
 
   const userId = socket.handshake.query.userId as string;
+  console.log({ userId });
   if (userId) userSocketMap[userId] = socket.id;
 
   // io.emit() is used to send events to all the connected clients

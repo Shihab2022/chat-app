@@ -83,9 +83,13 @@ const forgetPassword = async (payload: Partial<TUser>) => {
 
   return null;
 };
+const checkAuth = async (payload: Partial<TUser>) => {
+  return payload;
+};
 
 export const UserServices = {
   createUserIntoDB,
   LoginUserIntoDB,
   forgetPassword,
+  checkAuth,
 };

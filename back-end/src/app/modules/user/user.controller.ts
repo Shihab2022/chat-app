@@ -1,61 +1,72 @@
-import { NextFunction, Request, Response } from "express";
-import sendResponse from "../../../utils/sentResponce";
-import httpStatus from 'http-Status'
-import { UserServices } from "./user.services";
-import { setTokenOnCookie } from "../../../utils/auth";
+import { NextFunction, Request, Response } from 'express';
+import sendResponse from '../../../utils/sentResponce';
+import httpStatus from 'http-Status';
+import { UserServices } from './user.services';
+import { setTokenOnCookie } from '../../../utils/auth';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await UserServices.createUserIntoDB(req.body)
+  try {
+    const result = await UserServices.createUserIntoDB(req.body);
 
-        sendResponse(res, {
-            statusCode: httpStatus.OK,
-            success: true,
-            message: "User is created successfully !!!",
-            data: result
-        })
-
-    } catch (error) {
-        next(error)
-    }
-
-}
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User is created successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await UserServices.LoginUserIntoDB(req.body)
-        const token = result?.accessToken
-        setTokenOnCookie(token, res)
-        sendResponse(res, {
-            statusCode: httpStatus.OK,
-            success: true,
-            message: "User login successfully !!!",
-            data: result
-        })
+  try {
+    const result = await UserServices.LoginUserIntoDB(req.body);
+    const token = result?.accessToken;
+    setTokenOnCookie(token, res);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User login successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const forgetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await UserServices.forgetPassword(req.body);
 
-    } catch (error) {
-        next(error)
-    }
-
-}
-const forgetPassword = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await UserServices.forgetPassword(req.body)
-
-        sendResponse(res, {
-            statusCode: httpStatus.OK,
-            success: true,
-            message: "Password is updated successfully !!!",
-            data: result
-        })
-
-    } catch (error) {
-        next(error)
-    }
-
-}
-
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Password is updated successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await UserServices.checkAuth(req?.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Password is updated successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 export const UserController = {
-    createUser,
-    loginUser,
-    forgetPassword
-}
+  createUser,
+  loginUser,
+  forgetPassword,
+  checkAuth,
+};
