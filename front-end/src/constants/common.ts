@@ -10,3 +10,13 @@ export const COMMON_ERROR_MESSAGE = "Something went wrong !";
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const tokenKey = "accessToken";
+
+export const httpMethod = {
+  GET: "get",
+  POST: "post",
+  PUT: "put",
+  PATCH: "patch",
+  DELETE: "delete",
+  OPTIONS: "options",
+  HEAD: "head",
+};
