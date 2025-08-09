@@ -6,7 +6,6 @@ import Container from "@mui/material/Container";
 import { Link, useNavigate } from "react-router-dom";
 import { LOGIN_SUCCESS, SUCCESS } from "../../constants/common";
 import { showToast } from "../../utils/toast";
-import { useLoginMutation } from "../../redux/features/auth/authApi";
 import Loader from "../../components/loader";
 import { useAppDispatch } from "../../redux/hooks";
 import { setUser } from "../../redux/features/auth/authSlice";
@@ -24,19 +23,19 @@ import {
   TextField,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-interface SignInFormInputs {
-  email: string;
-  password: string;
-}
+import { loginUserApi } from "../../services/auth";
+import { SignInFormInputs } from "../../types";
+
 export default function SignIn() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleTogglePassword = () => {
     setShowPassword((prev) => !prev);
   };
-  const [loginUser, { isLoading }] = useLoginMutation();
+  // const [loginUser, { isLoading }] = useLoginMutation();
   const {
     register,
     handleSubmit,
@@ -49,7 +48,8 @@ export default function SignIn() {
   });
   const onSubmit: SubmitHandler<SignInFormInputs> = async (data) => {
     try {
-      const res = await loginUser(data);
+      setIsLoading(true);
+      const res = await loginUserApi(data);
       if (res?.data?.success) {
         const accessToken = res?.data?.data?.accessToken;
         const userData = res?.data?.data?.data;
@@ -60,6 +60,8 @@ export default function SignIn() {
       }
     } catch (error) {
       console.log({ error });
+    } finally {
+      setIsLoading(false);
     }
   };
   return (

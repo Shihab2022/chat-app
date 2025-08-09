@@ -25,6 +25,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { registerUserApi } from "../../services/auth";
 interface SignUpFormInputs {
   userName: string;
   name: string;
@@ -35,7 +36,8 @@ export default function SignUp() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
-  const [registerUser, { isLoading }] = useRegisterMutation();
+  const [isLoading, setIsLoading] = useState(false);
+  // const [registerUser, { isLoading }] = useRegisterMutation();
   const {
     register,
     handleSubmit,
@@ -50,16 +52,17 @@ export default function SignUp() {
   });
 
   const onSubmit: SubmitHandler<SignUpFormInputs> = async (data) => {
-    console.log("SignUp data:", data);
     try {
-      const res = await registerUser(data);
+      setIsLoading(true);
+      const res = await registerUserApi(data);
       if (res?.data?.success) {
         showToast(SUCCESS, REGISTER_SUCCESS);
         navigate("/login");
       }
     } catch (error) {
       showToast(FAILED, COMMON_ERROR_MESSAGE);
-      console.log({ error });
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
