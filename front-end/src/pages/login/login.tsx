@@ -50,9 +50,9 @@ export default function SignIn() {
     try {
       setIsLoading(true);
       const res = await loginUserApi(data);
-      if (res?.data?.success) {
-        const accessToken = res?.data?.data?.accessToken;
-        const userData = res?.data?.data?.data;
+      if (res?.success) {
+        const accessToken = res?.data?.accessToken;
+        const userData = res?.data?.data;
         setToken(accessToken);
         showToast(SUCCESS, LOGIN_SUCCESS);
         dispatch(setUser(userData));
