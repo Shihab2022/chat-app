@@ -1,16 +1,11 @@
-// services/socketService.ts
-import { io, Socket } from "socket.io-client";
-
-let socket: Socket | null = null;
+import { io } from "socket.io-client";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
-// const BASE_URL =
-//   import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
 
 export function connectSocket(userId: string) {
-  if (socket?.connected) return socket; // already connected
-
-  socket = io(BASE_URL, {
+  // if (socket?.connected) return socket; // already connected
+  console.log({ userId });
+  const socket = io(BASE_URL, {
     query: { userId },
   });
 
@@ -25,13 +20,13 @@ export function connectSocket(userId: string) {
   return socket;
 }
 
-export function disconnectSocket() {
-  if (socket?.connected) {
-    socket.disconnect();
-    console.log("❌ Socket disconnected");
-  }
-}
+// export function disconnectSocket() {
+//   if (socket?.connected) {
+//     socket.disconnect();
+//     console.log("❌ Socket disconnected");
+//   }
+// }
 
-export function getSocket() {
-  return socket;
-}
+// export function getSocket() {
+//   return socket;
+// }

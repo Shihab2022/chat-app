@@ -13,7 +13,7 @@ app.use(json());
 app.use(cors(corsAllowOrigin));
 // app.use(cookieParser())
 app.get('/', testingRoute);
-app.use('/api', rootRouter);
+app.use('/', rootRouter);
 app.use(globalErrorHandler);
 app.use(notFound);
 

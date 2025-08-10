@@ -35,6 +35,7 @@ export const checkAuth = async () => {
     formData: false,
     params: {},
   });
+  connectSocket("");
   return res;
 };
 
