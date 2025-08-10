@@ -57,7 +57,7 @@ const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Password is updated successfully !!!',
+      message: 'Check User successfully !!!',
       data: result,
     });
   } catch (error) {

@@ -27,6 +27,16 @@ export const registerUserApi = async (params: any) => {
   });
   return res;
 };
+export const checkAuth = async () => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/user/check",
+    axiosMethod: httpMethod.GET,
+    formData: false,
+    params: {},
+  });
+  return res;
+};
 
 export const forgotPasswordApi = async (params: any) => {
   const res = await apiHandler({

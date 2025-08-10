@@ -7,8 +7,13 @@ import SignUp from "./pages/login/registerPage";
 import SignIn from "./pages/login/login";
 import ForgetPassword from "./pages/login/forgetPassword";
 import InviteUser from "./components/inviteFriend";
+import { useEffect } from "react";
+import { checkAuth } from "./services/auth";
 
 function App() {
+  useEffect(() => {
+    checkAuth();
+  }, []);
   return (
     <>
       <Routes>
