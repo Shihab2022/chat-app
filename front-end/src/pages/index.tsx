@@ -14,14 +14,8 @@ import Message from "../components/message";
 import Profile from "../components/profile";
 import { showToast } from "../utils/toast";
 import { FAILED, SUCCESS } from "../constants/common";
-import {
-  useGetConversationQuery,
-  useGetMessageMutation,
-} from "../redux/features/chat/getConversation";
-import { useAppDispatch } from "../redux/hooks";
-import { setConversation } from "../redux/features/chat/getConversationSlice";
 import { useEffect, useState } from "react";
-import { getUsersForSidebar } from "../services/message";
+import { getMessage, getUsersForSidebar } from "../services/message";
 import { toStartCaseStr } from "../utils/common";
 import LeftSiteBar from "../components";
 import { useSelector } from "react-redux";
@@ -33,7 +27,10 @@ function ResponsiveDrawer(props: { window: any }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [messages, setMessages] = useState(messageData);
   const [allUsers, setAllUsers] = useState([]);
-
+  const { id: myId } = useSelector((state) => state?.auth);
+  console.log({
+    myId,
+  });
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -43,11 +40,13 @@ function ResponsiveDrawer(props: { window: any }) {
       const res = await getUsersForSidebar(params);
       if (res?.success) {
         const resUsers = res?.data;
-        const conversation = resUsers?.map((d: any, i: any) => ({
-          ...d,
-          img: `https://randomuser.me/api/portraits/men/${i + 1}.jpg`,
-          name: toStartCaseStr(d?.name),
-        }));
+        const conversation = resUsers
+          ?.map((d: any, i: any) => ({
+            ...d,
+            img: `https://randomuser.me/api/portraits/men/${i + 1}.jpg`,
+            name: toStartCaseStr(d?.name),
+          }))
+          ?.filter((d: any) => d?._id !== myId);
         setAllUsers(conversation);
       }
     } catch (error) {
@@ -59,11 +58,16 @@ function ResponsiveDrawer(props: { window: any }) {
   }, []);
 
   const handleClick = async (user: { id: any }) => {
-    const messagesId = {
-      senderId: myProfile.id,
-      receiverId: user.id,
-    };
-    // getMessage(messagesId);
+    try {
+      const params = {
+        myId,
+        userToChatId: user.id,
+      };
+      const res = await getMessage(params);
+      console.log({ res });
+    } catch (error) {
+      console.log({ error });
+    }
   };
   const drawer = (
     <div>

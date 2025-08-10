@@ -44,7 +44,6 @@ export default function LeftSiteBar({
   user: any;
 }) {
   const { activeUsers = [] } = useSelector((state) => state?.auth);
-  console.log({ activeUsers });
   const { name, img, _id } = user;
   return (
     <Card

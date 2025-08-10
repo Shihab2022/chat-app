@@ -11,3 +11,13 @@ export const getUsersForSidebar = async (params: amy) => {
   });
   return res;
 };
+export const getMessage = async (params: amy) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/get",
+    axiosMethod: httpMethod.GET,
+    formData: false,
+    params: params,
+  });
+  return res;
+};
