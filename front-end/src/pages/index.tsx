@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as React from "react";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -8,7 +7,6 @@ import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import Homepage from "../components";
 import { myProfile } from "../constants/demoUserData";
 import SearchField from "../components/searchField";
 import { messageData } from "../constants/messageData";
@@ -22,58 +20,84 @@ import {
 } from "../redux/features/chat/getConversation";
 import { useAppDispatch } from "../redux/hooks";
 import { setConversation } from "../redux/features/chat/getConversationSlice";
+import { useEffect, useState } from "react";
+import { getUsersForSidebar } from "../services/message";
+import { toStartCaseStr } from "../utils/common";
+import LeftSiteBar from "../components";
 
 const drawerWidth = 340;
 
 function ResponsiveDrawer(props: { window: any }) {
   const { window } = props;
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [messages, setMessages] = React.useState(messageData);
-  const [friends, setFriends] = React.useState(messageData);
-  const { data, isSuccess, isError } = useGetConversationQuery(
-    "659798b8df9f194773891c12"
-  );
-  const [getMessage, { data: message, isSuccess: isMessageSuccess }] =
-    useGetMessageMutation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [messages, setMessages] = useState(messageData);
+  const [friends, setFriends] = useState(messageData);
+  const [allUsers, setAllUsers] = useState([]);
+  // const { data, isSuccess, isError } = useGetConversationQuery(
+  //   "659798b8df9f194773891c12"
+  // );
+  // const [getMessage, { data: message, isSuccess: isMessageSuccess }] =
+  //   useGetMessageMutation();
   const dispatch = useAppDispatch();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-
-  React.useEffect(() => {
-    if (isMessageSuccess) {
-      // setMessages(message.data);
-      showToast(SUCCESS, data.message);
-    }
-  }, [isMessageSuccess, message]);
-  React.useEffect(() => {
-    if (isSuccess) {
-      const conversation = data?.data?.participants?.map((d, i) => ({
-        ...d,
-        img: `https://randomuser.me/api/portraits/men/${i + 1}.jpg`,
-        name: d.participant.slice(0, 10),
-        time: `${i + 1}h`,
-      }));
-
-      if (conversation.length > 0) {
-        dispatch(setConversation(conversation));
-        setFriends(conversation);
-        showToast(SUCCESS, data.message);
+  const getAllUsers = async () => {
+    try {
+      const params = { _id: "6889a001631dd1680c6b16e4" };
+      const res = await getUsersForSidebar(params);
+      console.log({ res });
+      if (res?.success) {
+        const resUsers = res?.data;
+        const conversation = resUsers?.map((d: any, i: any) => ({
+          ...d,
+          img: `https://randomuser.me/api/portraits/men/${i + 1}.jpg`,
+          name: toStartCaseStr(d?.name),
+        }));
+        setAllUsers(conversation);
       }
+    } catch (error) {
+      console.log({ error });
     }
+  };
+  useEffect(() => {
+    getAllUsers();
+  }, []);
+  console.log({ allUsers });
+  // React.useEffect(() => {
+  //   if (isMessageSuccess) {
+  //     // setMessages(message.data);
+  //     showToast(SUCCESS, data.message);
+  //   }
+  // }, [isMessageSuccess, message]);
+  // React.useEffect(() => {
+  //   if (isSuccess) {
+  //     const conversation = data?.data?.participants?.map((d: any, i: any) => ({
+  //       ...d,
+  //       img: `https://randomuser.me/api/portraits/men/${i + 1}.jpg`,
+  //       name: d.participant.slice(0, 10),
+  //       time: `${i + 1}h`,
+  //     }));
 
-    if (isError) {
-      showToast(FAILED, "Something is wrong!");
-    }
-  }, [data, isSuccess, isError]);
+  //     if (conversation.length > 0) {
+  //       dispatch(setConversation(conversation));
+  //       setFriends(conversation);
+  //       showToast(SUCCESS, data.message);
+  //     }
+  //   }
+
+  //   if (isError) {
+  //     showToast(FAILED, "Something is wrong!");
+  //   }
+  // }, [data, isSuccess, isError]);
 
   const handleClick = async (user: { id: any }) => {
     const messagesId = {
       senderId: myProfile.id,
       receiverId: user.id,
     };
-    getMessage(messagesId);
+    // getMessage(messagesId);
   };
   const drawer = (
     <div>
@@ -86,10 +110,10 @@ function ResponsiveDrawer(props: { window: any }) {
       </List>
       <Divider />
       <List>
-        {friends?.map((user, i) => (
+        {allUsers?.map((user, i) => (
           <>
             <ListItem key={i} disablePadding>
-              <Homepage user={user} onClick={handleClick} />
+              <LeftSiteBar user={user} onClick={handleClick} />
             </ListItem>
           </>
         ))}

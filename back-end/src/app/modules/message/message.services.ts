@@ -3,6 +3,7 @@ import AppError from '../../error/appError';
 import bcrypt from 'bcrypt';
 import { TMessages } from './message.interface';
 import { Message } from './message.model';
+import { User } from '../user/user.model';
 const createMessageIntoDB = async (payload: TMessages) => {
   const result = await Message.create(payload);
   return result;
@@ -23,8 +24,14 @@ const getMessageFromDB = async (payload: Partial<TMessages>) => {
   const messages = await Message.find(searchCriteria);
   return messages;
 };
-const getUsersForSidebar = async (payload: Partial<TMessages>) => {
-  return 'messages';
+export const getUsersForSidebar = async (payload: any) => {
+  console.log({ payload });
+  const loggedInUserId = payload._id;
+  const filteredUsers = await User.find({
+    _id: { $ne: loggedInUserId },
+  }).select('-password');
+
+  return filteredUsers;
 };
 
 export const MessageServices = {
