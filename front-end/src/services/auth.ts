@@ -10,10 +10,6 @@ export const loginUserApi = async (params: any) => {
     formData: false,
     params: params,
   });
-  const userId = res?.data?.data?._id;
-  if (userId) {
-    connectSocket(userId); // ✅ Connect after login success
-  }
   return res;
 };
 

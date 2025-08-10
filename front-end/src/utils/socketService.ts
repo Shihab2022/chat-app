@@ -1,8 +1,9 @@
 import { io } from "socket.io-client";
+import { SET_ACTIVE_USERS } from "../redux/features/auth/authSlice";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
-export function connectSocket(userId: string) {
+export function connectSocket(userId: string, dispatch?: any) {
   // if (socket?.connected) return socket; // already connected
   console.log({ userId });
   const socket = io(BASE_URL, {
@@ -14,6 +15,7 @@ export function connectSocket(userId: string) {
   });
 
   socket.on("getOnlineUsers", (userIds) => {
+    dispatch(SET_ACTIVE_USERS(userIds));
     console.log("📡 Online users:", userIds);
   });
 

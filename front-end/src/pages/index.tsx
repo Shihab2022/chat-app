@@ -24,6 +24,7 @@ import { useEffect, useState } from "react";
 import { getUsersForSidebar } from "../services/message";
 import { toStartCaseStr } from "../utils/common";
 import LeftSiteBar from "../components";
+import { useSelector } from "react-redux";
 
 const drawerWidth = 340;
 
@@ -31,14 +32,7 @@ function ResponsiveDrawer(props: { window: any }) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [messages, setMessages] = useState(messageData);
-  const [friends, setFriends] = useState(messageData);
   const [allUsers, setAllUsers] = useState([]);
-  // const { data, isSuccess, isError } = useGetConversationQuery(
-  //   "659798b8df9f194773891c12"
-  // );
-  // const [getMessage, { data: message, isSuccess: isMessageSuccess }] =
-  //   useGetMessageMutation();
-  const dispatch = useAppDispatch();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -47,7 +41,6 @@ function ResponsiveDrawer(props: { window: any }) {
     try {
       const params = { _id: "6889a001631dd1680c6b16e4" };
       const res = await getUsersForSidebar(params);
-      console.log({ res });
       if (res?.success) {
         const resUsers = res?.data;
         const conversation = resUsers?.map((d: any, i: any) => ({
@@ -64,33 +57,6 @@ function ResponsiveDrawer(props: { window: any }) {
   useEffect(() => {
     getAllUsers();
   }, []);
-  console.log({ allUsers });
-  // React.useEffect(() => {
-  //   if (isMessageSuccess) {
-  //     // setMessages(message.data);
-  //     showToast(SUCCESS, data.message);
-  //   }
-  // }, [isMessageSuccess, message]);
-  // React.useEffect(() => {
-  //   if (isSuccess) {
-  //     const conversation = data?.data?.participants?.map((d: any, i: any) => ({
-  //       ...d,
-  //       img: `https://randomuser.me/api/portraits/men/${i + 1}.jpg`,
-  //       name: d.participant.slice(0, 10),
-  //       time: `${i + 1}h`,
-  //     }));
-
-  //     if (conversation.length > 0) {
-  //       dispatch(setConversation(conversation));
-  //       setFriends(conversation);
-  //       showToast(SUCCESS, data.message);
-  //     }
-  //   }
-
-  //   if (isError) {
-  //     showToast(FAILED, "Something is wrong!");
-  //   }
-  // }, [data, isSuccess, isError]);
 
   const handleClick = async (user: { id: any }) => {
     const messagesId = {

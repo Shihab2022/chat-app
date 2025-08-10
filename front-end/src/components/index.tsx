@@ -7,6 +7,7 @@ import Avatar from "@mui/material/Avatar";
 import { styled } from "@mui/material/styles";
 import Badge from "@mui/material/Badge";
 import { Stack } from "@mui/material";
+import { useSelector } from "react-redux";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -42,7 +43,9 @@ export default function LeftSiteBar({
   onClick: any;
   user: any;
 }) {
-  const { name, lastMessage, img, time } = user;
+  const { activeUsers = [] } = useSelector((state) => state?.auth);
+  console.log({ activeUsers });
+  const { name, img, _id } = user;
   return (
     <Card
       sx={{
@@ -57,15 +60,20 @@ export default function LeftSiteBar({
       }}
       onClick={() => onClick(user)}
     >
-      <Stack direction="row" spacing={2}>
-        <StyledBadge
-          overlap="circular"
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          variant="dot"
-        >
-          <Avatar alt={name} src={img} />
-        </StyledBadge>
-      </Stack>
+      {activeUsers?.includes(_id) ? (
+        <Stack direction="row" spacing={2}>
+          <StyledBadge
+            overlap="circular"
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            variant="dot"
+          >
+            <Avatar alt={name} src={img} />
+          </StyledBadge>
+        </Stack>
+      ) : (
+        <Avatar alt={name} src={img} />
+      )}
+
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <CardContent sx={{ flex: "1 0 auto" }}>
           <Typography component="div" variant="h6">
@@ -76,8 +84,7 @@ export default function LeftSiteBar({
             color="text.secondary"
             component="div"
           >
-            {lastMessage}
-            <span> . {time}</span>
+            {activeUsers?.includes(_id) ? "Online" : "Offline"}
           </Typography>
         </CardContent>
       </Box>

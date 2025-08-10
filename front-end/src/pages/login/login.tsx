@@ -25,6 +25,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { loginUserApi } from "../../services/auth";
 import { SignInFormInputs } from "../../types";
+import { connectSocket } from "../../utils/socketService";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -53,6 +54,8 @@ export default function SignIn() {
       if (res?.success) {
         const accessToken = res?.data?.accessToken;
         const userData = res?.data?.data;
+        const userId = res?.data?.data?._id;
+        connectSocket(userId, dispatch); // ✅ Connect after login success
         setToken(accessToken);
         showToast(SUCCESS, LOGIN_SUCCESS);
         dispatch(setUser(userData));
