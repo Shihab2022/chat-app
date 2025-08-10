@@ -20,7 +20,7 @@ const sendMessage = async (req: Request, res: Response, next: NextFunction) => {
 
 const getMessage = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await MessageServices.getMessageFromDB(req.body);
+    const result = await MessageServices.getMessageFromDB(req.query);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,

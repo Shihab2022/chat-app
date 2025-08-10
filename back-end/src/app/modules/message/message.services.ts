@@ -34,7 +34,6 @@ const sendMessageIntoDB = async (payload: TMessages) => {
 };
 const getMessageFromDB = async (payload: Partial<TMessages>) => {
   const { myId, userToChatId } = payload;
-  console.log({ myId, userToChatId });
   const messages = await Message.find({
     $or: [
       { senderId: myId, receiverId: userToChatId },

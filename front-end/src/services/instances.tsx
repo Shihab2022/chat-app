@@ -1,5 +1,5 @@
 import axios from "axios";
-import { COMMON_ERROR_MESSAGE } from "../constants/common";
+import { COMMON_ERROR_MESSAGE, httpMethod } from "../constants/common";
 import { getToken } from "../utils/auth";
 import { instanceParams } from "../types";
 
@@ -52,8 +52,16 @@ export const apiHandler: any = ({
     },
     method: axiosMethod,
     url: parsedPath,
-    data: formData ? params : JSON.stringify(params),
+    // data: formData ? params : JSON.stringify(params),
+    data:
+      axiosMethod.toLowerCase() === httpMethod.GET
+        ? undefined
+        : formData
+        ? params
+        : JSON.stringify(params),
+    params: axiosMethod.toLowerCase() === httpMethod.GET ? params : undefined,
   };
+  console.log({ options });
   return axios(options)
     .then((res) => ({
       data: res?.data?.data,
