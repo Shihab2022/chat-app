@@ -4,9 +4,33 @@ import bcrypt from 'bcrypt';
 import { TMessages } from './message.interface';
 import { User } from '../user/user.model';
 import Message from './message.model';
-const createMessageIntoDB = async (payload: TMessages) => {
-  const result = await Message.create(payload);
-  return result;
+import { getReceiverSocketId, io } from '../../../utils/socket';
+const sendMessageIntoDB = async (payload: TMessages) => {
+  const { text, senderId, receiverId } = payload;
+  // const senderId = req.user._id;
+
+  // let imageUrl;
+  // if (image) {
+  //   // Upload base64 image to cloudinary
+  //   const uploadResponse = await cloudinary.uploader.upload(image);
+  //   imageUrl = uploadResponse.secure_url;
+  // }
+
+  const newMessage = new Message({
+    senderId,
+    receiverId,
+    text,
+    image: '',
+  });
+
+  await newMessage.save();
+
+  const receiverSocketId = getReceiverSocketId(receiverId);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('newMessage', newMessage);
+  }
+
+  return newMessage;
 };
 const getMessageFromDB = async (payload: Partial<TMessages>) => {
   const { myId, userToChatId } = payload;
@@ -30,7 +54,7 @@ export const getUsersForSidebar = async (payload: any) => {
 };
 
 export const MessageServices = {
-  createMessageIntoDB,
+  sendMessageIntoDB,
   getMessageFromDB,
   getUsersForSidebar,
 };

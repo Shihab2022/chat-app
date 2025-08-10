@@ -3,13 +3,9 @@ import sendResponse from '../../../utils/sentResponce';
 import httpStatus from 'http-Status';
 import { MessageServices } from './message.services';
 
-const createMessage = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const sendMessage = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await MessageServices.createMessageIntoDB(req.body);
+    const result = await MessageServices.sendMessageIntoDB(req.body);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -56,7 +52,7 @@ const getUsersForSidebar = async (
 };
 
 export const MessageController = {
-  createMessage,
+  sendMessage,
   getMessage,
   getUsersForSidebar,
 };

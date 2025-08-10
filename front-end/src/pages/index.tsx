@@ -27,10 +27,9 @@ function ResponsiveDrawer(props: { window: any }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [messages, setMessages] = useState(messageData);
   const [allUsers, setAllUsers] = useState([]);
+  const [receiverId, serReceiverId] = useState("");
   const { id: myId } = useSelector((state) => state?.auth);
-  console.log({
-    myId,
-  });
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -48,6 +47,7 @@ function ResponsiveDrawer(props: { window: any }) {
           }))
           ?.filter((d: any) => d?._id !== myId);
         setAllUsers(conversation);
+        serReceiverId(conversation[0]._id);
       }
     } catch (error) {
       console.log({ error });
@@ -57,12 +57,13 @@ function ResponsiveDrawer(props: { window: any }) {
     getAllUsers();
   }, []);
 
-  const handleClick = async (user: { id: any }) => {
+  const handleClick = async (user: any) => {
     try {
       const params = {
         myId,
-        userToChatId: user.id,
+        userToChatId: user._id,
       };
+      serReceiverId(user._id);
       const res = await getMessage(params);
       console.log({ res });
     } catch (error) {
@@ -153,7 +154,7 @@ function ResponsiveDrawer(props: { window: any }) {
             width: { sm: `calc(100% - ${drawerWidth + 40}px)` },
           }}
         >
-          <SearchField />
+          <SearchField receiverId={receiverId} myId={myId} />
         </Box>
       </Box>
     </Box>

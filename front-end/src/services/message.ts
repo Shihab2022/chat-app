@@ -21,3 +21,13 @@ export const getMessage = async (params: amy) => {
   });
   return res;
 };
+export const sendMessage = async (params: amy) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/send",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params: params,
+  });
+  return res;
+};

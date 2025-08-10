@@ -8,4 +8,5 @@ export type TMessages = {
   isDeleted: boolean;
   userToChatId?: string;
   myId?: string;
+  text?: string;
 };
