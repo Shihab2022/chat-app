@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { httpMethod } from "../constants/common";
 import { connectSocket } from "../utils/socketService";
 import { apiHandler } from "./instances";

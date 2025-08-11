@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { COMMON_ERROR_MESSAGE, httpMethod } from "../constants/common";
 import { getToken } from "../utils/auth";

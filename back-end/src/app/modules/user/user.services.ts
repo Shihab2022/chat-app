@@ -50,10 +50,9 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   }
   const objData: Partial<TUser> = user.toObject();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { _id, name, role } = user;
+  const { _id, role } = user;
   const jwtPayload = {
     userId: _id,
-    name,
     role,
   };
 
