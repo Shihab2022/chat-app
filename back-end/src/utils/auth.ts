@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
 import config from '../app/config';
 import { Response } from 'express';
 
@@ -12,12 +12,15 @@ export const createToken = (
   });
 };
 
-
 export const setTokenOnCookie = (token: string, res: Response) => {
-  res.cookie("jwt", token, {
+  res.cookie('jwt', token, {
     maxAge: 30 * 24 * 60 * 60 * 1000, // MS
     httpOnly: true, // prevent XSS attacks cross-site scripting attacks
-    sameSite: "strict", // CSRF attacks cross-site request forgery attacks
-    secure: process.env.NODE_ENV !== "development",
+    sameSite: 'strict', // CSRF attacks cross-site request forgery attacks
+    secure: process.env.NODE_ENV !== 'development',
   });
-}
+};
+
+export const jwtVerify = (token: string, secret: Secret) => {
+  return jwt.verify(token, secret) as JwtPayload;
+};

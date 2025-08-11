@@ -48,7 +48,7 @@ export const apiHandler: any = ({
   const options = {
     headers: {
       "Content-Type": formData ? "multipart/form-data" : "application/json",
-      Authorization: `Bearer ${getToken()}`,
+      Authorization: getToken(),
     },
     method: axiosMethod,
     url: parsedPath,

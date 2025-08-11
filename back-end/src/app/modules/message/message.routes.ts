@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import { MessageController } from './message.controller';
+import auth from '../../middlewares/protectRoute';
+import { userRole } from '../../../constant';
 const router = Router();
-router.get('/users', MessageController.getUsersForSidebar);
-router.post('/send', MessageController.sendMessage);
-router.get('/get', MessageController.getMessage);
+router.get(
+  '/users',
+  auth(userRole?.USER),
+  MessageController.getUsersForSidebar,
+);
+router.post('/send', auth(userRole?.USER), MessageController.sendMessage);
+router.get('/get', auth(userRole?.USER), MessageController.getMessage);
 
 export const MessageRoutes = router;

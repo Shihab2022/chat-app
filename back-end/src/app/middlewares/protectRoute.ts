@@ -1,39 +1,32 @@
-import jwt from 'jsonwebtoken';
-import { User } from '../modules/user/user.model';
-import config from '../config';
 import { NextFunction, Request, Response } from 'express';
+import { Secret } from 'jsonwebtoken';
+import { jwtVerify } from '../../utils/auth';
+import config from '../config';
+import httpStatus from 'http-Status';
+import AppError from '../error/appError';
 
-export const protectRoute = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const token = req.cookies.jwt;
-    console.log(token);
-    if (!token) {
-      return res
-        .status(401)
-        .json({ message: 'Unauthorized - No Token Provided' });
+const auth = (...roles: string[]) => {
+  const errorMessage = 'You are not authorized';
+  return async (
+    req: Request & { user?: any },
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const token = req?.headers?.authorization;
+      if (!token) {
+        throw new AppError(httpStatus.UNAUTHORIZED, errorMessage);
+      }
+      const verifyUser = jwtVerify(token, config.jwt_access_secret as Secret);
+      if (roles.length && !roles.includes(verifyUser.role)) {
+        throw new AppError(httpStatus.FORBIDDEN, errorMessage);
+      }
+      req.user = verifyUser;
+      next();
+    } catch (error) {
+      next(error);
     }
-
-    const decoded = jwt.verify(token, config?.jwt_access_secret as string);
-
-    if (!decoded) {
-      return res.status(401).json({ message: 'Unauthorized - Invalid Token' });
-    }
-
-    const user = await User.findById(decoded.userId).select('-password');
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    req.user = user;
-
-    next();
-  } catch (error) {
-    console.log('Error in protectRoute middleware: ', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+  };
 };
+
+export default auth;
