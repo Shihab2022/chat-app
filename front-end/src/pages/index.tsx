@@ -64,9 +64,6 @@ function ResponsiveDrawer(props: { window: any }) {
         userToChatId: user._id,
       };
       serReceiverId(user._id);
-      console.log({ myId });
-      console.log({ user });
-      console.log({ params });
       const res = await getMessage(params);
       console.log({ res });
     } catch (error) {

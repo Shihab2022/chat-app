@@ -7,6 +7,7 @@ import SignUp from "./pages/login/registerPage";
 import SignIn from "./pages/login/login";
 import ForgetPassword from "./pages/login/forgetPassword";
 import InviteUser from "./components/inviteFriend";
+import ProtectedRoute from "./routes/privateRoute";
 // import { useEffect } from "react";
 // import { checkAuth } from "./services/auth";
 
@@ -22,11 +23,25 @@ function App() {
           path="/home"
           element={<Homepage onClick={undefined} user={undefined} />}
         ></Route>
-        <Route path="/chat" element={<ResponsiveDrawer />}></Route>
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <ResponsiveDrawer />
+            </ProtectedRoute>
+          }
+        ></Route>
         <Route path="/signUp" element={<SignUp />}></Route>
         <Route path="/login" element={<SignIn />}></Route>
         <Route path="/forgetPassword" element={<ForgetPassword />}></Route>
-        <Route path="/inviteUser" element={<InviteUser />}></Route>
+        <Route
+          path="/inviteUser"
+          element={
+            <ProtectedRoute>
+              <InviteUser />
+            </ProtectedRoute>
+          }
+        ></Route>
       </Routes>
       <Toaster />
     </>
