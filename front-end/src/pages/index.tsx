@@ -12,13 +12,12 @@ import SearchField from "../components/searchField";
 import { messageData } from "../constants/messageData";
 import Message from "../components/message";
 import Profile from "../components/profile";
-import { showToast } from "../utils/toast";
-import { FAILED, SUCCESS } from "../constants/common";
 import { useEffect, useState } from "react";
 import { getMessage, getUsersForSidebar } from "../services/message";
 import { toStartCaseStr } from "../utils/common";
 import LeftSiteBar from "../components";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { checkAuthRes } from "../utils/checkAuth";
 
 const drawerWidth = 340;
 
@@ -33,9 +32,13 @@ function ResponsiveDrawer(props: { window: any }) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+  const dispatch = useDispatch();
+  useEffect(() => {
+    checkAuthRes(dispatch);
+  }, []);
   const getAllUsers = async () => {
     try {
-      const params = { _id: "6889a001631dd1680c6b16e4" };
+      const params = { _id: myId };
       const res = await getUsersForSidebar(params);
       if (res?.success) {
         const resUsers = res?.data;

@@ -8,13 +8,8 @@ import SignIn from "./pages/login/login";
 import ForgetPassword from "./pages/login/forgetPassword";
 import InviteUser from "./components/inviteFriend";
 import ProtectedRoute from "./routes/privateRoute";
-import { useEffect } from "react";
-import { checkAuth } from "./services/auth";
 
 function App() {
-  useEffect(() => {
-    // checkAuth();
-  }, []);
   return (
     <>
       <Routes>
