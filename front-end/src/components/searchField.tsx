@@ -11,6 +11,7 @@ import { useState } from "react";
 import { sendMessage } from "../services/message";
 import { useDispatch } from "react-redux";
 import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
+import { sendMessageSocket } from "../utils/socketService";
 export default function SearchField({
   receiverId,
   myId,
@@ -30,7 +31,9 @@ export default function SearchField({
     try {
       const res = await sendMessage(messageData);
       if (res?.success) {
+        setMessage(null);
         dispatch(SET_CONVERSATION(res?.data));
+        sendMessageSocket(receiverId, messageData);
       }
     } catch (error) {
       console.log({ error });

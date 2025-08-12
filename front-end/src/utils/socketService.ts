@@ -22,6 +22,22 @@ export function connectSocket(userId: string, dispatch?: any) {
   return socket;
 }
 
+// src/utils/sendMessageSocket.js
+export const sendMessageSocket = (recipientId: string, messageData: any) => {
+  const socket = io(BASE_URL, {
+    query: { recipientId },
+  });
+  if (!socket) {
+    console.error("Socket not connected");
+    return;
+  }
+
+  socket.emit("sendMessage", {
+    recipientId,
+    ...messageData,
+  });
+};
+
 // export function disconnectSocket() {
 //   if (socket?.connected) {
 //     socket.disconnect();
