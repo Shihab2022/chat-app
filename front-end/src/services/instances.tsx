@@ -70,7 +70,9 @@ export const apiHandler: any = ({
       params,
     }))
     .catch((err) => {
+      console.log({ err });
       const e = err.toJSON();
+      console.log({ e });
       if (e.status === 401) {
         window.location.href = "/login";
       } else {
