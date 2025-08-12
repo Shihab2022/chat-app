@@ -7,14 +7,13 @@ import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import { myProfile } from "../constants/demoUserData";
 import SearchField from "../components/searchField";
 import { messageData } from "../constants/messageData";
 import Message from "../components/message";
 import Profile from "../components/profile";
 import { useEffect, useState } from "react";
 import { getMessage, getUsersForSidebar } from "../services/message";
-import { toStartCaseStr } from "../utils/common";
+import { randomTwoDigit, toStartCaseStr } from "../utils/common";
 import LeftSiteBar from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuthRes } from "../utils/checkAuth";
@@ -27,14 +26,16 @@ function ResponsiveDrawer(props: { window: any }) {
   const [messages, setMessages] = useState(messageData);
   const [allUsers, setAllUsers] = useState([]);
   const [receiverId, serReceiverId] = useState("");
-  const { id: myId } = useSelector((state) => state?.auth);
-
+  const { loginUser } = useSelector((state) => state?.auth);
+  const { _id: myId } = loginUser;
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
   const dispatch = useDispatch();
   useEffect(() => {
-    checkAuthRes(dispatch);
+    if (!loginUser?._id) {
+      checkAuthRes(dispatch);
+    }
   }, []);
   const getAllUsers = async () => {
     try {
@@ -42,13 +43,12 @@ function ResponsiveDrawer(props: { window: any }) {
       const res = await getUsersForSidebar(params);
       if (res?.success) {
         const resUsers = res?.data;
-        const conversation = resUsers
-          ?.map((d: any, i: any) => ({
-            ...d,
-            img: `https://randomuser.me/api/portraits/men/${i + 1}.jpg`,
-            name: toStartCaseStr(d?.name),
-          }))
-          ?.filter((d: any) => d?._id !== myId);
+        const conversation = resUsers?.map((d: any) => ({
+          ...d,
+          img: `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`,
+          name: toStartCaseStr(d?.name),
+        }));
+
         setAllUsers(conversation);
         serReceiverId(conversation[0]._id);
       }
@@ -79,18 +79,20 @@ function ResponsiveDrawer(props: { window: any }) {
 
       <List>
         <ListItem disablePadding>
-          <Profile user={myProfile} />
+          <Profile user={loginUser} />
         </ListItem>
       </List>
       <Divider />
       <List>
-        {allUsers?.map((user, i) => (
-          <>
-            <ListItem key={i} disablePadding>
-              <LeftSiteBar user={user} onClick={handleClick} />
-            </ListItem>
-          </>
-        ))}
+        {allUsers
+          ?.filter((d: any) => d?._id !== myId)
+          ?.map((user, i) => (
+            <>
+              <ListItem key={i} disablePadding>
+                <LeftSiteBar user={user} onClick={handleClick} />
+              </ListItem>
+            </>
+          ))}
       </List>
     </div>
   );

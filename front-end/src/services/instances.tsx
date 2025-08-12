@@ -62,7 +62,6 @@ export const apiHandler: any = ({
         : JSON.stringify(params),
     params: axiosMethod.toLowerCase() === httpMethod.GET ? params : undefined,
   };
-  console.log({ options });
   return axios(options)
     .then((res) => ({
       data: res?.data?.data,

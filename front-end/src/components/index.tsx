@@ -44,7 +44,7 @@ export default function LeftSiteBar({
   user: any;
 }) {
   const { activeUsers = [] } = useSelector((state) => state?.auth);
-  const { name, img, _id } = user;
+  const { name, img, _id, email } = user;
   return (
     <Card
       sx={{
@@ -82,6 +82,15 @@ export default function LeftSiteBar({
             variant="subtitle1"
             color="text.secondary"
             component="div"
+            sx={{ fontSize: "12px" }}
+          >
+            {email}
+          </Typography>
+          <Typography
+            variant="subtitle1"
+            color="text.secondary"
+            component="div"
+            sx={{ fontSize: "15px" }}
           >
             {activeUsers?.includes(_id) ? "Online" : "Offline"}
           </Typography>

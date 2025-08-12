@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { httpMethod } from "../constants/common";
 import { apiHandler } from "./instances";
 
@@ -12,7 +13,6 @@ export const getUsersForSidebar = async (params: any) => {
   return res;
 };
 export const getMessage = async (params: any) => {
-  console.log({ params });
   const res = await apiHandler({
     baseURL: import.meta.env.VITE_BASE_API_URL,
     path: "/message/get",

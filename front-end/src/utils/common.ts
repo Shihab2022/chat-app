@@ -8,3 +8,7 @@ export const toStartCaseStr = (str: string) => {
     return str;
   }
 };
+
+export const randomTwoDigit = () =>
+  (Math.floor(Math.random() * 9) + 1) * 10 +
+  (Math.floor(Math.random() * 9) + 1);
