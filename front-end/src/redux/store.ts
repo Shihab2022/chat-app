@@ -7,7 +7,7 @@ import activitiesSlice from "./features/userActivities";
 export const store = configureStore({
   reducer: {
     // [baseApi.reducerPath]: baseApi.reducer,
-    conversation: conversationSlice,
+    message: conversationSlice,
     auth: authSlice,
     activities: activitiesSlice,
   },

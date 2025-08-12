@@ -17,13 +17,13 @@ import { randomTwoDigit, toStartCaseStr } from "../utils/common";
 import LeftSiteBar from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuthRes } from "../utils/checkAuth";
+import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
 
 const drawerWidth = 340;
 
 function ResponsiveDrawer(props: { window: any }) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [messages, setMessages] = useState(messageData);
   const [allUsers, setAllUsers] = useState([]);
   const [receiverId, serReceiverId] = useState("");
   const { loginUser } = useSelector((state) => state?.auth);
@@ -45,7 +45,9 @@ function ResponsiveDrawer(props: { window: any }) {
         const resUsers = res?.data;
         const conversation = resUsers?.map((d: any) => ({
           ...d,
-          img: `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`,
+          img:
+            d?.img ||
+            `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`,
           name: toStartCaseStr(d?.name),
         }));
 
@@ -68,7 +70,9 @@ function ResponsiveDrawer(props: { window: any }) {
       };
       serReceiverId(user._id);
       const res = await getMessage(params);
-      console.log({ res });
+      if (res?.success) {
+        dispatch(SET_CONVERSATION(res?.data));
+      }
     } catch (error) {
       console.log({ error });
     }
@@ -150,7 +154,7 @@ function ResponsiveDrawer(props: { window: any }) {
         }}
       >
         <Box sx={{ marginBottom: "50px" }}>
-          <Message messageData={messages} />
+          <Message allUsers={allUsers} />
         </Box>
         <Box
           sx={{

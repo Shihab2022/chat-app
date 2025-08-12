@@ -9,6 +9,8 @@ import { showToast } from "../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../constants/common";
 import { useState } from "react";
 import { sendMessage } from "../services/message";
+import { useDispatch } from "react-redux";
+import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
 export default function SearchField({
   receiverId,
   myId,
@@ -16,6 +18,7 @@ export default function SearchField({
   receiverId: string;
   myId: string;
 }) {
+  const dispatch = useDispatch();
   const [message, setMessage] = useState(null);
   const handleClick = async () => {
     const messageData = {
@@ -25,7 +28,10 @@ export default function SearchField({
     };
 
     try {
-      await sendMessage(messageData);
+      const res = await sendMessage(messageData);
+      if (res?.success) {
+        dispatch(SET_CONVERSATION(res?.data));
+      }
     } catch (error) {
       console.log({ error });
       showToast(FAILED, COMMON_ERROR_MESSAGE);

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Avatar, Stack, Typography } from "@mui/material";
-import { myRandomProfile } from "../constants/demoUserData";
+import { useSelector } from "react-redux";
 
 export type TMessage = {
   senderId: number;
   receiverId: number;
-  content: string;
+  text: string;
   timestamp: string;
 };
 
@@ -17,65 +17,47 @@ const ImgViewer = ({ img }: { img: any }) => {
   );
 };
 
-const Message = ({ messageData }: { messageData: any }) => {
-  const parseTimestamp = (timestamp: string | number | Date) =>
-    new Date(timestamp);
-
-  // Sorting the array based on the timestamp property
-  const sortedData = messageData.sort(
-    (
-      a: { timestamp: string | Date | any },
-      b: { timestamp: string | Date | any }
-    ) => {
-      const dateA: Date = parseTimestamp(a.timestamp);
-      const dateB = parseTimestamp(b.timestamp);
-
-      return dateA - dateB;
-    }
-  );
+const Message = ({ allUsers }: any) => {
+  const { messages = [] } = useSelector((state) => state?.message);
+  const { loginUser } = useSelector((state) => state?.auth);
+  const { _id: myId } = loginUser;
   return (
     <>
-      {sortedData.map((mess: TMessage, i: number) => (
-        <>
-          <Stack
-            direction="row"
-            justifyContent={`${
-              mess.senderId === myRandomProfile?.id ? "flex-start" : "flex-end"
-            }`}
-            alignItems="center"
-            spacing={2}
-            sx={{ marginY: "5px" }}
-          >
+      {messages?.map((mess: TMessage, i: number) => {
+        const { text, senderId } = mess;
+        const userInfo = allUsers.find((user: any) => user._id === senderId);
+        return (
+          <>
             <Stack
-              direction={`${
-                mess.senderId === myRandomProfile?.id ? "row" : "row-reverse"
+              direction="row"
+              justifyContent={`${
+                mess.senderId === myId ? "flex-start" : "flex-end"
               }`}
-              justifyContent="flex-start"
               alignItems="center"
               spacing={2}
+              sx={{ marginY: "5px" }}
             >
-              <ImgViewer
-                img={`${
-                  mess.senderId === myRandomProfile?.id
-                    ? "https://randomuser.me/api/portraits/men/1.jpg"
-                    : "https://randomuser.me/api/portraits/men/10.jpg"
-                }`}
-              />
-              <Typography
-                key={i}
-                sx={{
-                  textAlign: `${
-                    mess.senderId === myRandomProfile?.id ? "left" : "right"
-                  }`,
-                }}
-                paragraph
+              <Stack
+                direction={`${mess.senderId === myId ? "row" : "row-reverse"}`}
+                justifyContent="flex-start"
+                alignItems="center"
+                spacing={2}
               >
-                {mess.content}
-              </Typography>
+                <ImgViewer img={userInfo?.img} />
+                <Typography
+                  key={i}
+                  sx={{
+                    textAlign: `${mess.senderId === myId ? "left" : "right"}`,
+                  }}
+                  paragraph
+                >
+                  {text}
+                </Typography>
+              </Stack>
             </Stack>
-          </Stack>
-        </>
-      ))}
+          </>
+        );
+      })}
     </>
   );
 };

@@ -42,11 +42,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 
 export default function Profile({ user }: { user: any }) {
   const navigate = useNavigate();
-  const {
-    name,
-    // img = `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`,
-    email,
-  } = user;
+  const { name, img, email } = user;
 
   return (
     <Card
@@ -69,7 +65,10 @@ export default function Profile({ user }: { user: any }) {
         >
           <Avatar
             alt={name}
-            src={`https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`}
+            src={
+              img ||
+              `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`
+            }
           />
         </StyledBadge>
       </Stack>

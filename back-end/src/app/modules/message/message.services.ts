@@ -29,8 +29,14 @@ const sendMessageIntoDB = async (payload: TMessages) => {
   if (receiverSocketId) {
     io.to(receiverSocketId).emit('newMessage', newMessage);
   }
+  const messages = await Message.find({
+    $or: [
+      { senderId, receiverId },
+      { senderId: receiverId, receiverId: senderId },
+    ],
+  });
 
-  return newMessage;
+  return messages;
 };
 const getMessageFromDB = async (payload: Partial<TMessages>) => {
   const { myId, userToChatId } = payload;
