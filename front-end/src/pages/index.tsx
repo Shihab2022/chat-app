@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import PropTypes from "prop-types";
@@ -18,6 +19,7 @@ import LeftSiteBar from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuthRes } from "../utils/checkAuth";
 import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
+import { sendMessageSocket } from "../utils/socketService";
 
 const drawerWidth = 340;
 

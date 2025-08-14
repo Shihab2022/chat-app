@@ -32,7 +32,7 @@ export const checkAuth = async () => {
     formData: false,
     params: {},
   });
-  connectSocket("");
+  // connectSocket("");
   return res;
 };
 

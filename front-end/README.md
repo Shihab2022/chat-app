@@ -2,6 +2,6 @@
 
 Some step
 
-showing all message
-implement socket when send message
-and fix scroll issue
+implement socket when send message and showing message real time
+showing message when no chat fount
+implement photo upload featchers

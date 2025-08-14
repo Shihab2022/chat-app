@@ -4,7 +4,7 @@ import { SET_ACTIVE_USERS } from "../redux/features/auth/authSlice";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
-export function connectSocket(userId: string, dispatch?: any) {
+export function connectSocket(userId: string, dispatch: any) {
   // if (socket?.connected) return socket; // already connected
   const socket = io(BASE_URL, {
     query: { userId },
@@ -23,15 +23,17 @@ export function connectSocket(userId: string, dispatch?: any) {
 }
 
 // src/utils/sendMessageSocket.js
-export const sendMessageSocket = (recipientId: string, messageData: any) => {
+export const sendMessageSocket = (recipientId?: string, messageData?: any) => {
   const socket = io(BASE_URL, {
     query: { recipientId },
   });
-  if (!socket) {
-    console.error("Socket not connected");
-    return;
-  }
-
+  // if (!socket) {
+  //   console.error("Socket not connected");
+  //   return;
+  // }
+  socket.on("newMessage", (newMessage) => {
+    console.log({ newMessage });
+  });
   socket.emit("sendMessage", {
     recipientId,
     ...messageData,
