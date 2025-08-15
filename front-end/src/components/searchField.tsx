@@ -9,13 +9,12 @@ import { showToast } from "../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../constants/common";
 import { useEffect, useState } from "react";
 import { sendMessage } from "../services/message";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
 import { sendMessageSocket } from "../utils/socketService";
 import { io } from "socket.io-client";
-export const socket = io(import.meta.env.VITE_BASE_API_URL, {
-  autoConnect: false,
-});
+// const socket = io.connect(import.meta.env.VITE_BASE_API_URL);
+const socket = io(import.meta.env.VITE_BASE_API_URL);
 export default function SearchField({
   receiverId,
   myId,
@@ -25,25 +24,6 @@ export default function SearchField({
 }) {
   const dispatch = useDispatch();
   const [message, setMessage] = useState(null);
-  const { messages: storeMessages = [] } = useSelector(
-    (state) => state?.message
-  );
-  const userId = myId;
-  useEffect(() => {
-    socket.connect();
-    socket.emit("join", userId);
-    console.log("use effect ius run ");
-    socket.on("newMessage", (msg) => {
-      console.log({ msg });
-      dispatch(SET_CONVERSATION([...storeMessages, msg]));
-      // setMessages((prev) => [...prev, msg]);
-    });
-
-    return () => {
-      socket.off("newMessage");
-      socket.disconnect();
-    };
-  }, [userId, socket, storeMessages]);
   const handleClick = async () => {
     const messageData = {
       senderId: myId,
@@ -53,6 +33,7 @@ export default function SearchField({
 
     try {
       const res = await sendMessage(messageData);
+      socket.emit("send_message", messageData);
       if (res?.success) {
         setMessage(null);
         dispatch(SET_CONVERSATION(res?.data));
@@ -63,7 +44,12 @@ export default function SearchField({
       showToast(FAILED, COMMON_ERROR_MESSAGE);
     }
   };
-
+  useEffect(() => {
+    socket.on("receive_message", (data: any) => {
+      console.log({ data });
+      // setMessageList((list) => [...list, data]);
+    });
+  }, [socket]);
   return (
     <Paper
       component="form"
