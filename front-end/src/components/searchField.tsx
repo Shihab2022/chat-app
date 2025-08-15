@@ -7,11 +7,15 @@ import AddIcon from "@mui/icons-material/Add";
 import SendIcon from "@mui/icons-material/Send";
 import { showToast } from "../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../constants/common";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { sendMessage } from "../services/message";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
 import { sendMessageSocket } from "../utils/socketService";
+import { io } from "socket.io-client";
+export const socket = io(import.meta.env.VITE_BASE_API_URL, {
+  autoConnect: false,
+});
 export default function SearchField({
   receiverId,
   myId,
@@ -21,6 +25,25 @@ export default function SearchField({
 }) {
   const dispatch = useDispatch();
   const [message, setMessage] = useState(null);
+  const { messages: storeMessages = [] } = useSelector(
+    (state) => state?.message
+  );
+  const userId = myId;
+  useEffect(() => {
+    socket.connect();
+    socket.emit("join", userId);
+    console.log("use effect ius run ");
+    socket.on("newMessage", (msg) => {
+      console.log({ msg });
+      dispatch(SET_CONVERSATION([...storeMessages, msg]));
+      // setMessages((prev) => [...prev, msg]);
+    });
+
+    return () => {
+      socket.off("newMessage");
+      socket.disconnect();
+    };
+  }, [userId, socket, storeMessages]);
   const handleClick = async () => {
     const messageData = {
       senderId: myId,
