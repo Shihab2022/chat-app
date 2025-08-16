@@ -17,7 +17,10 @@ import { randomTwoDigit, toStartCaseStr } from "../utils/common";
 import LeftSiteBar from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuthRes } from "../utils/checkAuth";
-import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
+import {
+  SET_CONVERSATION,
+  SET_RECEIVER_ID,
+} from "../redux/features/chat/getConversationSlice";
 
 const drawerWidth = 340;
 
@@ -53,6 +56,7 @@ function ResponsiveDrawer(props: { window: any }) {
 
         setAllUsers(conversation);
         serReceiverId(conversation[0]._id);
+        dispatch(SET_RECEIVER_ID(conversation[0]._id));
       }
     } catch (error) {
       console.log({ error });
@@ -69,6 +73,7 @@ function ResponsiveDrawer(props: { window: any }) {
         userToChatId: user._id,
       };
       serReceiverId(user._id);
+      dispatch(SET_RECEIVER_ID(user._id));
       const res = await getMessage(params);
       if (res?.success) {
         dispatch(SET_CONVERSATION(res?.data));

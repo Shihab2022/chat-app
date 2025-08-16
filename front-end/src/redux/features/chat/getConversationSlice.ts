@@ -2,9 +2,11 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export type TConversation = {
   messages: string[];
+  receiverId: string;
 };
 const initialState: TConversation = {
   messages: [],
+  receiverId: "",
 };
 const conversationSlice = createSlice({
   name: "message",
@@ -14,11 +16,16 @@ const conversationSlice = createSlice({
       state.messages = action.payload;
     },
     SET_REAL_TIME_CONVERSATION: (state, action) => {
-      state.messages = [...state.messages, action.payload];
+      if (action?.payload?.senderId === state.receiverId) {
+        state.messages = [...state.messages, action.payload];
+      }
+    },
+    SET_RECEIVER_ID: (state, action) => {
+      state.receiverId = action.payload;
     },
   },
 });
 
-export const { SET_CONVERSATION, SET_REAL_TIME_CONVERSATION } =
+export const { SET_CONVERSATION, SET_REAL_TIME_CONVERSATION, SET_RECEIVER_ID } =
   conversationSlice.actions;
 export default conversationSlice.reducer;
