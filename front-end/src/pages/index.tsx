@@ -9,7 +9,6 @@ import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import SearchField from "../components/searchField";
-import { messageData } from "../constants/messageData";
 import Message from "../components/message";
 import Profile from "../components/profile";
 import { useEffect, useState } from "react";
@@ -19,7 +18,6 @@ import LeftSiteBar from "../components";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuthRes } from "../utils/checkAuth";
 import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
-import { sendMessageSocket } from "../utils/socketService";
 
 const drawerWidth = 340;
 

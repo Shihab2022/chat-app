@@ -7,14 +7,11 @@ import AddIcon from "@mui/icons-material/Add";
 import SendIcon from "@mui/icons-material/Send";
 import { showToast } from "../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../constants/common";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { sendMessage } from "../services/message";
 import { useDispatch } from "react-redux";
 import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
 import { sendMessageSocket } from "../utils/socketService";
-import { io } from "socket.io-client";
-// const socket = io.connect(import.meta.env.VITE_BASE_API_URL);
-const socket = io(import.meta.env.VITE_BASE_API_URL);
 export default function SearchField({
   receiverId,
   myId,
@@ -33,7 +30,6 @@ export default function SearchField({
 
     try {
       const res = await sendMessage(messageData);
-      socket.emit("send_message", messageData);
       if (res?.success) {
         setMessage(null);
         dispatch(SET_CONVERSATION(res?.data));
@@ -44,12 +40,6 @@ export default function SearchField({
       showToast(FAILED, COMMON_ERROR_MESSAGE);
     }
   };
-  useEffect(() => {
-    socket.on("receive_message", (data: any) => {
-      console.log({ data });
-      // setMessageList((list) => [...list, data]);
-    });
-  }, [socket]);
   return (
     <Paper
       component="form"

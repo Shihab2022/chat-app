@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io } from "socket.io-client";
 import { SET_ACTIVE_USERS } from "../redux/features/auth/authSlice";
+import { SET_REAL_TIME_CONVERSATION } from "../redux/features/chat/getConversationSlice";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
@@ -18,7 +19,9 @@ export function connectSocket(userId: string, dispatch: any) {
     dispatch(SET_ACTIVE_USERS(userIds));
     // console.log("📡 Online users:", userIds);
   });
-
+  socket.on("newMessage", (msg) => {
+    dispatch(SET_REAL_TIME_CONVERSATION(msg));
+  });
   return socket;
 }
 

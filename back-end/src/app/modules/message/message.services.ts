@@ -29,6 +29,7 @@ const sendMessageIntoDB = async (payload: TMessages) => {
   if (receiverSocketId) {
     io.to(receiverSocketId).emit('newMessage', newMessage);
   }
+
   const messages = await Message.find({
     $or: [
       { senderId, receiverId },
