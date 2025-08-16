@@ -6,10 +6,10 @@ import { SET_REAL_TIME_CONVERSATION } from "../redux/features/chat/getConversati
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
 export function connectSocket(userId: string, dispatch: any) {
-  // if (socket?.connected) return socket; // already connected
   const socket = io(BASE_URL, {
     query: { userId },
   });
+  if (socket?.connected) return socket; // already connected
 
   socket.on("connect", () => {
     // console.log("✅ Socket connected");
@@ -24,24 +24,6 @@ export function connectSocket(userId: string, dispatch: any) {
   });
   return socket;
 }
-
-// src/utils/sendMessageSocket.js
-export const sendMessageSocket = (recipientId?: string, messageData?: any) => {
-  const socket = io(BASE_URL, {
-    query: { recipientId },
-  });
-  // if (!socket) {
-  //   console.error("Socket not connected");
-  //   return;
-  // }
-  socket.on("newMessage", (newMessage) => {
-    console.log({ newMessage });
-  });
-  socket.emit("sendMessage", {
-    recipientId,
-    ...messageData,
-  });
-};
 
 // export function disconnectSocket() {
 //   if (socket?.connected) {

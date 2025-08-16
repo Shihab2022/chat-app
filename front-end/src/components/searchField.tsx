@@ -11,7 +11,6 @@ import { useState } from "react";
 import { sendMessage } from "../services/message";
 import { useDispatch } from "react-redux";
 import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
-import { sendMessageSocket } from "../utils/socketService";
 export default function SearchField({
   receiverId,
   myId,
@@ -20,7 +19,7 @@ export default function SearchField({
   myId: string;
 }) {
   const dispatch = useDispatch();
-  const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState("");
   const handleClick = async () => {
     const messageData = {
       senderId: myId,
@@ -31,15 +30,15 @@ export default function SearchField({
     try {
       const res = await sendMessage(messageData);
       if (res?.success) {
-        setMessage(null);
+        setMessage("");
         dispatch(SET_CONVERSATION(res?.data));
-        sendMessageSocket(receiverId, messageData);
       }
     } catch (error) {
       console.log({ error });
       showToast(FAILED, COMMON_ERROR_MESSAGE);
     }
   };
+
   return (
     <Paper
       component="form"
