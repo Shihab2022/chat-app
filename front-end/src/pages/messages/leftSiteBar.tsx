@@ -6,13 +6,14 @@ import ListItem from "@mui/material/ListItem";
 import Profile from "../../components/profile";
 import LeftSiteBarCard from "../../components";
 import { useDispatch, useSelector } from "react-redux";
-import { Key, useEffect } from "react";
+import { useEffect } from "react";
 import {
   SET_CONVERSATION,
   SET_RECEIVER_ID,
 } from "../../redux/features/chat/getConversationSlice";
 import { getMessage } from "../../services/message";
 import { RootState } from "../../redux/store";
+import { TUser } from "../../types";
 
 const LeftSiteBar = () => {
   const { loginUser, allUsers } = useSelector(
@@ -54,8 +55,8 @@ const LeftSiteBar = () => {
       <Divider />
       <List>
         {allUsers
-          ?.filter((d: any) => d?._id !== myId)
-          ?.map((user: unknown, i: Key | null | undefined) => (
+          ?.filter((d: TUser) => d?._id !== myId)
+          ?.map((user: TUser, i: number) => (
             <>
               <ListItem key={i} disablePadding>
                 <LeftSiteBarCard user={user} onClick={handleClick} />

@@ -52,8 +52,16 @@ export default function SearchField({ myId }: { myId: string }) {
         onChange={(e: any) => setMessage(e.target.value)}
         value={message}
         sx={{ ml: 1, flex: 1 }}
-        placeholder="Ab"
+        placeholder="Type a message"
         inputProps={{ "aria-label": "search google maps" }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (message) {
+              handleClick();
+            }
+          }
+        }}
       />
       <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
       <IconButton

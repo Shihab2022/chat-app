@@ -20,6 +20,7 @@ export default function LeftSiteBarCard({
   const { name, img, _id, email } = user;
   return (
     <Card
+      elevation={0}
       sx={{
         display: "flex",
         direction: "row",

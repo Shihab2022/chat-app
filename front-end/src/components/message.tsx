@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Avatar, Stack, Typography } from "@mui/material";
+import { Avatar, Box, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { TMessage } from "../redux/features/chat/getConversationSlice";
+import { NAV_BAR_HEIGHT } from "../constants/common";
+import { useEffect, useRef } from "react";
 
 const ImgViewer = ({ img }: { img: any }) => {
   return (
@@ -18,43 +20,58 @@ const Message = () => {
     (state: RootState) => state?.auth
   );
   const { _id: myId } = loginUser;
+  const messageEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (messageEndRef.current && messages) {
+      messageEndRef.current.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
+
   return (
     <>
-      {messages?.map((mess: TMessage, i: number) => {
-        const { text, senderId } = mess;
-        const userInfo = allUsers.find((user: any) => user._id === senderId);
-        return (
-          <>
-            <Stack
-              direction="row"
-              justifyContent={`${
-                mess.senderId === myId ? "flex-start" : "flex-end"
-              }`}
-              alignItems="center"
-              spacing={2}
-              sx={{ marginY: "5px" }}
-            >
+      <Box sx={{ paddingTop: NAV_BAR_HEIGHT }}>
+        {messages?.map((mess: TMessage, i: number) => {
+          const { text, senderId } = mess;
+          const userInfo = allUsers.find((user: any) => user._id === senderId);
+          return (
+            <>
               <Stack
-                direction={`${mess.senderId === myId ? "row" : "row-reverse"}`}
-                justifyContent="flex-start"
+                direction="row"
+                justifyContent={`${
+                  mess.senderId === myId ? "flex-start" : "flex-end"
+                }`}
                 alignItems="center"
                 spacing={2}
+                sx={{ marginY: "10px" }}
+                ref={messageEndRef}
               >
-                <ImgViewer img={userInfo?.img} />
-                <Typography
-                  key={i}
-                  sx={{
-                    textAlign: `${mess.senderId === myId ? "left" : "right"}`,
-                  }}
-                  paragraph
+                <Stack
+                  direction={`${
+                    mess.senderId === myId ? "row" : "row-reverse"
+                  }`}
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  spacing={2}
                 >
-                  {text}
-                </Typography>
+                  <ImgViewer img={userInfo?.img} />
+                  <Typography
+                    key={i}
+                    sx={{
+                      textAlign: `${mess.senderId === myId ? "left" : "right"}`,
+                    }}
+                    paragraph
+                  >
+                    {text}
+                  </Typography>
+                </Stack>
               </Stack>
-            </Stack>
-          </>
-        );
-      })}
+            </>
+          );
+        })}
+      </Box>
     </>
   );
 };
