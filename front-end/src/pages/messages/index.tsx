@@ -15,10 +15,10 @@ import { SET_RECEIVER_ID } from "../../redux/features/chat/getConversationSlice"
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 import LeftSiteBar from "./leftSiteBar";
 import { RootState } from "../../redux/store";
+import { DRAWER_WIDTH } from "../../constants/common";
+import NavBar from "./navBar";
 
-const drawerWidth = 340;
-
-function ResponsiveDrawer() {
+function ChatContainer() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { _id: myId } = loginUser;
@@ -60,9 +60,10 @@ function ResponsiveDrawer() {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
+      <NavBar />
       <Box
         component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
         aria-label="mailbox folders"
       >
         <Drawer
@@ -77,7 +78,7 @@ function ResponsiveDrawer() {
             display: { xs: "block", sm: "none" },
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
-              width: drawerWidth,
+              width: DRAWER_WIDTH,
             },
           }}
         >
@@ -89,7 +90,7 @@ function ResponsiveDrawer() {
             display: { xs: "none", sm: "block" },
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
-              width: drawerWidth,
+              width: DRAWER_WIDTH,
             },
           }}
           open
@@ -102,7 +103,7 @@ function ResponsiveDrawer() {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
         }}
       >
         <Box sx={{ marginBottom: "50px" }}>
@@ -112,7 +113,7 @@ function ResponsiveDrawer() {
           sx={{
             position: "fixed",
             bottom: 5,
-            width: { sm: `calc(100% - ${drawerWidth + 40}px)` },
+            width: { sm: `calc(100% - ${DRAWER_WIDTH + 40}px)` },
           }}
         >
           <SearchField myId={myId} />
@@ -121,4 +122,4 @@ function ResponsiveDrawer() {
     </Box>
   );
 }
-export default ResponsiveDrawer;
+export default ChatContainer;

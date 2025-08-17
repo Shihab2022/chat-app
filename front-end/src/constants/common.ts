@@ -20,3 +20,6 @@ export const httpMethod = {
   OPTIONS: "options",
   HEAD: "head",
 };
+
+export const DRAWER_WIDTH = 340;
+export const NAV_BAR_HEIGHT = "70PX";
