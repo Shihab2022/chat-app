@@ -1,13 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice } from "@reduxjs/toolkit";
 
+export type TUser = {
+  _id: string; // 👈 add any property you expect
+} & Record<string, any>;
 export type TConversation = {
   activeUsers?: string[];
-  loginUser?: object;
+  loginUser: TUser;
   allUsers?: any;
 };
 const initialState: TConversation = {
-  loginUser: {},
+  loginUser: {
+    _id: "",
+  },
   activeUsers: [],
   allUsers: [],
 };

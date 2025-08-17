@@ -1,13 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Avatar, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
-
-export type TMessage = {
-  senderId: number;
-  receiverId: number;
-  text: string;
-  timestamp: string;
-};
+import { RootState } from "../redux/store";
+import { TMessage } from "../redux/features/chat/getConversationSlice";
 
 const ImgViewer = ({ img }: { img: any }) => {
   return (
@@ -18,8 +13,10 @@ const ImgViewer = ({ img }: { img: any }) => {
 };
 
 const Message = () => {
-  const { messages = [] } = useSelector((state) => state?.message);
-  const { loginUser, allUsers } = useSelector((state) => state?.auth);
+  const { messages = [] } = useSelector((state: RootState) => state?.message);
+  const { loginUser, allUsers } = useSelector(
+    (state: RootState) => state?.auth
+  );
   const { _id: myId } = loginUser;
   return (
     <>

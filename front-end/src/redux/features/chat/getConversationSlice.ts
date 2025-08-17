@@ -1,7 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+export type TMessage = {
+  _id: string; // comes as string in JSON
+  senderId: string;
+  receiverId: string;
+  text?: string;
+  image?: string;
+  createdAt: string; // usually ISO string from backend
+  updatedAt: string;
+};
 export type TConversation = {
-  messages: string[];
+  messages: TMessage[];
   receiverId: string;
 };
 const initialState: TConversation = {

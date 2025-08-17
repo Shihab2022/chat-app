@@ -11,10 +11,11 @@ import { useState } from "react";
 import { sendMessage } from "../services/message";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
+import { RootState } from "../redux/store";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
-  const { receiverId } = useSelector((state) => state?.message);
+  const { receiverId } = useSelector((state: RootState) => state?.message);
   const handleClick = async () => {
     const messageData = {
       senderId: myId,

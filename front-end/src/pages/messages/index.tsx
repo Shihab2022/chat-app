@@ -14,13 +14,13 @@ import { checkAuthRes } from "../../utils/checkAuth";
 import { SET_RECEIVER_ID } from "../../redux/features/chat/getConversationSlice";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 import LeftSiteBar from "./leftSiteBar";
+import { RootState } from "../../redux/store";
 
 const drawerWidth = 340;
 
-function ResponsiveDrawer(props: { window: any }) {
-  const { window } = props;
+function ResponsiveDrawer() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { loginUser } = useSelector((state) => state?.auth);
+  const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { _id: myId } = loginUser;
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -54,8 +54,8 @@ function ResponsiveDrawer(props: { window: any }) {
   useEffect(() => {
     getAllUsers();
   }, []);
-  const container =
-    window !== undefined ? () => window().document.body : undefined;
+  // const container =
+  // window !== undefined ? () => window().document.body : undefined;
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -66,7 +66,7 @@ function ResponsiveDrawer(props: { window: any }) {
         aria-label="mailbox folders"
       >
         <Drawer
-          container={container}
+          // container={container}
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}

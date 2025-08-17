@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
@@ -11,10 +12,15 @@ import {
   SET_RECEIVER_ID,
 } from "../../redux/features/chat/getConversationSlice";
 import { getMessage } from "../../services/message";
+import { RootState } from "../../redux/store";
 
 const LeftSiteBar = () => {
-  const { loginUser, allUsers } = useSelector((state) => state?.auth);
-  const { receiverId, messages } = useSelector((state) => state?.message);
+  const { loginUser, allUsers } = useSelector(
+    (state: RootState) => state?.auth
+  );
+  const { receiverId, messages } = useSelector(
+    (state: RootState) => state?.message
+  );
   const { _id: myId } = loginUser;
   const dispatch = useDispatch();
   const handleClick = async (user: any) => {

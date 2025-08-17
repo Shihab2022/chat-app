@@ -8,6 +8,7 @@ import { styled } from "@mui/material/styles";
 import Badge from "@mui/material/Badge";
 import { Stack } from "@mui/material";
 import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -43,7 +44,7 @@ export default function LeftSiteBarCard({
   onClick: any;
   user: any;
 }) {
-  const { activeUsers = [] } = useSelector((state) => state?.auth);
+  const { activeUsers = [] } = useSelector((state: RootState) => state?.auth);
   const { name, img, _id, email } = user;
   return (
     <Card
