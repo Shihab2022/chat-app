@@ -1,34 +1,25 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import SearchField from "../components/searchField";
-import Message from "../components/message";
-import Profile from "../components/profile";
+import SearchField from "../../components/searchField";
+import Message from "../../components/message";
 import { useEffect, useState } from "react";
-import { getMessage, getUsersForSidebar } from "../services/message";
-import { randomTwoDigit, toStartCaseStr } from "../utils/common";
-import LeftSiteBar from "../components";
+import { getUsersForSidebar } from "../../services/message";
+import { randomTwoDigit, toStartCaseStr } from "../../utils/common";
 import { useDispatch, useSelector } from "react-redux";
-import { checkAuthRes } from "../utils/checkAuth";
-import {
-  SET_CONVERSATION,
-  SET_RECEIVER_ID,
-} from "../redux/features/chat/getConversationSlice";
+import { checkAuthRes } from "../../utils/checkAuth";
+import { SET_RECEIVER_ID } from "../../redux/features/chat/getConversationSlice";
+import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
+import LeftSiteBar from "./leftSiteBar";
 
 const drawerWidth = 340;
 
 function ResponsiveDrawer(props: { window: any }) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [allUsers, setAllUsers] = useState([]);
-  const [receiverId, serReceiverId] = useState("");
   const { loginUser } = useSelector((state) => state?.auth);
   const { _id: myId } = loginUser;
   const handleDrawerToggle = () => {
@@ -53,10 +44,8 @@ function ResponsiveDrawer(props: { window: any }) {
             `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`,
           name: toStartCaseStr(d?.name),
         }));
-
-        setAllUsers(conversation);
-        serReceiverId(conversation[0]._id);
         dispatch(SET_RECEIVER_ID(conversation[0]._id));
+        dispatch(SET_ALL_USERS(conversation));
       }
     } catch (error) {
       console.log({ error });
@@ -65,48 +54,6 @@ function ResponsiveDrawer(props: { window: any }) {
   useEffect(() => {
     getAllUsers();
   }, []);
-
-  const handleClick = async (user: any) => {
-    try {
-      const params = {
-        myId,
-        userToChatId: user._id,
-      };
-      serReceiverId(user._id);
-      dispatch(SET_RECEIVER_ID(user._id));
-      const res = await getMessage(params);
-      if (res?.success) {
-        dispatch(SET_CONVERSATION(res?.data));
-      }
-    } catch (error) {
-      console.log({ error });
-    }
-  };
-  const drawer = (
-    <div>
-      {/* <Toolbar /> */}
-
-      <List>
-        <ListItem disablePadding>
-          <Profile user={loginUser} />
-        </ListItem>
-      </List>
-      <Divider />
-      <List>
-        {allUsers
-          ?.filter((d: any) => d?._id !== myId)
-          ?.map((user, i) => (
-            <>
-              <ListItem key={i} disablePadding>
-                <LeftSiteBar user={user} onClick={handleClick} />
-              </ListItem>
-            </>
-          ))}
-      </List>
-    </div>
-  );
-
-  // Remove this const when copying and pasting into your project.
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
@@ -134,7 +81,7 @@ function ResponsiveDrawer(props: { window: any }) {
             },
           }}
         >
-          {drawer}
+          <LeftSiteBar />
         </Drawer>
         <Drawer
           variant="permanent"
@@ -147,7 +94,7 @@ function ResponsiveDrawer(props: { window: any }) {
           }}
           open
         >
-          {drawer}
+          <LeftSiteBar />
         </Drawer>
       </Box>
       <Box
@@ -159,7 +106,7 @@ function ResponsiveDrawer(props: { window: any }) {
         }}
       >
         <Box sx={{ marginBottom: "50px" }}>
-          <Message allUsers={allUsers} />
+          <Message />
         </Box>
         <Box
           sx={{
@@ -168,19 +115,10 @@ function ResponsiveDrawer(props: { window: any }) {
             width: { sm: `calc(100% - ${drawerWidth + 40}px)` },
           }}
         >
-          <SearchField receiverId={receiverId} myId={myId} />
+          <SearchField myId={myId} />
         </Box>
       </Box>
     </Box>
   );
 }
-
-ResponsiveDrawer.propTypes = {
-  /**
-   * Injected by the documentation to work in an iframe.
-   * Remove this when copying and pasting into your project.
-   */
-  window: PropTypes.func,
-};
-
 export default ResponsiveDrawer;

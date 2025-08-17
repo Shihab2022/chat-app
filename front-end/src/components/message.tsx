@@ -17,9 +17,9 @@ const ImgViewer = ({ img }: { img: any }) => {
   );
 };
 
-const Message = ({ allUsers }: any) => {
+const Message = () => {
   const { messages = [] } = useSelector((state) => state?.message);
-  const { loginUser } = useSelector((state) => state?.auth);
+  const { loginUser, allUsers } = useSelector((state) => state?.auth);
   const { _id: myId } = loginUser;
   return (
     <>

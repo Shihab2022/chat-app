@@ -9,17 +9,12 @@ import { showToast } from "../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../constants/common";
 import { useState } from "react";
 import { sendMessage } from "../services/message";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
-export default function SearchField({
-  receiverId,
-  myId,
-}: {
-  receiverId: string;
-  myId: string;
-}) {
+export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
+  const { receiverId } = useSelector((state) => state?.message);
   const handleClick = async () => {
     const messageData = {
       senderId: myId,

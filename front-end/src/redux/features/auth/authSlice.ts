@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice } from "@reduxjs/toolkit";
 
 export type TConversation = {
   activeUsers?: string[];
   loginUser?: object;
+  allUsers?: any;
 };
 const initialState: TConversation = {
   loginUser: {},
   activeUsers: [],
+  allUsers: [],
 };
 const authSlice = createSlice({
   name: "user",
@@ -18,8 +21,11 @@ const authSlice = createSlice({
     SET_ACTIVE_USERS: (state, action) => {
       state.activeUsers = action?.payload;
     },
+    SET_ALL_USERS: (state, action) => {
+      state.allUsers = action?.payload;
+    },
   },
 });
 
-export const { setUser, SET_ACTIVE_USERS } = authSlice.actions;
+export const { setUser, SET_ACTIVE_USERS, SET_ALL_USERS } = authSlice.actions;
 export default authSlice.reducer;

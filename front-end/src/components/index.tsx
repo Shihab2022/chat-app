@@ -36,7 +36,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
   },
 }));
-export default function LeftSiteBar({
+export default function LeftSiteBarCard({
   onClick,
   user,
 }: {

@@ -2,7 +2,7 @@ import { Toaster } from "react-hot-toast";
 import { Route, Routes } from "react-router-dom";
 import LandingPage from "./components/homePage";
 import Homepage from "./components";
-import ResponsiveDrawer from "./pages";
+import ResponsiveDrawer from "./pages/messages";
 import SignUp from "./pages/login/registerPage";
 import SignIn from "./pages/login/login";
 import ForgetPassword from "./pages/login/forgetPassword";
