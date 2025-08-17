@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Avatar, Box, Stack, Typography } from "@mui/material";
+import { Avatar, Box, Paper, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { TMessage } from "../redux/features/chat/getConversationSlice";
@@ -36,6 +36,9 @@ const Message = () => {
         {messages?.map((mess: TMessage, i: number) => {
           const { text, senderId } = mess;
           const userInfo = allUsers.find((user: any) => user._id === senderId);
+
+          const isOwn = mess.senderId === myId;
+
           return (
             <>
               <Stack
@@ -57,7 +60,7 @@ const Message = () => {
                   spacing={2}
                 >
                   <ImgViewer img={userInfo?.img} />
-                  <Typography
+                  {/* <Typography
                     key={i}
                     sx={{
                       textAlign: `${mess.senderId === myId ? "left" : "right"}`,
@@ -65,7 +68,39 @@ const Message = () => {
                     paragraph
                   >
                     {text}
-                  </Typography>
+                  </Typography> */}
+
+                  <Box
+                    key={mess._id}
+                    sx={{
+                      display: "flex",
+                      justifyContent: isOwn ? "flex-end" : "flex-start",
+                      mb: 1,
+                    }}
+                  >
+                    <Paper
+                      elevation={1}
+                      sx={{
+                        p: 1.5,
+                        // maxWidth: "60%",
+                        borderRadius: 2,
+                        backgroundColor: isOwn ? "#DCF8C6" : "#fff", // WhatsApp green / white
+                      }}
+                    >
+                      <Typography variant="body1">{text}</Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: "block",
+                          textAlign: "right",
+                          mt: 0.5,
+                          opacity: 0.7,
+                        }}
+                      >
+                        10:30 PM
+                      </Typography>
+                    </Paper>
+                  </Box>
                 </Stack>
               </Stack>
             </>
