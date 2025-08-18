@@ -33,18 +33,18 @@ const Message = () => {
   return (
     <>
       <Box sx={{ paddingTop: NAV_BAR_HEIGHT }}>
-        {messages?.map((mess: TMessage, i: number) => {
+        {messages?.map((mess: TMessage) => {
           const { text, senderId } = mess;
           const userInfo = allUsers.find((user: any) => user._id === senderId);
 
           const isOwn = mess.senderId === myId;
-
+          console.log({ mess });
           return (
             <>
               <Stack
                 direction="row"
                 justifyContent={`${
-                  mess.senderId === myId ? "flex-start" : "flex-end"
+                  mess.senderId === myId ? "flex-end" : "flex-start"
                 }`}
                 alignItems="center"
                 spacing={2}
@@ -53,7 +53,7 @@ const Message = () => {
               >
                 <Stack
                   direction={`${
-                    mess.senderId === myId ? "row" : "row-reverse"
+                    mess.senderId === myId ? "row-reverse" : "row"
                   }`}
                   justifyContent="flex-start"
                   alignItems="center"
@@ -74,31 +74,50 @@ const Message = () => {
                     key={mess._id}
                     sx={{
                       display: "flex",
-                      justifyContent: isOwn ? "flex-end" : "flex-start",
+                      justifyContent: isOwn ? "flex-start" : "flex-end",
                       mb: 1,
                     }}
                   >
                     <Paper
                       elevation={1}
                       sx={{
-                        p: 1.5,
-                        // maxWidth: "60%",
+                        paddingX: 1.5,
+                        paddingY: 1, // maxWidth: "60%",
                         borderRadius: 2,
                         backgroundColor: isOwn ? "#DCF8C6" : "#fff", // WhatsApp green / white
                       }}
                     >
-                      <Typography variant="body1">{text}</Typography>
-                      <Typography
-                        variant="caption"
+                      <Stack
+                        direction={isOwn ? "row-reverse" : "row"}
+                        spacing={2}
                         sx={{
-                          display: "block",
-                          textAlign: "right",
-                          mt: 0.5,
-                          opacity: 0.7,
+                          justifyContent: "flex-start",
+                          alignItems: "center",
                         }}
                       >
-                        10:30 PM
-                      </Typography>
+                        <Typography variant="body1">{text}</Typography>
+                        <Stack
+                          direction="row"
+                          spacing={2}
+                          sx={{
+                            justifyContent: "flex-start",
+                            alignItems: "flex-end",
+                            height: "100%",
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              display: "block",
+                              textAlign: "right",
+                              mt: 0.5,
+                              opacity: 0.7,
+                            }}
+                          >
+                            10:30 PM
+                          </Typography>
+                        </Stack>
+                      </Stack>
                     </Paper>
                   </Box>
                 </Stack>
