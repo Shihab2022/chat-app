@@ -8,6 +8,7 @@ export type TMessage = {
   image?: string;
   createdAt: string; // usually ISO string from backend
   updatedAt: string;
+  time?: string;
 };
 export type TConversation = {
   messages: TMessage[];

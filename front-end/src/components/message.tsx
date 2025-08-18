@@ -5,6 +5,7 @@ import { RootState } from "../redux/store";
 import { TMessage } from "../redux/features/chat/getConversationSlice";
 import { NAV_BAR_HEIGHT } from "../constants/common";
 import { useEffect, useRef } from "react";
+import { formatTime, formatTimes } from "../utils/timeFormat";
 
 const ImgViewer = ({ img }: { img: any }) => {
   return (
@@ -34,10 +35,11 @@ const Message = () => {
     <>
       <Box sx={{ paddingTop: NAV_BAR_HEIGHT }}>
         {messages?.map((mess: TMessage) => {
-          const { text, senderId } = mess;
+          const { text, senderId, createdAt } = mess;
           const userInfo = allUsers.find((user: any) => user._id === senderId);
 
           const isOwn = mess.senderId === myId;
+          const time = formatTimes(createdAt);
           console.log({ mess });
           return (
             <>
@@ -114,7 +116,7 @@ const Message = () => {
                               opacity: 0.7,
                             }}
                           >
-                            10:30 PM
+                            {time || "10:30 PM"}
                           </Typography>
                         </Stack>
                       </Stack>
