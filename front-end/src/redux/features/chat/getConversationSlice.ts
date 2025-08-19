@@ -1,5 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addMessageToGroups } from "../../../utils/timeFormat";
+import {
+  addMessageToGroups,
+  formatFirstMessage,
+} from "../../../utils/timeFormat";
 
 export type TMessage = {
   _id: string; // comes as string in JSON
@@ -33,6 +36,9 @@ const conversationSlice = createSlice({
             state.messages,
             action.payload
           );
+          state.messages = addedMessage;
+        } else {
+          const addedMessage = formatFirstMessage(action.payload);
           state.messages = addedMessage;
         }
       }
