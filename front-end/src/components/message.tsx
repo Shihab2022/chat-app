@@ -5,7 +5,7 @@ import { RootState } from "../redux/store";
 import { TMessage } from "../redux/features/chat/getConversationSlice";
 import { NAV_BAR_HEIGHT } from "../constants/common";
 import { useEffect, useRef } from "react";
-import { formatTime, formatTimes } from "../utils/timeFormat";
+import { formatTimes } from "../utils/timeFormat";
 
 const ImgViewer = ({ img }: { img: any }) => {
   return (
@@ -16,7 +16,7 @@ const ImgViewer = ({ img }: { img: any }) => {
 };
 
 const Message = () => {
-  const { messages = [] } = useSelector((state: RootState) => state?.message);
+  const { messages = {} } = useSelector((state: RootState) => state?.message);
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth
   );
@@ -34,7 +34,118 @@ const Message = () => {
   return (
     <>
       <Box sx={{ paddingTop: NAV_BAR_HEIGHT }}>
-        {messages?.map((mess: TMessage) => {
+        {Object.keys(messages).map((date) => (
+          <div key={date}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: "10px",
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  textAlign: "right",
+                  mt: 0.5,
+                  opacity: 0.7,
+                }}
+              >
+                {date}
+              </Typography>
+            </Stack>
+
+            {messages[date].map((mess: TMessage) => {
+              const { text, senderId, createdAt } = mess;
+              const userInfo = allUsers.find(
+                (user: any) => user._id === senderId
+              );
+
+              const isOwn = mess.senderId === myId;
+              const time = formatTimes(createdAt);
+              console.log({ mess });
+              return (
+                <>
+                  <Stack
+                    direction="row"
+                    justifyContent={`${
+                      mess.senderId === myId ? "flex-end" : "flex-start"
+                    }`}
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ marginY: "10px" }}
+                    ref={messageEndRef}
+                  >
+                    <Stack
+                      direction={`${
+                        mess.senderId === myId ? "row-reverse" : "row"
+                      }`}
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <ImgViewer img={userInfo?.img} />
+                      <Box
+                        key={mess._id}
+                        sx={{
+                          display: "flex",
+                          justifyContent: isOwn ? "flex-start" : "flex-end",
+                          mb: 1,
+                        }}
+                      >
+                        <Paper
+                          elevation={1}
+                          sx={{
+                            paddingX: 1.5,
+                            paddingY: 1,
+                            borderRadius: 2,
+                            backgroundColor: isOwn ? "#DCF8C6" : "#fff",
+                          }}
+                        >
+                          <Stack
+                            direction={isOwn ? "row-reverse" : "row"}
+                            spacing={2}
+                            sx={{
+                              justifyContent: "flex-start",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Typography variant="body1">{text}</Typography>
+                            <Stack
+                              direction="row"
+                              spacing={2}
+                              sx={{
+                                justifyContent: "flex-start",
+                                alignItems: "flex-end",
+                                height: "100%",
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  display: "block",
+                                  textAlign: "right",
+                                  mt: 0.5,
+                                  opacity: 0.7,
+                                }}
+                              >
+                                {time || "10:30 PM"}
+                              </Typography>
+                            </Stack>
+                          </Stack>
+                        </Paper>
+                      </Box>
+                    </Stack>
+                  </Stack>
+                </>
+              );
+            })}
+          </div>
+        ))}
+        {/* {messages?.map((mess: TMessage) => {
           const { text, senderId, createdAt } = mess;
           const userInfo = allUsers.find((user: any) => user._id === senderId);
 
@@ -62,16 +173,6 @@ const Message = () => {
                   spacing={2}
                 >
                   <ImgViewer img={userInfo?.img} />
-                  {/* <Typography
-                    key={i}
-                    sx={{
-                      textAlign: `${mess.senderId === myId ? "left" : "right"}`,
-                    }}
-                    paragraph
-                  >
-                    {text}
-                  </Typography> */}
-
                   <Box
                     key={mess._id}
                     sx={{
@@ -84,9 +185,9 @@ const Message = () => {
                       elevation={1}
                       sx={{
                         paddingX: 1.5,
-                        paddingY: 1, // maxWidth: "60%",
+                        paddingY: 1,
                         borderRadius: 2,
-                        backgroundColor: isOwn ? "#DCF8C6" : "#fff", // WhatsApp green / white
+                        backgroundColor: isOwn ? "#DCF8C6" : "#fff", 
                       }}
                     >
                       <Stack
@@ -126,7 +227,7 @@ const Message = () => {
               </Stack>
             </>
           );
-        })}
+        })} */}
       </Box>
     </>
   );

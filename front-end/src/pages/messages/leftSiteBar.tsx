@@ -14,6 +14,7 @@ import {
 import { getMessage } from "../../services/message";
 import { RootState } from "../../redux/store";
 import { TUser } from "../../types";
+import { groupMessagesByDate } from "../../utils/timeFormat";
 
 const LeftSiteBar = () => {
   const { loginUser, allUsers } = useSelector(
@@ -33,7 +34,9 @@ const LeftSiteBar = () => {
       dispatch(SET_RECEIVER_ID(user._id));
       const res = await getMessage(params);
       if (res?.success) {
-        dispatch(SET_CONVERSATION(res?.data));
+        const formattedMessage = groupMessagesByDate(res?.data);
+        console.log({ formattedMessage });
+        dispatch(SET_CONVERSATION(formattedMessage));
       }
     } catch (error) {
       console.log({ error });
@@ -41,7 +44,7 @@ const LeftSiteBar = () => {
   };
 
   useEffect(() => {
-    if (messages.length <= 0 && !!receiverId) {
+    if (Object.keys(messages).length <= 0 && !!receiverId) {
       handleClick({ _id: receiverId });
     }
   }, [receiverId]);

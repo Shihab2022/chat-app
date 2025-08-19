@@ -1,20 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const formatTime: any = (isoString: string) => {
+export const formatDate: any = (isoString: string) => {
   const dateObj = new Date(isoString);
-
-  // Format date as DD-MM-YYYY
   const day = String(dateObj.getDate()).padStart(2, "0");
   const month = String(dateObj.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
   const year = dateObj.getFullYear();
   const formattedDate = `${day}-${month}-${year}`;
 
-  // Format time as HH:MM AM/PM
-  const formattedTime = dateObj.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  return { date: formattedDate, time: formattedTime };
+  return formattedDate;
 };
 
 export const formatTimes: any = (isoString: any) => {
@@ -25,3 +17,23 @@ export const formatTimes: any = (isoString: any) => {
   });
   return formattedTime;
 };
+
+export function groupMessagesByDate(messages: any) {
+  return messages.reduce((groups: any, msg: any) => {
+    const dateObj = new Date(msg.createdAt);
+
+    // Format date as DD-MM-YYYY
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const year = dateObj.getFullYear();
+    const weekday = dateObj.toLocaleDateString("en-US", { weekday: "long" });
+
+    const formattedDate = `${day}/${month}/${year} (${weekday})`;
+    if (!groups[formattedDate]) {
+      groups[formattedDate] = [];
+    }
+    groups[formattedDate].push(msg);
+
+    return groups;
+  }, {});
+}

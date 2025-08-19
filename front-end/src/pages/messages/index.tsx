@@ -17,7 +17,6 @@ import LeftSiteBar from "./leftSiteBar";
 import { RootState } from "../../redux/store";
 import { DRAWER_WIDTH } from "../../constants/common";
 import NavBar from "./navBar";
-import { formatTime } from "../../utils/timeFormat";
 
 function ChatContainer() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -42,13 +41,10 @@ function ChatContainer() {
           const img =
             d?.img ||
             `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`;
-          const { date, time } = formatTime(d?.createdAt);
           return {
             ...d,
             img,
             name: toStartCaseStr(d?.name),
-            date,
-            time,
           };
         });
         dispatch(SET_RECEIVER_ID(conversation[0]._id));
