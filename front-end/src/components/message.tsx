@@ -66,7 +66,6 @@ const Message = () => {
 
               const isOwn = mess.senderId === myId;
               const time = formatTimes(createdAt);
-              console.log({ mess });
               return (
                 <>
                   <Stack

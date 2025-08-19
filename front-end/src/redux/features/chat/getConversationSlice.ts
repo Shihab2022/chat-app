@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { addMessageToGroups } from "../../../utils/timeFormat";
 
 export type TMessage = {
   _id: string; // comes as string in JSON
@@ -25,20 +26,23 @@ const conversationSlice = createSlice({
     SET_CONVERSATION: (state, action) => {
       state.messages = action.payload;
     },
-    // SET_REAL_TIME_CONVERSATION: (state, action) => {
-    //   if (action?.payload?.senderId === state.receiverId) {
-    //     state.messages = [...state.messages, action.payload];
-    //   }
-    // },
+    SET_REAL_TIME_CONVERSATION: (state, action) => {
+      if (action?.payload?.senderId === state.receiverId) {
+        if (Object.keys(state.messages).length > 0) {
+          const addedMessage = addMessageToGroups(
+            state.messages,
+            action.payload
+          );
+          state.messages = addedMessage;
+        }
+      }
+    },
     SET_RECEIVER_ID: (state, action) => {
       state.receiverId = action.payload;
     },
   },
 });
 
-export const {
-  SET_CONVERSATION,
-  // SET_REAL_TIME_CONVERSATION,
-  SET_RECEIVER_ID,
-} = conversationSlice.actions;
+export const { SET_CONVERSATION, SET_REAL_TIME_CONVERSATION, SET_RECEIVER_ID } =
+  conversationSlice.actions;
 export default conversationSlice.reducer;

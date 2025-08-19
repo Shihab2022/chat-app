@@ -35,7 +35,6 @@ const LeftSiteBar = () => {
       const res = await getMessage(params);
       if (res?.success) {
         const formattedMessage = groupMessagesByDate(res?.data);
-        console.log({ formattedMessage });
         dispatch(SET_CONVERSATION(formattedMessage));
       }
     } catch (error) {

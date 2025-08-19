@@ -37,3 +37,23 @@ export function groupMessagesByDate(messages: any) {
     return groups;
   }, {});
 }
+
+export function addMessageToGroups(groups: any, msg: any) {
+  const dateObj = new Date(msg.createdAt);
+
+  // Format date as DD-MM-YYYY
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const year = dateObj.getFullYear();
+  const formattedDate = `${day}-${month}-${year}`;
+
+  // If group for this date doesn't exist, create it
+  if (!groups[formattedDate]) {
+    groups[formattedDate] = [];
+  }
+
+  // Add the message
+  groups[formattedDate].push(msg);
+
+  return groups;
+}

@@ -12,6 +12,7 @@ import { sendMessage } from "../services/message";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
 import { RootState } from "../redux/store";
+import { groupMessagesByDate } from "../utils/timeFormat";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
@@ -27,7 +28,8 @@ export default function SearchField({ myId }: { myId: string }) {
       const res = await sendMessage(messageData);
       if (res?.success) {
         setMessage("");
-        dispatch(SET_CONVERSATION(res?.data));
+        const formattedMessage = groupMessagesByDate(res?.data);
+        dispatch(SET_CONVERSATION(formattedMessage));
       }
     } catch (error) {
       console.log({ error });
