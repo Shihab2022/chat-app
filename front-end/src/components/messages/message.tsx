@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { TMessage } from "../../redux/features/chat/getConversationSlice";
 import { NAV_BAR_HEIGHT } from "../../constants/common";
 import { useEffect, useRef } from "react";
 import ShowingMessage from "./showingMessage";
+import { TMessage } from "../../types";
 
 const Message = () => {
   const { messages = {} } = useSelector((state: RootState) => state?.message);
@@ -23,7 +23,7 @@ const Message = () => {
     <>
       <Box sx={{ paddingTop: NAV_BAR_HEIGHT }}>
         {Object.keys(messages).map((date) => (
-          <div key={date}>
+          <Box key={date}>
             <Stack
               direction="row"
               spacing={2}
@@ -33,17 +33,37 @@ const Message = () => {
                 marginTop: "10px",
               }}
             >
-              <Typography
-                variant="caption"
+              <Paper
+                elevation={1}
                 sx={{
-                  display: "block",
-                  textAlign: "right",
-                  mt: 0.5,
-                  opacity: 0.7,
+                  paddingX: 2.5,
+                  paddingY: 0.5,
+                  borderRadius: 1,
+                  backgroundColor: "#fff",
                 }}
               >
-                {date}
-              </Typography>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  sx={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: "block",
+                      textAlign: "right",
+                      mt: 0.5,
+                      opacity: 0.7,
+                      color: "#000",
+                    }}
+                  >
+                    {date}
+                  </Typography>
+                </Stack>
+              </Paper>
             </Stack>
 
             {messages[date].map((mess: TMessage) => {
@@ -51,7 +71,7 @@ const Message = () => {
                 <ShowingMessage mess={mess} messageEndRef={messageEndRef} />
               );
             })}
-          </div>
+          </Box>
         ))}
       </Box>
     </>

@@ -24,3 +24,29 @@ export type TConversation = {
   loginUser: TUser;
   allUsers?: any;
 };
+
+export interface ChatMessage {
+  _id: string;
+  senderId: string;
+  receiverId: string;
+  text: string;
+  createdAt: string;
+}
+
+export type GroupedMessages = {
+  [date: string]: ChatMessage[];
+};
+export type TMessage = {
+  _id: string; // comes as string in JSON
+  senderId: string;
+  receiverId: string;
+  text?: string;
+  image?: string;
+  createdAt?: string; // usually ISO string from backend
+  updatedAt?: string;
+  time?: string;
+};
+export type TConversationState = {
+  messages: GroupedMessages;
+  receiverId: string;
+};

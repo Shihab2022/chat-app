@@ -3,22 +3,9 @@ import {
   addMessageToGroups,
   formatFirstMessage,
 } from "../../../utils/timeFormat";
+import { TConversationState } from "../../../types";
 
-export type TMessage = {
-  _id: string; // comes as string in JSON
-  senderId: string;
-  receiverId: string;
-  text?: string;
-  image?: string;
-  createdAt: string; // usually ISO string from backend
-  updatedAt: string;
-  time?: string;
-};
-export type TConversation = {
-  messages: {};
-  receiverId: string;
-};
-const initialState: TConversation = {
+const initialState: TConversationState = {
   messages: {},
   receiverId: "",
 };
