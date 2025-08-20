@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import Drawer from "@mui/material/Drawer";
 import SearchField from "../../components/searchField";
-import Message from "../../components/message";
+import Message from "../../components/messages/message";
 import { useEffect, useState } from "react";
 import { getUsersForSidebar } from "../../services/message";
 import { randomTwoDigit, toStartCaseStr } from "../../utils/common";
