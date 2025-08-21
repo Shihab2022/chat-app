@@ -36,6 +36,7 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
           justifyContent="flex-start"
           alignItems="center"
           spacing={2}
+          sx={{ width: "75%" }}
         >
           <ImgViewer img={userInfo?.img} />
           <Box
@@ -64,27 +65,19 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                 }}
               >
                 <Typography variant="body1">{text}</Typography>
-                <Stack
-                  direction="row"
-                  spacing={2}
+
+                <Typography
+                  variant="caption"
                   sx={{
-                    justifyContent: "flex-start",
-                    alignItems: "flex-end",
-                    height: "100%",
+                    display: "block",
+                    textAlign: "right",
+                    mt: 0.5,
+                    opacity: 0.7,
+                    fontSize: "10px",
                   }}
                 >
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      display: "block",
-                      textAlign: "right",
-                      mt: 0.5,
-                      opacity: 0.7,
-                    }}
-                  >
-                    {time || "10:30 PM"}
-                  </Typography>
-                </Stack>
+                  {time || "10:30 PM"}
+                </Typography>
               </Stack>
             </Paper>
           </Box>

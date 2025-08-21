@@ -66,3 +66,8 @@ To get a local copy up and running, follow these simple steps.
 
 `https://github.com/burakorkmez/fullstack-chat-app `
 `https://youtu.be/ntKkVrQqBYY?si=OUmNm1jL7eiSsnzM `
+
+`https://github.com/burakorkmez/slack-clone/tree/master`
+`https://www.youtube.com/watch?v=qsFdE4okEfw `
+
+`https://github.com/burakorkmez`
