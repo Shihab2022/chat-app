@@ -10,13 +10,19 @@ import { COMMON_ERROR_MESSAGE, FAILED } from "../constants/common";
 import { useState } from "react";
 import { sendMessage } from "../services/message";
 import { useDispatch, useSelector } from "react-redux";
-import { SET_CONVERSATION } from "../redux/features/chat/getConversationSlice";
+import {
+  SET_CONVERSATION,
+  SET_EMOJI_ANCHOR_EL,
+  SET_EMOJI_STATUS,
+} from "../redux/features/chat/getConversationSlice";
 import { RootState } from "../redux/store";
 import { groupMessagesByDate } from "../utils/timeFormat";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
-  const { receiverId } = useSelector((state: RootState) => state?.message);
+  const { receiverId, isEmojiOpen } = useSelector(
+    (state: RootState) => state?.message
+  );
   const handleClick = async () => {
     const messageData = {
       senderId: myId,
@@ -47,7 +53,14 @@ export default function SearchField({ myId }: { myId: string }) {
         border: "1px solid gray",
       }}
     >
-      <IconButton sx={{ p: "10px" }} aria-label="menu">
+      <IconButton
+        onClick={(e) => {
+          dispatch(SET_EMOJI_ANCHOR_EL(e.currentTarget));
+          dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
+        }}
+        sx={{ p: "10px" }}
+        aria-label="menu"
+      >
         <AddIcon />
       </IconButton>
       <InputBase

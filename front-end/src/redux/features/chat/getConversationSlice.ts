@@ -8,6 +8,8 @@ import { TConversationState } from "../../../types";
 const initialState: TConversationState = {
   messages: {},
   receiverId: "",
+  isEmojiOpen: false,
+  anchorElEmoji: null,
 };
 const conversationSlice = createSlice({
   name: "message",
@@ -33,9 +35,20 @@ const conversationSlice = createSlice({
     SET_RECEIVER_ID: (state, action) => {
       state.receiverId = action.payload;
     },
+    SET_EMOJI_STATUS: (state, action) => {
+      state.isEmojiOpen = action.payload;
+    },
+    SET_EMOJI_ANCHOR_EL: (state, action) => {
+      state.anchorElEmoji = action.payload;
+    },
   },
 });
 
-export const { SET_CONVERSATION, SET_REAL_TIME_CONVERSATION, SET_RECEIVER_ID } =
-  conversationSlice.actions;
+export const {
+  SET_CONVERSATION,
+  SET_REAL_TIME_CONVERSATION,
+  SET_RECEIVER_ID,
+  SET_EMOJI_STATUS,
+  SET_EMOJI_ANCHOR_EL,
+} = conversationSlice.actions;
 export default conversationSlice.reducer;

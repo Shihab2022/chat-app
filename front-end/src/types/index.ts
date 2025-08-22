@@ -49,4 +49,6 @@ export type TMessage = {
 export type TConversationState = {
   messages: GroupedMessages;
   receiverId: string;
+  isEmojiOpen: boolean;
+  anchorElEmoji: any;
 };

@@ -17,6 +17,7 @@ import LeftSiteBar from "./leftSiteBar";
 import { RootState } from "../../redux/store";
 import { DRAWER_WIDTH } from "../../constants/common";
 import NavBar from "./navBar";
+import EmojiPicker from "../../components/emoji";
 
 function ChatContainer() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -61,68 +62,72 @@ function ChatContainer() {
   // window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <NavBar />
-      <Box
-        component="nav"
-        sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
-        aria-label="mailbox folders"
-      >
-        <Drawer
-          // container={container}
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: DRAWER_WIDTH,
-            },
-          }}
+    <>
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+        <NavBar />
+        <Box
+          component="nav"
+          sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
+          aria-label="mailbox folders"
         >
-          <LeftSiteBar />
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: DRAWER_WIDTH,
-            },
-          }}
-          open
-        >
-          <LeftSiteBar />
-        </Drawer>
-      </Box>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-        }}
-      >
-        <Box sx={{ marginBottom: "50px" }}>
-          <Message />
+          <Drawer
+            // container={container}
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+            sx={{
+              display: { xs: "block", sm: "none" },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: DRAWER_WIDTH,
+              },
+            }}
+          >
+            <LeftSiteBar />
+          </Drawer>
+          <Drawer
+            variant="permanent"
+            sx={{
+              display: { xs: "none", sm: "block" },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: DRAWER_WIDTH,
+              },
+            }}
+            open
+          >
+            <LeftSiteBar />
+          </Drawer>
         </Box>
         <Box
+          component="main"
           sx={{
-            position: "fixed",
-            bottom: 5,
-            width: { sm: `calc(100% - ${DRAWER_WIDTH + 40}px)` },
+            flexGrow: 1,
+            p: 3,
+            width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
           }}
         >
-          <SearchField myId={myId} />
+          <Box sx={{ marginBottom: "50px" }}>
+            <Message />
+          </Box>
+          <Box
+            sx={{
+              position: "fixed",
+              bottom: 5,
+              width: { sm: `calc(100% - ${DRAWER_WIDTH + 40}px)` },
+            }}
+          >
+            <SearchField myId={myId} />
+          </Box>
         </Box>
       </Box>
-    </Box>
+
+      <EmojiPicker />
+    </>
   );
 }
 export default ChatContainer;
