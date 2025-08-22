@@ -125,8 +125,6 @@ function ChatContainer() {
           </Box>
         </Box>
       </Box>
-
-      <EmojiPicker />
     </>
   );
 }

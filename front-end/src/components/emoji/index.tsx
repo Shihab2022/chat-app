@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,7 +8,8 @@ import {
   SET_EMOJI_ANCHOR_EL,
   SET_EMOJI_STATUS,
 } from "../../redux/features/chat/getConversationSlice";
-const EmojiPicker = () => {
+
+const EmojiPicker = ({ onEmojiChanges }: { onEmojiChanges: any }) => {
   const { isEmojiOpen, anchorElEmoji } = useSelector(
     (state: RootState) => state?.message
   );
@@ -32,11 +34,9 @@ const EmojiPicker = () => {
           <div className="absolute bottom-12 left-100 z-10">
             <Picker
               data={data}
-              onEmojiSelect={
-                (emoji: { native: string }) =>
-                  console.log({ "emoji.native": emoji.native })
-                //   setMessage((prev) => prev + emoji.native)
-              }
+              onEmojiSelect={(emoji: { native: string }) => {
+                onEmojiChanges(emoji.native);
+              }}
             />
           </div>
         )}

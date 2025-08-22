@@ -1,7 +1,6 @@
 import { Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import ChatIcon from "@mui/icons-material/Chat";
-import EmojiPicker from "./emoji";
 const LandingPage = () => {
   return (
     <div>
@@ -23,7 +22,6 @@ const LandingPage = () => {
           login
         </Button>
       </Link>
-      <EmojiPicker />
     </div>
   );
 };

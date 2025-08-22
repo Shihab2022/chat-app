@@ -17,6 +17,7 @@ import {
 } from "../redux/features/chat/getConversationSlice";
 import { RootState } from "../redux/store";
 import { groupMessagesByDate } from "../utils/timeFormat";
+import EmojiPicker from "./emoji";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
@@ -44,50 +45,56 @@ export default function SearchField({ myId }: { myId: string }) {
   };
 
   return (
-    <Paper
-      component="form"
-      sx={{
-        p: "2px 0px",
-        display: "flex",
-        alignItems: "center",
-        border: "1px solid gray",
-      }}
-    >
-      <IconButton
-        onClick={(e) => {
-          dispatch(SET_EMOJI_ANCHOR_EL(e.currentTarget));
-          dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
+    <>
+      <Paper
+        component="form"
+        sx={{
+          p: "2px 0px",
+          display: "flex",
+          alignItems: "center",
+          border: "1px solid gray",
         }}
-        sx={{ p: "10px" }}
-        aria-label="menu"
       >
-        <AddIcon />
-      </IconButton>
-      <InputBase
-        onChange={(e: any) => setMessage(e.target.value)}
-        value={message}
-        sx={{ ml: 1, flex: 1 }}
-        placeholder="Type a message"
-        inputProps={{ "aria-label": "search google maps" }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            if (message) {
-              handleClick();
+        <IconButton
+          onClick={(e) => {
+            dispatch(SET_EMOJI_ANCHOR_EL(e.currentTarget));
+            dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
+          }}
+          sx={{ p: "10px" }}
+          aria-label="menu"
+        >
+          <AddIcon />
+        </IconButton>
+        <InputBase
+          onChange={(e: any) => setMessage(e.target.value)}
+          value={message}
+          sx={{ ml: 1, flex: 1 }}
+          placeholder="Type a message"
+          inputProps={{ "aria-label": "search google maps" }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (message) {
+                handleClick();
+              }
             }
-          }
-        }}
+          }}
+        />
+        <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+        <IconButton
+          onClick={handleClick}
+          color="primary"
+          sx={{ p: "10px" }}
+          aria-label="directions"
+          disabled={!message}
+        >
+          <SendIcon />
+        </IconButton>
+      </Paper>
+
+      <EmojiPicker
+        onEmojiChanges={(e: any) => setMessage((prev) => prev + e)}
       />
-      <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-      <IconButton
-        onClick={handleClick}
-        color="primary"
-        sx={{ p: "10px" }}
-        aria-label="directions"
-        disabled={!message}
-      >
-        <SendIcon />
-      </IconButton>
-    </Paper>
+    </>
   );
 }
