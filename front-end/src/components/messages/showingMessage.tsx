@@ -1,9 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Avatar, Box, Paper, Stack, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { formatTimes } from "../../utils/timeFormat";
-
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { useState } from "react";
 const ImgViewer = ({ img }: { img: any }) => {
   return (
     <>
@@ -13,12 +23,16 @@ const ImgViewer = ({ img }: { img: any }) => {
 };
 const ShowingMessage = ({ mess, messageEndRef }: any) => {
   const { text, senderId, createdAt } = mess;
+  const [isHovered, setIsHovered] = useState(false);
+  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth
   );
   const { _id: myId } = loginUser;
   const userInfo = allUsers.find((user: any) => user._id === senderId);
-
+  console.log({ isHovered });
+  console.log({ isMenuOpen });
   const isOwn = mess.senderId === myId;
   const time = formatTimes(createdAt);
   return (
@@ -62,27 +76,79 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                 sx={{
                   justifyContent: "flex-start",
                   alignItems: "center",
+                  position: "relative",
                 }}
               >
                 <Typography variant="body1">{text}</Typography>
-
-                <Typography
-                  variant="caption"
-                  sx={{
-                    display: "block",
-                    textAlign: "right",
-                    mt: 0.5,
-                    opacity: 0.7,
-                    fontSize: "10px",
+                <div
+                  style={{
+                    position: "relative",
+                    display: "inline-block",
                   }}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
                 >
-                  {time || "10:30 PM"}
-                </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: "block",
+                      textAlign: "right",
+                      mt: 0.5,
+                      opacity: isHovered ? 0.3 : 0.7, // fade when hovered
+                      fontSize: "10px",
+                      cursor: "pointer",
+                      transition: "opacity 0.3s ease, filter 0.3s ease",
+                      filter: isHovered ? "blur(5px)" : "none", // optional blur
+                    }}
+                  >
+                    {time || "10:30 PM"}
+                  </Typography>
+
+                  {/* {isHovered && (
+                    <IconButton
+                      onClick={(e) => {
+                        setAnchorEl(e);
+                        setMenuOpen(!isMenuOpen);
+                      }}
+                      // sx={{ p: "10px" }}
+                      aria-label="menu"
+                    >
+                      <KeyboardArrowDownIcon
+                        // onClick={(e) => {
+                        //   setAnchorEl(e);
+                        //   setMenuOpen(!isMenuOpen);
+                        // }}
+                        sx={{
+                          fontSize: 40,
+                          color: "#000",
+                          position: "absolute",
+                          top: "50%",
+                          transition: "all 0.3s ease",
+                          transform: "translateY(-50%)",
+                          cursor: "pointer",
+                          ...(isOwn ? { left: 0 } : { right: 0 }),
+                        }}
+                      />
+                    </IconButton>
+                  )} */}
+                </div>
               </Stack>
             </Paper>
           </Box>
         </Stack>
       </Stack>
+
+      <Menu
+        id="basic-menu"
+        open={isMenuOpen}
+        anchorEl={anchorEl}
+        onClose={() => {
+          // dispatch(SET_EMOJI_ANCHOR_EL(null));
+          // dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
+        }}
+      >
+        <MenuItem>Profile</MenuItem>
+      </Menu>
     </>
   );
 };
