@@ -17,8 +17,6 @@ import LeftSiteBar from "./leftSiteBar";
 import { RootState } from "../../redux/store";
 import { DRAWER_WIDTH } from "../../constants/common";
 import NavBar from "./navBar";
-import EmojiPicker from "../../components/emoji";
-
 function ChatContainer() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
@@ -58,8 +56,6 @@ function ChatContainer() {
   useEffect(() => {
     getAllUsers();
   }, []);
-  // const container =
-  // window !== undefined ? () => window().document.body : undefined;
 
   return (
     <>
@@ -72,12 +68,11 @@ function ChatContainer() {
           aria-label="mailbox folders"
         >
           <Drawer
-            // container={container}
             variant="temporary"
             open={mobileOpen}
             onClose={handleDrawerToggle}
             ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
+              keepMounted: true,
             }}
             sx={{
               display: { xs: "block", sm: "none" },

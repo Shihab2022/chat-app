@@ -24,11 +24,6 @@ const EmojiPicker = ({ onEmojiChanges }: { onEmojiChanges: any }) => {
           dispatch(SET_EMOJI_ANCHOR_EL(null));
           dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
         }}
-        slotProps={{
-          list: {
-            "aria-labelledby": "basic-button",
-          },
-        }}
       >
         {isEmojiOpen && (
           <div className="absolute bottom-12 left-100 z-10">
@@ -37,6 +32,7 @@ const EmojiPicker = ({ onEmojiChanges }: { onEmojiChanges: any }) => {
               onEmojiSelect={(emoji: { native: string }) => {
                 onEmojiChanges(emoji.native);
               }}
+              previewPosition="none"
             />
           </div>
         )}
