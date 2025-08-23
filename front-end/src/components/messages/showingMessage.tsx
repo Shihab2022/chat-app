@@ -60,6 +60,8 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                 paddingY: 1,
                 borderRadius: 2,
                 backgroundColor: isOwn ? "#DCF8C6" : "#fff",
+                position: "relative", // 👈 container for absolute positioning
+                display: "inline-block",
               }}
             >
               <Stack
@@ -85,6 +87,18 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                   {time || "10:30 PM"}
                 </Typography>
               </Stack>
+              <span
+                style={{
+                  position: "absolute",
+                  bottom: -20, // push it *outside* the bubbl
+                  borderRadius: "50%",
+                  padding: "2px 4px",
+                  fontSize: "20px",
+                  ...(mess.senderId === myId ? { left: 1 } : { right: 1 }),
+                }}
+              >
+                ☺️
+              </span>
             </Paper>
           </Box>
           {isHovered && <MessageIcons mess={mess} myId={myId} />}
