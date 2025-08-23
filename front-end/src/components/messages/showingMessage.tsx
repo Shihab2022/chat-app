@@ -1,20 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Avatar,
-  Box,
-  IconButton,
-  Menu,
-  MenuItem,
-  Paper,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Avatar, Box, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { formatTimes } from "../../utils/timeFormat";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useState } from "react";
+import MessageIcons from "./messageIcons";
 const ImgViewer = ({ img, tooltipText }: { img: any; tooltipText: string }) => {
   return (
     <>
@@ -27,8 +17,7 @@ const ImgViewer = ({ img, tooltipText }: { img: any; tooltipText: string }) => {
 const ShowingMessage = ({ mess, messageEndRef }: any) => {
   const { text, senderId, createdAt } = mess;
   const [isHovered, setIsHovered] = useState(false);
-  const [isMenuOpen, setMenuOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth
   );
@@ -100,26 +89,9 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
               </Stack>
             </Paper>
           </Box>
-
-          {/* {isHovered && ( */}
-          <Stack>
-            <Typography>hi</Typography>
-          </Stack>
-          {/* )} */}
+          {isHovered && <MessageIcons mess={mess} myId={myId} />}
         </Stack>
       </Stack>
-
-      {/* <Menu
-        id="basic-menu"
-        open={isMenuOpen}
-        anchorEl={anchorEl}
-        onClose={() => {
-          // dispatch(SET_EMOJI_ANCHOR_EL(null));
-          // dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
-        }}
-      >
-        <MenuItem>Profile</MenuItem>
-      </Menu> */}
     </>
   );
 };
