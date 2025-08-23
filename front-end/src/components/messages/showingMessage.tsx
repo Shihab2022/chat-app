@@ -23,8 +23,6 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
   );
   const { _id: myId } = loginUser;
   const userInfo = allUsers.find((user: any) => user._id === senderId);
-  // console.log({ isHovered });
-  // console.log({ isMenuOpen });
   const isOwn = mess.senderId === myId;
   const time = formatTimes(createdAt);
   return (

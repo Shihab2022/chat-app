@@ -14,6 +14,7 @@ import {
   SET_CONVERSATION,
   SET_EMOJI_ANCHOR_EL,
   SET_EMOJI_STATUS,
+  SET_ONE_ICON,
 } from "../redux/features/chat/getConversationSlice";
 import { RootState } from "../redux/store";
 import { groupMessagesByDate } from "../utils/timeFormat";
@@ -59,6 +60,7 @@ export default function SearchField({ myId }: { myId: string }) {
           onClick={(e) => {
             dispatch(SET_EMOJI_ANCHOR_EL(e.currentTarget));
             dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
+            dispatch(SET_ONE_ICON(false));
           }}
           sx={{ p: "10px" }}
           aria-label="menu"

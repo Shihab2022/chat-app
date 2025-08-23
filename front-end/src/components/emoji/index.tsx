@@ -10,7 +10,7 @@ import {
 } from "../../redux/features/chat/getConversationSlice";
 
 const EmojiPicker = ({ onEmojiChanges }: { onEmojiChanges: any }) => {
-  const { isEmojiOpen, anchorElEmoji } = useSelector(
+  const { isEmojiOpen, anchorElEmoji, isOneIcon } = useSelector(
     (state: RootState) => state?.message
   );
   const dispatch = useDispatch();
@@ -30,6 +30,10 @@ const EmojiPicker = ({ onEmojiChanges }: { onEmojiChanges: any }) => {
             <Picker
               data={data}
               onEmojiSelect={(emoji: { native: string }) => {
+                if (isOneIcon) {
+                  dispatch(SET_EMOJI_ANCHOR_EL(null));
+                  dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
+                }
                 onEmojiChanges(emoji.native);
               }}
               previewPosition="none"

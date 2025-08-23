@@ -10,6 +10,7 @@ const initialState: TConversationState = {
   receiverId: "",
   isEmojiOpen: false,
   anchorElEmoji: null,
+  isOneIcon: false,
 };
 const conversationSlice = createSlice({
   name: "message",
@@ -38,6 +39,9 @@ const conversationSlice = createSlice({
     SET_EMOJI_STATUS: (state, action) => {
       state.isEmojiOpen = action.payload;
     },
+    SET_ONE_ICON: (state, action) => {
+      state.isOneIcon = action.payload;
+    },
     SET_EMOJI_ANCHOR_EL: (state, action) => {
       state.anchorElEmoji = action.payload;
     },
@@ -50,5 +54,6 @@ export const {
   SET_RECEIVER_ID,
   SET_EMOJI_STATUS,
   SET_EMOJI_ANCHOR_EL,
+  SET_ONE_ICON,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;

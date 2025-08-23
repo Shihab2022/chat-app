@@ -6,7 +6,17 @@ import ReplyIcon from "@mui/icons-material/Reply";
 import { useState } from "react";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import AddIcon from "@mui/icons-material/Add";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import {
+  SET_EMOJI_ANCHOR_EL,
+  SET_EMOJI_STATUS,
+  SET_ONE_ICON,
+} from "../../redux/features/chat/getConversationSlice";
+import EmojiPicker from "../emoji";
 const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
+  const { isEmojiOpen } = useSelector((state: RootState) => state?.message);
+  const dispatch = useDispatch();
   const [isIconMenuOpen, setIconMenuOpen] = useState(false);
   const [iconAnchorEl, setIconAnchorEl] = useState<null | HTMLElement>(null);
   return (
@@ -76,7 +86,16 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
               {" "}
               <InsertEmoticonIcon />
             </IconButton>
-            <IconButton aria-label="menu">
+            <IconButton
+              onClick={() => {
+                setIconMenuOpen(false);
+                dispatch(SET_EMOJI_ANCHOR_EL(iconAnchorEl));
+                dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
+                dispatch(SET_ONE_ICON(true));
+                setIconAnchorEl(null);
+              }}
+              aria-label="menu"
+            >
               {" "}
               <AddIcon
                 sx={{
@@ -90,6 +109,11 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
           </Stack>
         </Menu>
       </Stack>
+
+      <EmojiPicker
+        // onEmojiChanges={(e: any) => setMessage((prev) => prev + e)}
+        onEmojiChanges={(e: any) => console.log({ e })}
+      />
     </>
   );
 };

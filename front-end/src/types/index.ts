@@ -50,5 +50,6 @@ export type TConversationState = {
   messages: GroupedMessages;
   receiverId: string;
   isEmojiOpen: boolean;
+  isOneIcon: boolean;
   anchorElEmoji: any;
 };
