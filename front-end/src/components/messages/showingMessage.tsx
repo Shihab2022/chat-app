@@ -7,6 +7,7 @@ import {
   MenuItem,
   Paper,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useSelector } from "react-redux";
@@ -14,10 +15,12 @@ import { RootState } from "../../redux/store";
 import { formatTimes } from "../../utils/timeFormat";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useState } from "react";
-const ImgViewer = ({ img }: { img: any }) => {
+const ImgViewer = ({ img, tooltipText }: { img: any; tooltipText: string }) => {
   return (
     <>
-      <Avatar sx={{ width: 24, height: 24 }} src={img} />
+      <Tooltip title={tooltipText}>
+        <Avatar sx={{ width: 30, height: 30 }} src={img} />
+      </Tooltip>
     </>
   );
 };
@@ -31,8 +34,8 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
   );
   const { _id: myId } = loginUser;
   const userInfo = allUsers.find((user: any) => user._id === senderId);
-  console.log({ isHovered });
-  console.log({ isMenuOpen });
+  // console.log({ isHovered });
+  // console.log({ isMenuOpen });
   const isOwn = mess.senderId === myId;
   const time = formatTimes(createdAt);
   return (
@@ -44,15 +47,17 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
         spacing={2}
         sx={{ marginY: "10px" }}
         ref={messageEndRef}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <Stack
           direction={`${mess.senderId === myId ? "row-reverse" : "row"}`}
           justifyContent="flex-start"
           alignItems="center"
           spacing={2}
-          sx={{ width: "75%" }}
+          sx={{ width: "80%" }}
         >
-          <ImgViewer img={userInfo?.img} />
+          <ImgViewer img={userInfo?.img} tooltipText={userInfo?.name} />
           <Box
             key={mess._id}
             sx={{
@@ -80,65 +85,31 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                 }}
               >
                 <Typography variant="body1">{text}</Typography>
-                <div
-                  style={{
-                    position: "relative",
-                    display: "inline-block",
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    textAlign: "right",
+                    mt: 0.5,
+                    opacity: 0.7,
+                    fontSize: "10px",
                   }}
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
                 >
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      display: "block",
-                      textAlign: "right",
-                      mt: 0.5,
-                      opacity: isHovered ? 0.3 : 0.7, // fade when hovered
-                      fontSize: "10px",
-                      cursor: "pointer",
-                      transition: "opacity 0.3s ease, filter 0.3s ease",
-                      filter: isHovered ? "blur(5px)" : "none", // optional blur
-                    }}
-                  >
-                    {time || "10:30 PM"}
-                  </Typography>
-
-                  {/* {isHovered && (
-                    <IconButton
-                      onClick={(e) => {
-                        setAnchorEl(e);
-                        setMenuOpen(!isMenuOpen);
-                      }}
-                      // sx={{ p: "10px" }}
-                      aria-label="menu"
-                    >
-                      <KeyboardArrowDownIcon
-                        // onClick={(e) => {
-                        //   setAnchorEl(e);
-                        //   setMenuOpen(!isMenuOpen);
-                        // }}
-                        sx={{
-                          fontSize: 40,
-                          color: "#000",
-                          position: "absolute",
-                          top: "50%",
-                          transition: "all 0.3s ease",
-                          transform: "translateY(-50%)",
-                          cursor: "pointer",
-                          ...(isOwn ? { left: 0 } : { right: 0 }),
-                        }}
-                      />
-                    </IconButton>
-                  )} */}
-                </div>
+                  {time || "10:30 PM"}
+                </Typography>
               </Stack>
             </Paper>
           </Box>
+
+          {/* {isHovered && ( */}
+          <Stack>
+            <Typography>hi</Typography>
+          </Stack>
+          {/* )} */}
         </Stack>
       </Stack>
 
-      <Menu
+      {/* <Menu
         id="basic-menu"
         open={isMenuOpen}
         anchorEl={anchorEl}
@@ -148,7 +119,7 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
         }}
       >
         <MenuItem>Profile</MenuItem>
-      </Menu>
+      </Menu> */}
     </>
   );
 };
