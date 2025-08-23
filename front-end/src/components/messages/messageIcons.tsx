@@ -13,12 +13,13 @@ import {
   SET_EMOJI_STATUS,
   SET_ONE_ICON,
 } from "../../redux/features/chat/getConversationSlice";
-import EmojiPicker from "../emoji";
+// import EmojiPicker from "../emoji";
 const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
   const { isEmojiOpen } = useSelector((state: RootState) => state?.message);
   const dispatch = useDispatch();
   const [isIconMenuOpen, setIconMenuOpen] = useState(false);
   const [iconAnchorEl, setIconAnchorEl] = useState<null | HTMLElement>(null);
+
   return (
     <>
       <Stack
@@ -110,10 +111,10 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
         </Menu>
       </Stack>
 
-      <EmojiPicker
+      {/* <EmojiPicker
         // onEmojiChanges={(e: any) => setMessage((prev) => prev + e)}
-        onEmojiChanges={(e: any) => console.log({ e })}
-      />
+        onEmojiChangesFromMessage={(e: any) => console.log({ e })}
+      /> */}
     </>
   );
 };
