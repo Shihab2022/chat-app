@@ -9,12 +9,10 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useLocation } from "react-router-dom";
-import { useInviteUserMutation } from "../redux/features/chat/getConversation";
 
 const defaultTheme = createTheme();
 
 export default function InviteUser() {
-  const [inviteUser] = useInviteUserMutation();
   const location = useLocation();
   const admin = location?.state?.user;
   const handleSubmit = async (event: {
@@ -34,7 +32,6 @@ export default function InviteUser() {
         timestamp: new Date(),
       },
     };
-    inviteUser(userData);
     // try {
     //   const response = await fetch("http://localhost:5000/api/invite/send", {
     //     method: "POST",
