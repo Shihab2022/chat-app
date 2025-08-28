@@ -1,25 +1,19 @@
-import { Router } from "express";
-import { UserRoutes } from "../modules/user/user.route";
-import { MessageRoutes } from "../modules/message/message.routes";
-import { InviteUserRoutes } from "../modules/conversation/conversation.routes";
+import { Router } from 'express';
+import { UserRoutes } from '../modules/user/user.route';
+import { MessageRoutes } from '../modules/message/message.routes';
 
-const router = Router()
+const router = Router();
 
 const moduleRoutes = [
-    {
-        path: '/user',
-        endPoint: UserRoutes
-    },
-    {
-        path: '/message',
-        endPoint: MessageRoutes
-    },
-    {
-        path: '/invite',
-        endPoint: InviteUserRoutes
-    },
-]
+  {
+    path: '/user',
+    endPoint: UserRoutes,
+  },
+  {
+    path: '/message',
+    endPoint: MessageRoutes,
+  },
+];
 
-
-moduleRoutes.forEach(route => router.use(route.path, route.endPoint))
-export const rootRouter = router
+moduleRoutes.forEach((route) => router.use(route.path, route.endPoint));
+export const rootRouter = router;
