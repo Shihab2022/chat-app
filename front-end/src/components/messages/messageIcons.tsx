@@ -82,19 +82,21 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
           >
             <IconButton onClick={() => handleEmoji("❤️")} aria-label="menu">
               {" "}
-              <FavoriteIcon />
+              ❤️
             </IconButton>
-            <IconButton aria-label="menu">
+            <IconButton onClick={() => handleEmoji("👍")} aria-label="menu">
               {" "}
-              <InsertEmoticonIcon />
+              👍
             </IconButton>
-            <IconButton aria-label="menu">
-              {" "}
-              <FavoriteIcon />
+            <IconButton onClick={() => handleEmoji("😂")} aria-label="menu">
+              😂
             </IconButton>
-            <IconButton aria-label="menu">
+            <IconButton onClick={() => handleEmoji("😥")} aria-label="menu">
               {" "}
-              <InsertEmoticonIcon />
+              😥
+            </IconButton>
+            <IconButton onClick={() => handleEmoji("🤲")} aria-label="menu">
+              🤲
             </IconButton>
             <IconButton
               onClick={() => {

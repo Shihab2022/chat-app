@@ -36,6 +36,7 @@ const EmojiPicker = ({
             <Picker
               data={data}
               onEmojiSelect={(emoji: { native: string }) => {
+                console.log(emoji.native);
                 if (isOneIcon) {
                   dispatch(SET_EMOJI_ANCHOR_EL(null));
                   dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
