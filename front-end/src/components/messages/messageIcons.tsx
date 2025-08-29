@@ -4,7 +4,6 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 import ReplyIcon from "@mui/icons-material/Reply";
 import { useState } from "react";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import AddIcon from "@mui/icons-material/Add";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -27,6 +26,9 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
       console.log({ res });
     } catch (error) {
       console.log({ error });
+    } finally {
+      setIconMenuOpen(false);
+      setIconAnchorEl(null);
     }
   };
   return (
