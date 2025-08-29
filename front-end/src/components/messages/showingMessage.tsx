@@ -87,18 +87,20 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                   {time || "10:30 PM"}
                 </Typography>
               </Stack>
-              <span
-                style={{
-                  position: "absolute",
-                  bottom: -20, // push it *outside* the bubbl
-                  borderRadius: "50%",
-                  padding: "2px 4px",
-                  fontSize: "20px",
-                  ...(mess.senderId === myId ? { left: 1 } : { right: 1 }),
-                }}
-              >
-                ☺️
-              </span>
+              {mess?.reactions?.length > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: -20, // push it *outside* the bubbl
+                    borderRadius: "50%",
+                    padding: "2px 4px",
+                    fontSize: "20px",
+                    ...(mess.senderId === myId ? { left: 1 } : { right: 1 }),
+                  }}
+                >
+                  {mess?.reactions[0]?.emoji}
+                </span>
+              )}
             </Paper>
           </Box>
           {isHovered && <MessageIcons mess={mess} myId={myId} />}
