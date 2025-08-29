@@ -50,7 +50,7 @@ const getMessageFromDB = async (payload: Partial<TMessages>) => {
 
   return messages;
 };
-export const getUsersForSidebar = async (payload: any) => {
+const getUsersForSidebar = async (payload: any) => {
   const loggedInUserId = payload._id;
   const filteredUsers = await User.find({
     _id: { $ne: loggedInUserId },
@@ -59,8 +59,24 @@ export const getUsersForSidebar = async (payload: any) => {
   return filteredUsers;
 };
 
+const addEmoji = async (payload: any) => {
+  const { messageId, userId, emoji } = payload;
+  await Message.findByIdAndUpdate(messageId, {
+    $pull: { reactions: { userId } },
+  });
+
+  // 2. Add the new reaction
+  const updatedMessage = await Message.findByIdAndUpdate(
+    messageId,
+    { $push: { reactions: { userId, emoji } } },
+    { new: true }, // return updated doc
+  );
+
+  return updatedMessage;
+};
 export const MessageServices = {
   sendMessageIntoDB,
   getMessageFromDB,
   getUsersForSidebar,
+  addEmoji,
 };

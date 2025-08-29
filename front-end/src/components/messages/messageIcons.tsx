@@ -13,13 +13,22 @@ import {
   SET_EMOJI_STATUS,
   SET_ONE_ICON,
 } from "../../redux/features/chat/getConversationSlice";
+import { addEmoji } from "../../services/message";
 // import EmojiPicker from "../emoji";
 const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
   const { isEmojiOpen } = useSelector((state: RootState) => state?.message);
   const dispatch = useDispatch();
   const [isIconMenuOpen, setIconMenuOpen] = useState(false);
   const [iconAnchorEl, setIconAnchorEl] = useState<null | HTMLElement>(null);
-
+  const handleEmoji = async (emoji: string) => {
+    const params = { messageId: mess?._id, userId: myId, emoji };
+    try {
+      const res = await addEmoji(params);
+      console.log({ res });
+    } catch (error) {
+      console.log({ error });
+    }
+  };
   return (
     <>
       <Stack
@@ -71,7 +80,7 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
               borderRadius: "500px",
             }}
           >
-            <IconButton aria-label="menu">
+            <IconButton onClick={() => handleEmoji("❤️")} aria-label="menu">
               {" "}
               <FavoriteIcon />
             </IconButton>

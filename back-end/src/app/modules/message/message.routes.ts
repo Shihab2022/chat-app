@@ -10,5 +10,6 @@ router.get(
 );
 router.post('/send', auth(userRole?.USER), MessageController.sendMessage);
 router.get('/get', auth(userRole?.USER), MessageController.getMessage);
+router.post('/emoji', auth(userRole?.USER), MessageController.addEmoji);
 
 export const MessageRoutes = router;
