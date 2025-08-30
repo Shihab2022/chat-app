@@ -25,7 +25,7 @@ const sendMessageIntoDB = async (payload: TMessages) => {
 
   await newMessage.save();
 
-  const receiverSocketId = getReceiverSocketId(receiverId);
+  const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
   if (receiverSocketId) {
     io.to(receiverSocketId).emit('newMessage', newMessage);
   }
@@ -71,7 +71,13 @@ const addEmoji = async (payload: any) => {
     { $push: { reactions: { userId, emoji } } },
     { new: true }, // return updated doc
   );
+  const receiverSocketId = getReceiverSocketId(
+    updatedMessage?.senderId as unknown as string,
+  );
 
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('newEmoji', updatedMessage);
+  }
   return updatedMessage;
 };
 export const MessageServices = {

@@ -1,9 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
   addMessageToGroups,
+  formatDate,
   formatFirstMessage,
 } from "../../../utils/timeFormat";
 import { TConversationState } from "../../../types";
+import { get } from "lodash";
 
 const initialState: TConversationState = {
   messages: {},
@@ -46,7 +48,13 @@ const conversationSlice = createSlice({
       state.anchorElEmoji = action.payload;
     },
     SET_EMOJI_WITH_DATA: (state, action) => {
-      state.messages = action.payload;
+      const formattedDate = formatDate(action.payload?.createdAt);
+      const messagesForUpdate = get(state.messages, formattedDate, []);
+      const newMessages = messagesForUpdate.map((item) =>
+        item._id === action.payload._id ? action.payload : item
+      );
+      state.messages = { ...state.messages, [formattedDate]: newMessages };
+      // state.messages = action.payload;
     },
   },
 });
