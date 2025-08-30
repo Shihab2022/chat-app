@@ -52,4 +52,5 @@ export type TConversationState = {
   isEmojiOpen: boolean;
   isOneIcon: boolean;
   anchorElEmoji: any;
+  isEmojiAdded: boolean;
 };

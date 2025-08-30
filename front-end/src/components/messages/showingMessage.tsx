@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Avatar, Box, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
@@ -95,7 +96,7 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                   </Typography>
                 </Stack>
                 {mess?.reactions?.length > 0 && (
-                  <span
+                  <Box
                     style={{
                       position: "absolute",
                       bottom: -20, // push it *outside* the bubbl
@@ -105,8 +106,16 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                       ...(mess.senderId === myId ? { left: 1 } : { right: 1 }),
                     }}
                   >
-                    {mess?.reactions[0]?.emoji}
-                  </span>
+                    <Stack
+                      direction="row"
+                      sx={{
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      {mess?.reactions?.map((m: any) => m?.emoji)}
+                    </Stack>
+                  </Box>
                 )}
               </Paper>
             </Box>

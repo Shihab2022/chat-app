@@ -22,7 +22,6 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
   const [isIconMenuOpen, setIconMenuOpen] = useState(false);
   const [iconAnchorEl, setIconAnchorEl] = useState<null | HTMLElement>(null);
 
-  console.log({ receiverId });
   const handleEmoji = async (emoji: string) => {
     const params = { messageId: mess?._id, userId: myId, emoji, receiverId };
     try {

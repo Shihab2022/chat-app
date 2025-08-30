@@ -13,6 +13,7 @@ const initialState: TConversationState = {
   isEmojiOpen: false,
   anchorElEmoji: null,
   isOneIcon: false,
+  isEmojiAdded: false,
 };
 const conversationSlice = createSlice({
   name: "message",
@@ -20,6 +21,7 @@ const conversationSlice = createSlice({
   reducers: {
     SET_CONVERSATION: (state, action) => {
       state.messages = action.payload;
+      state.isEmojiAdded = false;
     },
     SET_REAL_TIME_CONVERSATION: (state, action) => {
       if (action?.payload?.senderId === state.receiverId) {
@@ -34,6 +36,7 @@ const conversationSlice = createSlice({
           state.messages = addedMessage;
         }
       }
+      state.isEmojiAdded = false;
     },
     SET_RECEIVER_ID: (state, action) => {
       state.receiverId = action.payload;
@@ -48,6 +51,7 @@ const conversationSlice = createSlice({
       state.anchorElEmoji = action.payload;
     },
     SET_EMOJI_WITH_DATA: (state, action) => {
+      state.isEmojiAdded = true;
       const formattedDate = formatDate(action.payload?.createdAt);
       const messagesForUpdate = get(state.messages, formattedDate, []);
       const newMessages = messagesForUpdate.map((item) =>
