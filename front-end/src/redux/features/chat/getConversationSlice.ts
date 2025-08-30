@@ -45,6 +45,9 @@ const conversationSlice = createSlice({
     SET_EMOJI_ANCHOR_EL: (state, action) => {
       state.anchorElEmoji = action.payload;
     },
+    SET_EMOJI_WITH_DATA: (state, action) => {
+      state.messages = action.payload;
+    },
   },
 });
 
@@ -55,5 +58,6 @@ export const {
   SET_EMOJI_STATUS,
   SET_EMOJI_ANCHOR_EL,
   SET_ONE_ICON,
+  SET_EMOJI_WITH_DATA,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;

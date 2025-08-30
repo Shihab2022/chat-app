@@ -10,12 +10,16 @@ import { RootState } from "../../redux/store";
 import {
   SET_EMOJI_ANCHOR_EL,
   SET_EMOJI_STATUS,
+  SET_EMOJI_WITH_DATA,
   SET_ONE_ICON,
 } from "../../redux/features/chat/getConversationSlice";
 import { addEmoji } from "../../services/message";
-// import EmojiPicker from "../emoji";
+import { formatDate } from "../../utils/timeFormat";
+import { get } from "lodash";
 const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
-  const { isEmojiOpen } = useSelector((state: RootState) => state?.message);
+  const { isEmojiOpen, messages = {} } = useSelector(
+    (state: RootState) => state?.message
+  );
   const dispatch = useDispatch();
   const [isIconMenuOpen, setIconMenuOpen] = useState(false);
   const [iconAnchorEl, setIconAnchorEl] = useState<null | HTMLElement>(null);
@@ -23,7 +27,16 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
     const params = { messageId: mess?._id, userId: myId, emoji };
     try {
       const res = await addEmoji(params);
-      console.log({ res });
+      if (res?.success) {
+        const formattedDate = formatDate(res?.data?.createdAt);
+        const messagesForUpdate = get(messages, formattedDate, []);
+        const newMessages = messagesForUpdate.map((item) =>
+          item._id === res?.data._id ? res?.data : item
+        );
+        dispatch(
+          SET_EMOJI_WITH_DATA({ ...messages, [formattedDate]: newMessages })
+        );
+      }
     } catch (error) {
       console.log({ error });
     } finally {
