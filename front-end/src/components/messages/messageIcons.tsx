@@ -15,12 +15,16 @@ import {
 } from "../../redux/features/chat/getConversationSlice";
 import { addEmoji } from "../../services/message";
 const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
-  const { isEmojiOpen } = useSelector((state: RootState) => state?.message);
+  const { isEmojiOpen, receiverId } = useSelector(
+    (state: RootState) => state?.message
+  );
   const dispatch = useDispatch();
   const [isIconMenuOpen, setIconMenuOpen] = useState(false);
   const [iconAnchorEl, setIconAnchorEl] = useState<null | HTMLElement>(null);
+
+  console.log({ receiverId });
   const handleEmoji = async (emoji: string) => {
-    const params = { messageId: mess?._id, userId: myId, emoji };
+    const params = { messageId: mess?._id, userId: myId, emoji, receiverId };
     try {
       const res = await addEmoji(params);
       if (res?.success) {

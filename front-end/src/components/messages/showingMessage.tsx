@@ -42,67 +42,76 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
           justifyContent="flex-start"
           alignItems="center"
           spacing={2}
-          sx={{ width: "80%" }}
+          sx={{ width: "100%" }}
         >
-          <ImgViewer img={userInfo?.img} tooltipText={userInfo?.name} />
-          <Box
-            key={mess._id}
-            sx={{
-              display: "flex",
-              justifyContent: isOwn ? "flex-start" : "flex-end",
-              mb: 1,
-            }}
+          <Stack
+            direction={`${mess.senderId === myId ? "row-reverse" : "row"}`}
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={2}
+            sx={{ maxWidth: "80%" }}
           >
-            <Paper
-              elevation={1}
+            <ImgViewer img={userInfo?.img} tooltipText={userInfo?.name} />
+            <Box
+              key={mess._id}
               sx={{
-                paddingX: 1.5,
-                paddingY: 1,
-                borderRadius: 2,
-                backgroundColor: isOwn ? "#DCF8C6" : "#fff",
-                position: "relative", // 👈 container for absolute positioning
-                display: "inline-block",
+                display: "flex",
+                justifyContent: isOwn ? "flex-start" : "flex-end",
+                mb: 1,
               }}
             >
-              <Stack
-                direction={isOwn ? "row-reverse" : "row"}
-                spacing={2}
+              <Paper
+                elevation={1}
                 sx={{
-                  justifyContent: "flex-start",
-                  alignItems: "center",
-                  position: "relative",
+                  paddingX: 1.5,
+                  paddingY: 1,
+                  borderRadius: 2,
+                  backgroundColor: isOwn ? "#DCF8C6" : "#fff",
+                  position: "relative", // 👈 container for absolute positioning
+                  display: "inline-block",
                 }}
               >
-                <Typography variant="body1">{text}</Typography>
-                <Typography
-                  variant="caption"
+                <Stack
+                  direction={isOwn ? "row-reverse" : "row"}
+                  spacing={2}
                   sx={{
-                    display: "block",
-                    textAlign: "right",
-                    mt: 0.5,
-                    opacity: 0.7,
-                    fontSize: "10px",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    position: "relative",
                   }}
                 >
-                  {time || "10:30 PM"}
-                </Typography>
-              </Stack>
-              {mess?.reactions?.length > 0 && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: -20, // push it *outside* the bubbl
-                    borderRadius: "50%",
-                    padding: "2px 4px",
-                    fontSize: "20px",
-                    ...(mess.senderId === myId ? { left: 1 } : { right: 1 }),
-                  }}
-                >
-                  {mess?.reactions[0]?.emoji}
-                </span>
-              )}
-            </Paper>
-          </Box>
+                  <Typography variant="body1">{text}</Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: "block",
+                      textAlign: "right",
+                      mt: 0.5,
+                      opacity: 0.7,
+                      fontSize: "10px",
+                    }}
+                  >
+                    {time || "10:30 PM"}
+                  </Typography>
+                </Stack>
+                {mess?.reactions?.length > 0 && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: -20, // push it *outside* the bubbl
+                      borderRadius: "50%",
+                      padding: "2px 4px",
+                      fontSize: "20px",
+                      ...(mess.senderId === myId ? { left: 1 } : { right: 1 }),
+                    }}
+                  >
+                    {mess?.reactions[0]?.emoji}
+                  </span>
+                )}
+              </Paper>
+            </Box>
+          </Stack>
+
           {isHovered && <MessageIcons mess={mess} myId={myId} />}
         </Stack>
       </Stack>

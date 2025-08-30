@@ -60,7 +60,7 @@ const getUsersForSidebar = async (payload: any) => {
 };
 
 const addEmoji = async (payload: any) => {
-  const { messageId, userId, emoji } = payload;
+  const { messageId, userId, emoji, receiverId } = payload;
   await Message.findByIdAndUpdate(messageId, {
     $pull: { reactions: { userId } },
   });
@@ -71,9 +71,7 @@ const addEmoji = async (payload: any) => {
     { $push: { reactions: { userId, emoji } } },
     { new: true }, // return updated doc
   );
-  const receiverSocketId = getReceiverSocketId(
-    updatedMessage?.senderId as unknown as string,
-  );
+  const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
 
   if (receiverSocketId) {
     io.to(receiverSocketId).emit('newEmoji', updatedMessage);
