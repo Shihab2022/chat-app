@@ -18,7 +18,6 @@ const ImgViewer = ({ img, tooltipText }: { img: any; tooltipText: string }) => {
 const ShowingMessage = ({ mess, messageEndRef }: any) => {
   const { text, senderId, createdAt } = mess;
   const [isHovered, setIsHovered] = useState(false);
-
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth
   );
@@ -97,12 +96,15 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                 </Stack>
                 {mess?.reactions?.length > 0 && (
                   <Box
-                    style={{
+                    sx={{
                       position: "absolute",
-                      bottom: -20, // push it *outside* the bubbl
-                      borderRadius: "50%",
-                      padding: "2px 4px",
-                      fontSize: "20px",
+                      background: "#fff",
+                      boxShadow: 1,
+                      cursor: "pointer",
+                      bottom: -25, // push it *outside* the bubble
+                      borderRadius: "10px",
+                      padding: "3px 1px",
+                      fontSize: "18px",
                       ...(mess.senderId === myId ? { left: 1 } : { right: 1 }),
                     }}
                   >
@@ -113,7 +115,22 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                         alignItems: "flex-start",
                       }}
                     >
-                      {mess?.reactions?.map((m: any) => m?.emoji)}
+                      {[
+                        ...new Set(mess.reactions.map((r: any) => r.emoji)),
+                      ].map((emoji: any, idx: number) => (
+                        <span key={idx}>{emoji}</span>
+                      ))}
+                      {mess?.reactions?.length > 1 && (
+                        <Typography
+                          sx={{
+                            fontSize: "15px",
+                            marginX: "3px",
+                            fontWeight: 50,
+                          }}
+                        >
+                          {mess?.reactions?.length}
+                        </Typography>
+                      )}
                     </Stack>
                   </Box>
                 )}

@@ -128,11 +128,6 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
           </Stack>
         </Menu>
       </Stack>
-
-      {/* <EmojiPicker
-        // onEmojiChanges={(e: any) => setMessage((prev) => prev + e)}
-        onEmojiChangesFromMessage={(e: any) => console.log({ e })}
-      /> */}
     </>
   );
 };
