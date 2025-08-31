@@ -14,6 +14,7 @@ const initialState: TConversationState = {
   anchorElEmoji: null,
   isOneIcon: false,
   isEmojiAdded: false,
+  selectedMessage: {},
 };
 const conversationSlice = createSlice({
   name: "message",
@@ -50,6 +51,9 @@ const conversationSlice = createSlice({
     SET_EMOJI_ANCHOR_EL: (state, action) => {
       state.anchorElEmoji = action.payload;
     },
+    SET_SELECTED_MESSAGE: (state, action) => {
+      state.selectedMessage = action.payload;
+    },
     SET_EMOJI_WITH_DATA: (state, action) => {
       state.isEmojiAdded = true;
       const formattedDate = formatDate(action.payload?.createdAt);
@@ -58,7 +62,6 @@ const conversationSlice = createSlice({
         item._id === action.payload._id ? action.payload : item
       );
       state.messages = { ...state.messages, [formattedDate]: newMessages };
-      // state.messages = action.payload;
     },
   },
 });
@@ -71,5 +74,6 @@ export const {
   SET_EMOJI_ANCHOR_EL,
   SET_ONE_ICON,
   SET_EMOJI_WITH_DATA,
+  SET_SELECTED_MESSAGE,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;

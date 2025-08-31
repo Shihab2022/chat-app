@@ -12,6 +12,7 @@ import {
   SET_EMOJI_STATUS,
   SET_EMOJI_WITH_DATA,
   SET_ONE_ICON,
+  SET_SELECTED_MESSAGE,
 } from "../../redux/features/chat/getConversationSlice";
 import { addEmoji } from "../../services/message";
 const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
@@ -110,6 +111,7 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
                 setIconMenuOpen(false);
                 dispatch(SET_EMOJI_ANCHOR_EL(iconAnchorEl));
                 dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
+                dispatch(SET_SELECTED_MESSAGE(mess));
                 dispatch(SET_ONE_ICON(true));
                 setIconAnchorEl(null);
               }}
