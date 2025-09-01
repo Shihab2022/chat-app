@@ -6,6 +6,7 @@ import { RootState } from "../../redux/store";
 import { formatTimes } from "../../utils/timeFormat";
 import { useState } from "react";
 import MessageIcons from "./messageIcons";
+import ShowingEmoji from "./showingEmoji";
 const ImgViewer = ({ img, tooltipText }: { img: any; tooltipText: string }) => {
   return (
     <>
@@ -95,44 +96,7 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                   </Typography>
                 </Stack>
                 {mess?.reactions?.length > 0 && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      background: "#fff",
-                      boxShadow: 1,
-                      cursor: "pointer",
-                      bottom: -25, // push it *outside* the bubble
-                      borderRadius: "10px",
-                      padding: "3px 1px",
-                      fontSize: "18px",
-                      ...(mess.senderId === myId ? { left: 1 } : { right: 1 }),
-                    }}
-                  >
-                    <Stack
-                      direction="row"
-                      sx={{
-                        justifyContent: "flex-start",
-                        alignItems: "flex-start",
-                      }}
-                    >
-                      {[
-                        ...new Set(mess.reactions.map((r: any) => r.emoji)),
-                      ].map((emoji: any, idx: number) => (
-                        <span key={idx}>{emoji}</span>
-                      ))}
-                      {mess?.reactions?.length > 1 && (
-                        <Typography
-                          sx={{
-                            fontSize: "15px",
-                            marginX: "3px",
-                            fontWeight: 50,
-                          }}
-                        >
-                          {mess?.reactions?.length}
-                        </Typography>
-                      )}
-                    </Stack>
-                  </Box>
+                  <ShowingEmoji mess={mess} myId={myId} />
                 )}
               </Paper>
             </Box>
