@@ -23,6 +23,7 @@ import { useDispatch } from "react-redux";
 // import { SET_CREDITS } from "store/user/user";
 import { useEffect, dispatch } from "react";
 import { RootState } from "../../redux/store";
+import { randomTwoDigit } from "../../utils/common";
 // import { getProfileImage } from "services/auth";
 // import { SET_USER_PROFILE_IMAGE } from "store/user/user";
 export const profileMenuStyle = {
@@ -123,18 +124,22 @@ const ProfileMenu = ({ HeaderComp }: any) => {
         >
           <Tooltip title="Profile Menu">
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              {userInfo.profileImage ? (
+              {userInfo.img ? (
                 <Avatar
-                  src={userInfo.profileImage ? userImage : userInfo.image}
+                  // src={userInfo.profileImage ? userImage : userInfo.image}
+                  src={
+                    userInfo.img ||
+                    `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`
+                  }
                 />
               ) : (
                 <Avatar sx={{ background: "#7c4dff", color: "white" }}>
-                  {userInfo?.firstname?.slice(0, 1).toUpperCase()}
+                  {userInfo?.name?.slice(0, 1).toUpperCase()}
                 </Avatar>
               )}
             </IconButton>
           </Tooltip>
-          {!HeaderComp && (
+          {/* {!HeaderComp && (
             <Box sx={{ color: "black" }}>
               <Typography sx={{ textAlign: "right" }}>
                 {userInfo?.email}
@@ -143,7 +148,7 @@ const ProfileMenu = ({ HeaderComp }: any) => {
                 {userInfo?.organisation}
               </Typography>
             </Box>
-          )}
+          )} */}
         </Stack>
 
         <Menu
@@ -184,13 +189,11 @@ const ProfileMenu = ({ HeaderComp }: any) => {
                 marginBottom: "5px",
               }}
             >
-              {userInfo.profileImage ? (
-                <Avatar
-                  src={userInfo.profileImage ? userImage : userInfo.image}
-                />
+              {userInfo.img ? (
+                <Avatar src={userInfo.img ? userInfo.img : userImage} />
               ) : (
                 <Avatar sx={{ background: "#7c4dff", color: "white" }}>
-                  {userInfo?.firstname?.slice(0, 1).toUpperCase()}
+                  {userInfo?.name?.slice(0, 1).toUpperCase()}
                 </Avatar>
               )}
             </Box>
@@ -215,18 +218,8 @@ const ProfileMenu = ({ HeaderComp }: any) => {
               marginTop: "13px",
             }}
           >
-            {userInfo?.organisation}
+            {userInfo?.name}
           </Typography>
-          {/* <Typography
-            sx={{
-              color: "black",
-              textAlign: "center",
-              lineHeight: ".4rem",
-              marginTop: "13px",
-            }}
-          >
-            {`Available Credits : ${availableCredits}`}
-          </Typography> */}
 
           <Stack
             justifyContent="center"
