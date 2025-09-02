@@ -1,0 +1,274 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from "react";
+import {
+  Avatar,
+  Box,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Stack,
+  Tooltip,
+} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import { useSelector } from "react-redux";
+import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
+import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useNavigate } from "react-router-dom";
+// import { ROLES } from "constants/common";
+// import { getCredits } from "services/auth";
+import { useDispatch } from "react-redux";
+// import { SET_CREDITS } from "store/user/user";
+import { useEffect, dispatch } from "react";
+import { RootState } from "../../redux/store";
+// import { getProfileImage } from "services/auth";
+// import { SET_USER_PROFILE_IMAGE } from "store/user/user";
+export const profileMenuStyle = {
+  color: "#A1B0CC",
+  fontSize: "30px",
+  marginRight: 1,
+};
+const ProfileMenuItem = ({ onClick, label, icon }: any) => {
+  return (
+    <MenuItem
+      sx={{
+        display: "flex",
+        alignItems: "center",
+      }}
+      onClick={() => onClick()}
+    >
+      {icon}
+      <Typography variant="h5" sx={{ fontSize: "15px" }}>
+        {label}
+      </Typography>
+    </MenuItem>
+  );
+};
+const ProfileMenu = ({ HeaderComp }: any) => {
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const userInfo = useSelector((state: RootState) => state?.auth?.loginUser);
+  //   const dispatch = useDispatch();
+  //   const [availableCredits, setAvailableCredits] = useState(0);
+  console.log({ userInfo });
+  const navigate = useNavigate();
+
+  const handleOpenUserMenu = async (event: any) => {
+    try {
+      setAnchorElUser(event.currentTarget);
+      //   const credits = await getCredits();
+      //   if (credits?.data?.success) {
+      //     const cre = credits?.data?.data?.credits || 0;
+      //     setAvailableCredits(cre);
+      //     dispatch({ type: SET_CREDITS, credits: cre });
+      //   }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+  const handleLogout = async () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("currentPath");
+    navigate("/login");
+  };
+  const handleMenu = (value: any) => {
+    handleCloseUserMenu();
+    switch (value) {
+      case "dashboard":
+        navigate("/");
+        break;
+      case "profile":
+        navigate("/account/profile");
+        break;
+      case "changePassword":
+        navigate("/account/password");
+        break;
+      case "manageUser":
+        navigate("/account/manage-users");
+        break;
+      case "logout":
+        handleLogout();
+        break;
+      default:
+        setAnchorElUser(null);
+    }
+  };
+
+  const userImage = `data:image/jpeg;base64,${userInfo.profileImage}`;
+  useEffect(() => {
+    if (!userInfo.profileImage) {
+      handleProfileImageCall();
+    }
+  }, [userInfo.profileImage]);
+
+  const handleProfileImageCall = async () => {
+    // const imageData = await getProfileImage({ email: userInfo.email });
+    // if (imageData.success) {
+    //   dispatch({ type: SET_USER_PROFILE_IMAGE, payload: imageData.data });
+    // }
+  };
+
+  return (
+    <>
+      <Box sx={{ flexGrow: 0 }}>
+        <Stack
+          direction="row-reverse"
+          justifyContent="center"
+          alignItems="center"
+          spacing={1}
+        >
+          <Tooltip title="Profile Menu">
+            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              {userInfo.profileImage ? (
+                <Avatar
+                  src={userInfo.profileImage ? userImage : userInfo.image}
+                />
+              ) : (
+                <Avatar sx={{ background: "#7c4dff", color: "white" }}>
+                  {userInfo?.firstname?.slice(0, 1).toUpperCase()}
+                </Avatar>
+              )}
+            </IconButton>
+          </Tooltip>
+          {!HeaderComp && (
+            <Box sx={{ color: "black" }}>
+              <Typography sx={{ textAlign: "right" }}>
+                {userInfo?.email}
+              </Typography>
+              <Typography sx={{ textAlign: "right" }}>
+                {userInfo?.organisation}
+              </Typography>
+            </Box>
+          )}
+        </Stack>
+
+        <Menu
+          sx={{ mt: "45px" }}
+          id="menu-appbar"
+          anchorEl={anchorElUser}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          open={Boolean(anchorElUser)}
+          onClose={handleCloseUserMenu}
+          PaperProps={{
+            sx: {
+              minWidth: "250px",
+              borderRadius: "5px",
+              zIndex: 20,
+              backgroundColor: "white",
+              paddingY: "10px",
+              border: "1px solid rgba(0, 0, 0, 0.1)",
+            },
+          }}
+        >
+          <Stack
+            justifyContent="center"
+            alignItems="center"
+            sx={{ cursor: "context-menu" }}
+          >
+            <Box
+              sx={{
+                width: 56,
+                height: 56,
+                marginBottom: "5px",
+              }}
+            >
+              {userInfo.profileImage ? (
+                <Avatar
+                  src={userInfo.profileImage ? userImage : userInfo.image}
+                />
+              ) : (
+                <Avatar sx={{ background: "#7c4dff", color: "white" }}>
+                  {userInfo?.firstname?.slice(0, 1).toUpperCase()}
+                </Avatar>
+              )}
+            </Box>
+          </Stack>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: ".9rem",
+              color: "black",
+              textAlign: "center",
+              lineHeight: ".4rem",
+              marginTop: "10px",
+            }}
+          >
+            {userInfo?.email}
+          </Typography>
+          <Typography
+            sx={{
+              color: "black",
+              textAlign: "center",
+              lineHeight: ".4rem",
+              marginTop: "13px",
+            }}
+          >
+            {userInfo?.organisation}
+          </Typography>
+          {/* <Typography
+            sx={{
+              color: "black",
+              textAlign: "center",
+              lineHeight: ".4rem",
+              marginTop: "13px",
+            }}
+          >
+            {`Available Credits : ${availableCredits}`}
+          </Typography> */}
+
+          <Stack
+            justifyContent="center"
+            alignItems="center"
+            sx={{ marginTop: "10px" }}
+          >
+            <Button
+              variant="contained"
+              color="secondary"
+              sx={{ boxShadow: "none" }}
+              onClick={() => handleMenu("dashboard")}
+            >
+              Dashboard
+            </Button>
+          </Stack>
+          <ProfileMenuItem
+            onClick={() => handleMenu("profile")}
+            label="Profile"
+            icon={<AccountCircleOutlinedIcon sx={profileMenuStyle} />}
+          />
+          {!userInfo?.google_login && (
+            <ProfileMenuItem
+              onClick={() => handleMenu("changePassword")}
+              label="Change Password"
+              icon={<LockResetOutlinedIcon sx={profileMenuStyle} />}
+            />
+          )}
+
+          <ProfileMenuItem
+            onClick={() => handleMenu("manageUser")}
+            label="Manage User"
+            icon={<ManageAccountsOutlinedIcon sx={profileMenuStyle} />}
+          />
+          <ProfileMenuItem
+            onClick={() => handleMenu("logout")}
+            label="Log Out"
+            icon={<LogoutIcon sx={profileMenuStyle} />}
+          />
+        </Menu>
+      </Box>
+    </>
+  );
+};
+
+export default ProfileMenu;

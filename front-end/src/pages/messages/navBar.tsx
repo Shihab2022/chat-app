@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { TUser } from "../../types";
 import { Avatar, Stack } from "@mui/material";
 import { StyledBadge } from "../../components/StyledBadge";
+import ProfileMenu from "../../components/ProfileMenu/ProfileMenu";
 
 const NavBar = () => {
   const { receiverId } = useSelector((state: RootState) => state?.message);
@@ -36,32 +37,46 @@ const NavBar = () => {
           direction="row"
           spacing={2}
           sx={{
-            justifyContent: "flex-start",
+            justifyContent: "space-between",
             alignItems: "center",
-            height: "100%",
-            color: "#000",
           }}
         >
-          {activeUsers?.includes(selectedUserInfo?._id) ? (
-            <Stack direction="row" spacing={2}>
-              <StyledBadge
-                overlap="circular"
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                variant="dot"
-              >
-                <Avatar
-                  alt={selectedUserInfo?.name}
-                  src={selectedUserInfo?.img}
-                />
-              </StyledBadge>
-            </Stack>
-          ) : (
-            <Avatar alt={selectedUserInfo?.name} src={selectedUserInfo?.img} />
-          )}
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              justifyContent: "flex-start",
+              alignItems: "center",
+              height: "100%",
+              color: "#000",
+            }}
+          >
+            {activeUsers?.includes(selectedUserInfo?._id) ? (
+              <Stack direction="row" spacing={2}>
+                <StyledBadge
+                  overlap="circular"
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  variant="dot"
+                >
+                  <Avatar
+                    alt={selectedUserInfo?.name}
+                    src={selectedUserInfo?.img}
+                  />
+                </StyledBadge>
+              </Stack>
+            ) : (
+              <Avatar
+                alt={selectedUserInfo?.name}
+                src={selectedUserInfo?.img}
+              />
+            )}
 
-          <Typography component="div" variant="h6">
-            {selectedUserInfo?.name}
-          </Typography>
+            <Typography component="div" variant="h6">
+              {selectedUserInfo?.name}
+            </Typography>
+          </Stack>
+
+          <ProfileMenu user={{}} />
         </Stack>
       </AppBar>
     </>
