@@ -66,7 +66,7 @@ const ProfileMenu = ({ HeaderComp }: any) => {
     setAnchorElUser(null);
   };
   const handleLogout = async () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
     localStorage.removeItem("currentPath");
     navigate("/login");
   };
