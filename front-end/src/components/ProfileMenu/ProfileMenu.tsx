@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { RootState } from "../../redux/store";
 import { randomTwoDigit } from "../../utils/common";
+import { disconnectSocket } from "../../utils/socketService";
 const profileMenuStyle = {
   color: "#A1B0CC",
   fontSize: "30px",
@@ -68,6 +69,7 @@ const ProfileMenu = ({ HeaderComp }: any) => {
   const handleLogout = async () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("currentPath");
+    disconnectSocket();
     navigate("/login");
   };
   const handleMenu = (value: any) => {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { SET_ACTIVE_USERS } from "../redux/features/auth/authSlice";
 import {
   SET_EMOJI_WITH_DATA,
@@ -7,12 +7,13 @@ import {
 } from "../redux/features/chat/getConversationSlice";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
+let socket: Socket | null = null;
 
 export function connectSocket(userId: string, dispatch: any) {
-  const socket = io(BASE_URL, {
+  if (socket && socket.connected) return socket;
+  socket = io(BASE_URL, {
     query: { userId },
   });
-  if (socket?.connected) return socket; // already connected
 
   socket.on("connect", () => {
     // console.log("✅ Socket connected");
@@ -31,13 +32,14 @@ export function connectSocket(userId: string, dispatch: any) {
   return socket;
 }
 
-// export function disconnectSocket() {
-//   if (socket?.connected) {
-//     socket.disconnect();
-//     console.log("❌ Socket disconnected");
-//   }
-// }
+export function disconnectSocket() {
+  if (socket?.connected) {
+    socket.disconnect();
+    socket = null;
+    console.log("❌ Socket disconnected");
+  }
+}
 
-// export function getSocket() {
-//   return socket;
-// }
+export function getSocket() {
+  return socket;
+}
