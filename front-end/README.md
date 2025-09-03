@@ -2,7 +2,8 @@
 
 Some step
 
-logout fathers and disconnect socket
+if the message time difference is 10 min then showing one image on the button
+showing those user top who send message recently
 showing top on the left side who is send message latest
 showing last message on the left side after user name
 open a pop up when click on added emoji ,and open pop up and showing all user who set which emoji and add remove emoji functionality
