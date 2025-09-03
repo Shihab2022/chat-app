@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React from "react";
 import {
   Avatar,
   Box,
@@ -17,16 +17,10 @@ import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
-// import { ROLES } from "constants/common";
-// import { getCredits } from "services/auth";
-import { useDispatch } from "react-redux";
-// import { SET_CREDITS } from "store/user/user";
-import { useEffect, dispatch } from "react";
+import { useEffect } from "react";
 import { RootState } from "../../redux/store";
 import { randomTwoDigit } from "../../utils/common";
-// import { getProfileImage } from "services/auth";
-// import { SET_USER_PROFILE_IMAGE } from "store/user/user";
-export const profileMenuStyle = {
+const profileMenuStyle = {
   color: "#A1B0CC",
   fontSize: "30px",
   marginRight: 1,
@@ -80,16 +74,16 @@ const ProfileMenu = ({ HeaderComp }: any) => {
     handleCloseUserMenu();
     switch (value) {
       case "dashboard":
-        navigate("/");
+        navigate("/chat");
         break;
       case "profile":
-        navigate("/account/profile");
+        navigate("/profile");
         break;
       case "changePassword":
-        navigate("/account/password");
+        navigate("/forgetPassword");
         break;
       case "manageUser":
-        navigate("/account/manage-users");
+        navigate("/inviteUser");
         break;
       case "logout":
         handleLogout();
@@ -250,7 +244,7 @@ const ProfileMenu = ({ HeaderComp }: any) => {
 
           <ProfileMenuItem
             onClick={() => handleMenu("manageUser")}
-            label="Manage User"
+            label="Invite User"
             icon={<ManageAccountsOutlinedIcon sx={profileMenuStyle} />}
           />
           <ProfileMenuItem

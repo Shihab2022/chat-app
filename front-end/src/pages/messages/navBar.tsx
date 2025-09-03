@@ -39,6 +39,7 @@ const NavBar = () => {
           sx={{
             justifyContent: "space-between",
             alignItems: "center",
+            height: "100% ",
           }}
         >
           <Stack

@@ -8,6 +8,7 @@ import ForgetPassword from "./pages/login/forgetPassword";
 import InviteUser from "./components/inviteFriend";
 import ProtectedRoute from "./routes/privateRoute";
 import ChatContainer from "./pages/messages";
+import Profile from "./components/profile";
 
 function App() {
   return (
@@ -34,6 +35,14 @@ function App() {
           element={
             <ProtectedRoute>
               <InviteUser />
+            </ProtectedRoute>
+          }
+        ></Route>
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile user={{}} />
             </ProtectedRoute>
           }
         ></Route>
