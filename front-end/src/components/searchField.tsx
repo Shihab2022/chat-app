@@ -19,6 +19,7 @@ import {
 import { RootState } from "../redux/store";
 import { groupMessagesByDate } from "../utils/timeFormat";
 import EmojiPicker from "./emoji";
+import { emitTyping } from "../utils/socketService";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
@@ -68,7 +69,10 @@ export default function SearchField({ myId }: { myId: string }) {
           <AddIcon />
         </IconButton>
         <InputBase
-          onChange={(e: any) => setMessage(e.target.value)}
+          onChange={(e: any) => {
+            emitTyping(receiverId);
+            setMessage(e.target.value);
+          }}
           value={message}
           sx={{ ml: 1, flex: 1 }}
           placeholder="Type a message"

@@ -29,6 +29,17 @@ export function connectSocket(userId: string, dispatch: any) {
   socket.on("newEmoji", (msg) => {
     dispatch(SET_EMOJI_WITH_DATA(msg));
   });
+
+  // ✅ Typing events
+  socket.on("userTyping", ({ senderId }) => {
+    console.log(`✍️ User ${senderId} is typing...`);
+    // dispatch some redux action if you want to show typing indicator
+  });
+
+  socket.on("userStopTyping", ({ senderId }) => {
+    console.log(`✅ User ${senderId} stopped typing`);
+    // dispatch redux action to hide typing indicator
+  });
   return socket;
 }
 
@@ -39,7 +50,14 @@ export function disconnectSocket() {
     console.log("❌ Socket disconnected");
   }
 }
+export function emitTyping(receiverId: string) {
+  socket?.emit("typing", { receiverId });
+}
 
+// Emit stop typing event
+export function emitStopTyping(receiverId: string) {
+  socket?.emit("stopTyping", { receiverId });
+}
 export function getSocket() {
   return socket;
 }

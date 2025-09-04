@@ -47,7 +47,7 @@ const ProfileMenu = ({ HeaderComp }: any) => {
   const userInfo = useSelector((state: RootState) => state?.auth?.loginUser);
   //   const dispatch = useDispatch();
   //   const [availableCredits, setAvailableCredits] = useState(0);
-  console.log({ userInfo });
+  // console.log({ userInfo });
   const navigate = useNavigate();
 
   const handleOpenUserMenu = async (event: any) => {

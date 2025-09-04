@@ -21,6 +21,20 @@ io.on('connection', (socket) => {
   const userId = socket.handshake.query.userId as string;
   if (userId) userSocketMap[userId] = socket.id;
 
+  socket.on('typing', ({ receiverId }) => {
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('userTyping', { senderId: userId });
+    }
+  });
+
+  // ✅ Handle stop typing event
+  socket.on('stopTyping', ({ receiverId }) => {
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('userStopTyping', { senderId: userId });
+    }
+  });
   // io.emit() is used to send events to all the connected clients
   io.emit('getOnlineUsers', Object.keys(userSocketMap));
   socket.on('disconnect', () => {
