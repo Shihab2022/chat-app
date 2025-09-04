@@ -8,11 +8,13 @@ import ShowingMessage from "./showingMessage";
 import { TMessage } from "../../types";
 
 const Message = () => {
-  const { messages = {}, isEmojiAdded } = useSelector(
-    (state: RootState) => state?.message
-  );
+  const {
+    messages = {},
+    isEmojiAdded,
+    isTyping,
+  } = useSelector((state: RootState) => state?.message);
   const messageEndRef = useRef<HTMLDivElement | null>(null);
-
+  console.log({ isTyping });
   useEffect(() => {
     if (messageEndRef.current && messages && !isEmojiAdded) {
       messageEndRef.current.scrollIntoView({

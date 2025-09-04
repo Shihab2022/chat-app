@@ -3,7 +3,9 @@ import { io, Socket } from "socket.io-client";
 import { SET_ACTIVE_USERS } from "../redux/features/auth/authSlice";
 import {
   SET_EMOJI_WITH_DATA,
+  SET_END_TYPING_STATUS,
   SET_REAL_TIME_CONVERSATION,
+  SET_START_TYPING_STATUS,
 } from "../redux/features/chat/getConversationSlice";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
@@ -32,13 +34,11 @@ export function connectSocket(userId: string, dispatch: any) {
 
   // ✅ Typing events
   socket.on("userTyping", ({ senderId }) => {
-    console.log(`✍️ User ${senderId} is typing...`);
-    // dispatch some redux action if you want to show typing indicator
+    dispatch(SET_START_TYPING_STATUS(senderId));
   });
 
   socket.on("userStopTyping", ({ senderId }) => {
-    console.log(`✅ User ${senderId} stopped typing`);
-    // dispatch redux action to hide typing indicator
+    dispatch(SET_END_TYPING_STATUS(senderId));
   });
   return socket;
 }
@@ -51,7 +51,6 @@ export function disconnectSocket() {
   }
 }
 export function emitTyping(receiverId: string) {
-  "typing ";
   socket?.emit("typing", { receiverId });
 }
 
