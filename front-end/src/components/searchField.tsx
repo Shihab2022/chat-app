@@ -20,12 +20,15 @@ import { RootState } from "../redux/store";
 import { groupMessagesByDate } from "../utils/timeFormat";
 import EmojiPicker from "./emoji";
 import { emitTyping } from "../utils/socketService";
+import useDebouncedText from "../utils/debouncedSearch";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
-  const [message, setMessage] = useState("");
+
+  // const [message, setMessage] = useState("");
   const { receiverId, isEmojiOpen } = useSelector(
     (state: RootState) => state?.message
   );
+  const { handleInputChange, message } = useDebouncedText(receiverId, 5000);
   const handleClick = async () => {
     const messageData = {
       senderId: myId,
@@ -36,7 +39,7 @@ export default function SearchField({ myId }: { myId: string }) {
     try {
       const res = await sendMessage(messageData);
       if (res?.success) {
-        setMessage("");
+        handleInputChange("");
         const formattedMessage = groupMessagesByDate(res?.data);
         dispatch(SET_CONVERSATION(formattedMessage));
       }
@@ -71,7 +74,7 @@ export default function SearchField({ myId }: { myId: string }) {
         <InputBase
           onChange={(e: any) => {
             emitTyping(receiverId);
-            setMessage(e.target.value);
+            handleInputChange(e.target.value);
           }}
           value={message}
           sx={{ ml: 1, flex: 1 }}
@@ -99,7 +102,7 @@ export default function SearchField({ myId }: { myId: string }) {
       </Paper>
 
       <EmojiPicker
-        onEmojiChanges={(e: any) => setMessage((prev) => prev + e)}
+        onEmojiChanges={(e: any) => handleInputChange((prev: any) => prev + e)}
       />
     </>
   );
