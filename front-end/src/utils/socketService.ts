@@ -51,6 +51,7 @@ export function disconnectSocket() {
   }
 }
 export function emitTyping(receiverId: string) {
+  "typing ";
   socket?.emit("typing", { receiverId });
 }
 

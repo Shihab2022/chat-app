@@ -2,19 +2,15 @@
 import { useEffect, useState } from "react";
 import { emitStopTyping, emitTyping } from "./socketService";
 
-const useDebouncedText = (receiverId: string, delay: number = 5000) => {
+const useDebouncedText = (receiverId: string, delay: number = 1000) => {
   const [message, setMessage] = useState("");
-
   useEffect(() => {
-    if (!message) return;
-
-    // Immediately emit "typing" when user types
-    emitTyping(receiverId);
-
-    // Set up debounce to emit "stopTyping"
-    const debounceTimer = setTimeout(() => {
+    if (!message && message.length === 0) {
       emitStopTyping(receiverId);
-      console.log("✋ stop typing");
+      return;
+    }
+    const debounceTimer = setTimeout(() => {
+      emitTyping(receiverId);
     }, delay);
 
     return () => {
@@ -25,8 +21,10 @@ const useDebouncedText = (receiverId: string, delay: number = 5000) => {
   const handleInputChange = (v: any) => {
     setMessage(v);
   };
-
-  return { handleInputChange, message };
+  const stopTypingEvent = () => {
+    emitStopTyping(receiverId);
+  };
+  return { handleInputChange, message, stopTypingEvent };
 };
 
 export default useDebouncedText;

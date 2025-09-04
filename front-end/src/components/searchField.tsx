@@ -7,7 +7,6 @@ import AddIcon from "@mui/icons-material/Add";
 import SendIcon from "@mui/icons-material/Send";
 import { showToast } from "../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../constants/common";
-import { useState } from "react";
 import { sendMessage } from "../services/message";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -19,7 +18,6 @@ import {
 import { RootState } from "../redux/store";
 import { groupMessagesByDate } from "../utils/timeFormat";
 import EmojiPicker from "./emoji";
-import { emitTyping } from "../utils/socketService";
 import useDebouncedText from "../utils/debouncedSearch";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
@@ -28,7 +26,8 @@ export default function SearchField({ myId }: { myId: string }) {
   const { receiverId, isEmojiOpen } = useSelector(
     (state: RootState) => state?.message
   );
-  const { handleInputChange, message } = useDebouncedText(receiverId, 5000);
+  const { handleInputChange, message, stopTypingEvent } =
+    useDebouncedText(receiverId);
   const handleClick = async () => {
     const messageData = {
       senderId: myId,
@@ -40,6 +39,7 @@ export default function SearchField({ myId }: { myId: string }) {
       const res = await sendMessage(messageData);
       if (res?.success) {
         handleInputChange("");
+        stopTypingEvent();
         const formattedMessage = groupMessagesByDate(res?.data);
         dispatch(SET_CONVERSATION(formattedMessage));
       }
@@ -73,7 +73,6 @@ export default function SearchField({ myId }: { myId: string }) {
         </IconButton>
         <InputBase
           onChange={(e: any) => {
-            emitTyping(receiverId);
             handleInputChange(e.target.value);
           }}
           value={message}
