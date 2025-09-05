@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice } from "@reduxjs/toolkit";
-import { TConversation } from "../../../types";
+import { TConversation, TUser } from "../../../types";
 
 const initialState: TConversation = {
   loginUser: {
@@ -22,8 +22,42 @@ const authSlice = createSlice({
     SET_ALL_USERS: (state, action) => {
       state.allUsers = action?.payload;
     },
+    SET_START_TYPING_STATUS: (state, action) => {
+      state.allUsers = state.allUsers.map((user: TUser) => {
+        if (user?._id === action.payload) {
+          return {
+            ...user,
+            isTyping: true,
+          };
+        } else {
+          return {
+            ...user,
+          };
+        }
+      });
+    },
+    SET_END_TYPING_STATUS: (state, action) => {
+      state.allUsers = state.allUsers.map((user: TUser) => {
+        if (user?._id === action.payload) {
+          return {
+            ...user,
+            isTyping: false,
+          };
+        } else {
+          return {
+            ...user,
+          };
+        }
+      });
+    },
   },
 });
 
-export const { setUser, SET_ACTIVE_USERS, SET_ALL_USERS } = authSlice.actions;
+export const {
+  setUser,
+  SET_ACTIVE_USERS,
+  SET_ALL_USERS,
+  SET_START_TYPING_STATUS,
+  SET_END_TYPING_STATUS,
+} = authSlice.actions;
 export default authSlice.reducer;

@@ -20,6 +20,8 @@ const LeftSiteBar = () => {
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth
   );
+  console.log({ allUsers });
+  // console.log({ loginUser });
   const { receiverId, messages } = useSelector(
     (state: RootState) => state?.message
   );

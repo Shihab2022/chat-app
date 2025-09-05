@@ -15,7 +15,6 @@ const initialState: TConversationState = {
   isOneIcon: false,
   isEmojiAdded: false,
   selectedMessage: {},
-  isTyping: false,
 };
 const conversationSlice = createSlice({
   name: "message",
@@ -64,16 +63,6 @@ const conversationSlice = createSlice({
       );
       state.messages = { ...state.messages, [formattedDate]: newMessages };
     },
-    SET_START_TYPING_STATUS: (state, action) => {
-      if (state?.receiverId === action.payload) {
-        state?.isTyping === true;
-      }
-    },
-    SET_END_TYPING_STATUS: (state, action) => {
-      if (state?.receiverId === action.payload) {
-        state?.isTyping === false;
-      }
-    },
   },
 });
 
@@ -86,7 +75,5 @@ export const {
   SET_ONE_ICON,
   SET_EMOJI_WITH_DATA,
   SET_SELECTED_MESSAGE,
-  SET_START_TYPING_STATUS,
-  SET_END_TYPING_STATUS,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;

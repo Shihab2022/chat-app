@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from "socket.io-client";
-import { SET_ACTIVE_USERS } from "../redux/features/auth/authSlice";
+import {
+  SET_ACTIVE_USERS,
+  SET_END_TYPING_STATUS,
+  SET_START_TYPING_STATUS,
+} from "../redux/features/auth/authSlice";
 import {
   SET_EMOJI_WITH_DATA,
-  SET_END_TYPING_STATUS,
   SET_REAL_TIME_CONVERSATION,
-  SET_START_TYPING_STATUS,
 } from "../redux/features/chat/getConversationSlice";
 let lastStopTypingId: string | null = null;
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;

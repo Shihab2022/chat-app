@@ -11,10 +11,9 @@ const Message = () => {
   const {
     messages = {},
     isEmojiAdded,
-    isTyping,
+    // isTyping,
   } = useSelector((state: RootState) => state?.message);
   const messageEndRef = useRef<HTMLDivElement | null>(null);
-  console.log({ isTyping });
   useEffect(() => {
     if (messageEndRef.current && messages && !isEmojiAdded) {
       messageEndRef.current.scrollIntoView({
