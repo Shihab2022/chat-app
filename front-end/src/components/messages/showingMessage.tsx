@@ -1,21 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Avatar, Box, Paper, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Paper, Stack, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { formatTimes } from "../../utils/timeFormat";
 import { useState } from "react";
 import MessageIcons from "./messageIcons";
 import ShowingEmoji from "./showingEmoji";
-const ImgViewer = ({ img, tooltipText }: { img: any; tooltipText: string }) => {
-  return (
-    <>
-      <Tooltip title={tooltipText}>
-        <Avatar sx={{ width: 30, height: 30 }} src={img} />
-      </Tooltip>
-    </>
-  );
-};
+import { ImgViewer } from "../imgViewer";
+
 const ShowingMessage = ({ mess, messageEndRef }: any) => {
   const { text, senderId, createdAt } = mess;
   const [isHovered, setIsHovered] = useState(false);

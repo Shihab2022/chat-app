@@ -23,32 +23,24 @@ const authSlice = createSlice({
       state.allUsers = action?.payload;
     },
     SET_START_TYPING_STATUS: (state, action) => {
-      state.allUsers = state.allUsers.map((user: TUser) => {
-        if (user?._id === action.payload) {
-          return {
-            ...user,
-            isTyping: true,
-          };
-        } else {
-          return {
-            ...user,
-          };
-        }
-      });
+      state.allUsers = state.allUsers.map((user: TUser) =>
+        user?._id === action.payload
+          ? {
+              ...user,
+              isTyping: true,
+            }
+          : { ...user }
+      );
     },
     SET_END_TYPING_STATUS: (state, action) => {
-      state.allUsers = state.allUsers.map((user: TUser) => {
-        if (user?._id === action.payload) {
-          return {
-            ...user,
-            isTyping: false,
-          };
-        } else {
-          return {
-            ...user,
-          };
-        }
-      });
+      state.allUsers = state.allUsers.map((user: TUser) =>
+        user?._id === action.payload
+          ? {
+              ...user,
+              isTyping: false,
+            }
+          : { ...user }
+      );
     },
   },
 });

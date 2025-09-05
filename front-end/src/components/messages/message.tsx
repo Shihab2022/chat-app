@@ -5,14 +5,18 @@ import { RootState } from "../../redux/store";
 import { NAV_BAR_HEIGHT } from "../../constants/common";
 import { useEffect, useRef } from "react";
 import ShowingMessage from "./showingMessage";
-import { TMessage } from "../../types";
+import { TMessage, TUser } from "../../types";
+import TypingIndicator from "./TypingIndicator";
+import { ImgViewer } from "../imgViewer";
 
 const Message = () => {
   const {
     messages = {},
     isEmojiAdded,
-    // isTyping,
+    receiverId,
   } = useSelector((state: RootState) => state?.message);
+  const { allUsers } = useSelector((state: RootState) => state?.auth);
+  const senderUser = allUsers.find((u: TUser) => u._id === receiverId);
   const messageEndRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (messageEndRef.current && messages && !isEmojiAdded) {
@@ -76,6 +80,20 @@ const Message = () => {
             })}
           </Box>
         ))}
+
+        {senderUser?.isTyping && (
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              justifyContent: "flex-start",
+              alignItems: "flex-start",
+            }}
+          >
+            <ImgViewer img={senderUser?.img} tooltipText={senderUser?.name} />
+            <TypingIndicator />
+          </Stack>
+        )}
       </Box>
     </>
   );

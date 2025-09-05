@@ -8,6 +8,7 @@ import { Stack } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { StyledBadge } from "./StyledBadge";
+import TypingIndicator from "./messages/TypingIndicator";
 
 export default function LeftSiteBarCard({
   onClick,
@@ -17,7 +18,7 @@ export default function LeftSiteBarCard({
   user: any;
 }) {
   const { activeUsers = [] } = useSelector((state: RootState) => state?.auth);
-  const { name, img, _id, email } = user;
+  const { name, img, _id, email, isTyping = false } = user;
   return (
     <Card
       elevation={0}
@@ -60,14 +61,18 @@ export default function LeftSiteBarCard({
           >
             {email}
           </Typography>
-          <Typography
-            variant="subtitle1"
-            color="text.secondary"
-            component="div"
-            sx={{ fontSize: "15px" }}
-          >
-            {activeUsers?.includes(_id) ? "Online" : "Offline"}
-          </Typography>
+          {isTyping ? (
+            <TypingIndicator />
+          ) : (
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              component="div"
+              sx={{ fontSize: "15px" }}
+            >
+              {activeUsers?.includes(_id) ? "Online" : "Offline"}
+            </Typography>
+          )}
         </CardContent>
       </Box>
     </Card>
