@@ -2,6 +2,7 @@
 
 Some step
 
+update ui base on typing status
 if the message time difference is 10 min then showing one image on the button
 showing those user top who send message recently
 showing top on the left side who is send message latest

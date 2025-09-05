@@ -2,21 +2,15 @@
 import { useEffect, useState } from "react";
 import { emitStopTyping, emitTyping } from "./socketService";
 
-const useDebouncedText = (receiverId: string, delay: number = 1000) => {
+const useDebouncedText = (receiverId: string) => {
   const [message, setMessage] = useState("");
   useEffect(() => {
     if (!message && message.length === 0) {
       emitStopTyping(receiverId);
-      return;
-    }
-    const debounceTimer = setTimeout(() => {
+    } else {
       emitTyping(receiverId);
-    }, delay);
-
-    return () => {
-      clearTimeout(debounceTimer);
-    };
-  }, [message, delay, receiverId]);
+    }
+  }, [message, receiverId]);
 
   const handleInputChange = (v: any) => {
     setMessage(v);

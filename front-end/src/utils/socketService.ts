@@ -7,7 +7,7 @@ import {
   SET_REAL_TIME_CONVERSATION,
   SET_START_TYPING_STATUS,
 } from "../redux/features/chat/getConversationSlice";
-
+let lastStopTypingId: string | null = null;
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
 let socket: Socket | null = null;
 
@@ -18,12 +18,11 @@ export function connectSocket(userId: string, dispatch: any) {
   });
 
   socket.on("connect", () => {
-    // console.log("✅ Socket connected");
+    console.log("✅ Socket connected");
   });
 
   socket.on("getOnlineUsers", (userIds) => {
     dispatch(SET_ACTIVE_USERS(userIds));
-    // console.log("📡 Online users:", userIds);
   });
   socket.on("newMessage", (msg) => {
     dispatch(SET_REAL_TIME_CONVERSATION(msg));
@@ -47,16 +46,20 @@ export function disconnectSocket() {
   if (socket?.connected) {
     socket.disconnect();
     socket = null;
-    console.log("❌ Socket disconnected");
   }
 }
 export function emitTyping(receiverId: string) {
+  if (lastStopTypingId === receiverId) {
+    return;
+  }
   socket?.emit("typing", { receiverId });
+  lastStopTypingId = receiverId;
 }
 
 // Emit stop typing event
 export function emitStopTyping(receiverId: string) {
   socket?.emit("stopTyping", { receiverId });
+  lastStopTypingId = null;
 }
 export function getSocket() {
   return socket;
