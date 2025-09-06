@@ -7,12 +7,12 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store.ts";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <>
-    <BrowserRouter>
-      <StyledEngineProvider injectFirst>
-        <Provider store={store}>
-          <App />
-        </Provider>
-      </StyledEngineProvider>
-    </BrowserRouter>
+    {/* <BrowserRouter> */}
+    <StyledEngineProvider injectFirst>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </StyledEngineProvider>
+    {/* </BrowserRouter> */}
   </>
 );
