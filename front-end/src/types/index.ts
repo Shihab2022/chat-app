@@ -46,6 +46,12 @@ export type TMessage = {
   updatedAt?: string;
   time?: string;
 };
+
+export type Reaction = {
+  userId: string;
+  emoji: string;
+  _id: string;
+};
 export type TConversationState = {
   messages: GroupedMessages;
   receiverId: string;
@@ -53,5 +59,7 @@ export type TConversationState = {
   isOneIcon: boolean;
   anchorElEmoji: any;
   isEmojiAdded: boolean;
+  emojiDetailsDialogStatus: boolean;
   selectedMessage?: any;
+  selectedReactions: Reaction[];
 };

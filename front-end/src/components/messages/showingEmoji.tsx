@@ -1,10 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Stack, Typography } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  SET_EMOJI_DETAILS_DIALOG_STATUS,
+  SET_EMOJI_DETAILS_REACTIONS,
+} from "../../redux/features/chat/getConversationSlice";
+import EmojiDetailsDialog from "../emoji/dialogEmojiDetails";
+import { RootState } from "../../redux/store";
 
 const ShowingEmoji = ({ mess, myId }: any) => {
+  const dispatch = useDispatch();
+  const { emojiDetailsDialogStatus } = useSelector(
+    (state: RootState) => state?.message
+  );
   return (
     <>
       <Box
+        onClick={() => {
+          dispatch(SET_EMOJI_DETAILS_DIALOG_STATUS(true));
+          dispatch(SET_EMOJI_DETAILS_REACTIONS(mess?.reactions));
+        }}
         sx={{
           position: "absolute",
           background: "#fff",
@@ -42,6 +57,7 @@ const ShowingEmoji = ({ mess, myId }: any) => {
           )}
         </Stack>
       </Box>
+      {emojiDetailsDialogStatus && <EmojiDetailsDialog />}
     </>
   );
 };
