@@ -29,12 +29,15 @@ export const formateEmojiDialogData = (
       name: u?.name,
     };
   });
-  const grouped = reactions.reduce<Record<string, Reaction[]>>((acc, item) => {
-    if (!acc[item.emoji]) {
-      acc[item.emoji] = [];
-    }
-    acc[item.emoji].push(item);
-    return acc;
-  }, {});
+  const grouped = formattedReactions.reduce<Record<string, Reaction[]>>(
+    (acc, item) => {
+      if (!acc[item.emoji]) {
+        acc[item.emoji] = [];
+      }
+      acc[item.emoji].push(item);
+      return acc;
+    },
+    {}
+  );
   return { All: formattedReactions, ...grouped };
 };

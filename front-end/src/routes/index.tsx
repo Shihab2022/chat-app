@@ -45,6 +45,14 @@ export default function Router() {
       ),
     },
     {
+      path: "/profile/:userId",
+      element: (
+        <ProtectedRoute>
+          <Profile user={{}} />
+        </ProtectedRoute>
+      ),
+    },
+    {
       path: "/SignUp",
       element: <SignUp />,
     },
