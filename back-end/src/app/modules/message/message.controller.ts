@@ -71,7 +71,7 @@ const removeEmoji = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Add emoji  successfully !!!',
+      message: 'Remove emoji  successfully !!!',
       data: result,
     });
   } catch (error) {

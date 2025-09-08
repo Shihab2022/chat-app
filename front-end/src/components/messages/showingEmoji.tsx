@@ -18,7 +18,11 @@ const ShowingEmoji = ({ mess, myId }: any) => {
       <Box
         onClick={() => {
           dispatch(SET_EMOJI_DETAILS_DIALOG_STATUS(true));
-          dispatch(SET_EMOJI_DETAILS_REACTIONS(mess?.reactions));
+          dispatch(
+            SET_EMOJI_DETAILS_REACTIONS(
+              mess?.reactions.map((d: any) => ({ ...d, messId: mess._id }))
+            )
+          );
         }}
         sx={{
           position: "absolute",

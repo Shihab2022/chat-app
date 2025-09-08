@@ -11,17 +11,25 @@ import {
 } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import { removeEmoji } from "../../services/message";
 export const CCard = ({ formattedData, selectedEmoji }: any) => {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
+  const { receiverId } = useSelector((state: RootState) => state?.message);
   const { _id: myId } = loginUser;
   const data = get(formattedData, selectedEmoji, []);
-  const removeEmoji = (id: string) => {
-    console.log({ id });
+  const handelRemoveEmoji = async (id: string, messId: string) => {
+    try {
+      const res = await removeEmoji({ receiverId, messId, emojiId: id });
+      console.log({ res });
+    } catch (error) {
+      console.log({ error });
+    }
+    console.log({ id, receiverId, messId });
   };
   return (
     <>
       {data.map((d: any) => {
-        const { emoji, img, name, _id, userId } = d;
+        const { emoji, img, name, _id, userId, messId } = d;
         return (
           <Stack
             direction="row"
@@ -77,7 +85,7 @@ export const CCard = ({ formattedData, selectedEmoji }: any) => {
                   fontSize: "15px",
                 }}
                 onClick={() => {
-                  removeEmoji(_id);
+                  handelRemoveEmoji(_id, messId);
                 }}
               >
                 Remove
