@@ -9,8 +9,15 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 export const CCard = ({ formattedData, selectedEmoji }: any) => {
+  const { loginUser } = useSelector((state: RootState) => state?.auth);
+  const { _id: myId } = loginUser;
   const data = get(formattedData, selectedEmoji, []);
+  const removeEmoji = (id: string) => {
+    console.log({ id });
+  };
   return (
     <>
       {data.map((d: any) => {
@@ -57,14 +64,27 @@ export const CCard = ({ formattedData, selectedEmoji }: any) => {
                 </CardContent>
               </Box>
             </Card>
-            <Tooltip title="For remove click on the icon">
+
+            {userId === myId && (
               <Typography
-                onClick={() => console.log("emoji id ", _id)}
-                variant="h4"
-                sx={{ cursor: "pointer" }}
+                variant="h6"
+                component="a"
+                href="#"
+                sx={{
+                  cursor: "pointer",
+                  color: "primary.main",
+                  textDecoration: "underline",
+                  fontSize: "15px",
+                }}
+                onClick={() => {
+                  removeEmoji(_id);
+                }}
               >
-                {emoji}
+                Remove
               </Typography>
+            )}
+            <Tooltip title="For remove click on the icon">
+              <Typography variant="h4">{emoji}</Typography>
             </Tooltip>
           </Stack>
         );

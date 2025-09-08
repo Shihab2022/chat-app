@@ -64,10 +64,25 @@ const addEmoji = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+const removeEmoji = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.removeEmoji(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Add emoji  successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const MessageController = {
   sendMessage,
   getMessage,
   getUsersForSidebar,
   addEmoji,
+  removeEmoji,
 };

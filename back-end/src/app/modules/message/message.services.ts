@@ -78,9 +78,29 @@ const addEmoji = async (payload: any) => {
   }
   return updatedMessage;
 };
+const removeEmoji = async (payload: any) => {
+  const { messageId, userId, emoji, receiverId } = payload;
+  await Message.findByIdAndUpdate(messageId, {
+    $pull: { reactions: { userId } },
+  });
+
+  // 2. Add the new reaction
+  const updatedMessage = await Message.findByIdAndUpdate(
+    messageId,
+    { $push: { reactions: { userId, emoji } } },
+    { new: true }, // return updated doc
+  );
+  const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
+
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('newEmoji', updatedMessage);
+  }
+  return updatedMessage;
+};
 export const MessageServices = {
   sendMessageIntoDB,
   getMessageFromDB,
   getUsersForSidebar,
   addEmoji,
+  removeEmoji,
 };
