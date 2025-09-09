@@ -6,6 +6,7 @@ import {
   SET_START_TYPING_STATUS,
 } from "../redux/features/auth/authSlice";
 import {
+  REMOVE_EMOJI,
   SET_EMOJI_WITH_DATA,
   SET_REAL_TIME_CONVERSATION,
 } from "../redux/features/chat/getConversationSlice";
@@ -31,6 +32,9 @@ export function connectSocket(userId: string, dispatch: any) {
   });
   socket.on("newEmoji", (msg) => {
     dispatch(SET_EMOJI_WITH_DATA(msg));
+  });
+  socket.on("removeEmoji", (msg) => {
+    dispatch(REMOVE_EMOJI(msg));
   });
 
   // ✅ Typing events

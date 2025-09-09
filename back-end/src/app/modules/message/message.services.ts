@@ -85,11 +85,11 @@ const removeEmoji = async (payload: any) => {
     { $pull: { reactions: { _id: emojiId } } },
     { new: true }, // return updated document
   );
-  // const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
+  const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
 
-  // if (receiverSocketId) {
-  //   io.to(receiverSocketId).emit('newEmoji', updatedMessage);
-  // }
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('removeEmoji', updatedMessage);
+  }
   return updatedMessage;
 };
 export const MessageServices = {

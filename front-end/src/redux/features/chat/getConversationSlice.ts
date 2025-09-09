@@ -71,6 +71,14 @@ const conversationSlice = createSlice({
       );
       state.messages = { ...state.messages, [formattedDate]: newMessages };
     },
+    REMOVE_EMOJI: (state, action) => {
+      const formattedDate = formatDate(action.payload?.createdAt);
+      const messagesForUpdate = get(state.messages, formattedDate, []);
+      const newMessages = messagesForUpdate.map((item) =>
+        item._id === action.payload._id ? action.payload : item
+      );
+      state.messages = { ...state.messages, [formattedDate]: newMessages };
+    },
   },
 });
 
@@ -85,5 +93,6 @@ export const {
   SET_SELECTED_MESSAGE,
   SET_EMOJI_DETAILS_DIALOG_STATUS,
   SET_EMOJI_DETAILS_REACTIONS,
+  REMOVE_EMOJI,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;
