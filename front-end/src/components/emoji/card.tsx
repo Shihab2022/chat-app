@@ -9,22 +9,29 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { removeEmoji } from "../../services/message";
+import {
+  REMOVE_EMOJI,
+  SET_EMOJI_DETAILS_DIALOG_STATUS,
+} from "../../redux/features/chat/getConversationSlice";
 export const CCard = ({ formattedData, selectedEmoji }: any) => {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { receiverId } = useSelector((state: RootState) => state?.message);
   const { _id: myId } = loginUser;
+  const dispatch = useDispatch();
   const data = get(formattedData, selectedEmoji, []);
   const handelRemoveEmoji = async (id: string, messId: string) => {
     try {
       const res = await removeEmoji({ receiverId, messId, emojiId: id });
-      console.log({ res });
+      if (res?.success) {
+        dispatch(REMOVE_EMOJI(res?.data));
+        dispatch(SET_EMOJI_DETAILS_DIALOG_STATUS(false));
+      }
     } catch (error) {
       console.log({ error });
     }
-    console.log({ id, receiverId, messId });
   };
   return (
     <>

@@ -78,6 +78,7 @@ const conversationSlice = createSlice({
         item._id === action.payload._id ? action.payload : item
       );
       state.messages = { ...state.messages, [formattedDate]: newMessages };
+      state.selectedReactions = action.payload.reactions;
     },
   },
 });

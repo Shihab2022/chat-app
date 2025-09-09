@@ -78,7 +78,7 @@ export default function EmojiDetailsDialog() {
           ></Stack>
           <Tabs
             value={selectedEmoji}
-            onChange={(e: React.SyntheticEvent, newValue: string) =>
+            onChange={(_e: React.SyntheticEvent, newValue: string) =>
               setSelectedEmoji(newValue)
             }
             aria-label="disabled tabs example"
