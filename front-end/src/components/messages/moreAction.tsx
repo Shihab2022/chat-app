@@ -38,7 +38,7 @@ const CCard = ({ c, handleClick }: any) => {
   const { icon, title } = c;
   return (
     <>
-      <Box sx={{ minWidth: "200px" }}>
+      <Box sx={{ minWidth: "150px" }}>
         <Stack
           direction="row"
           spacing={1}
@@ -74,10 +74,29 @@ export default function MoreActions({
   return (
     <>
       <Menu
-        id="basic-menu"
+        id="menu-appbar"
         anchorEl={moreAnchorEl}
         open={moreActionOpen}
         onClose={handleClose}
+        PaperProps={{
+          sx: {
+            minWidth: "150px",
+            borderRadius: "5px",
+            zIndex: 20,
+            backgroundColor: "white",
+            paddingY: "10px",
+            border: "1px solid rgba(0, 0, 0, 0.1)",
+          },
+        }}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        keepMounted
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
       >
         {config.map((c) => (
           <CCard c={c} onClick={handleClick}>
