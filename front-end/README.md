@@ -2,12 +2,12 @@
 
 Some step
 
-implement edit and delete options if the message send time 10 min less 
+implement message seen fetcher
+implement edit and delete options if the message send time 10 min less
 if the message time difference is 10 min then showing one image on the button
 showing those user top who send message recently
 showing top on the left side who is send message latest
 showing last message on the left side after user name
-open a pop up when click on added emoji ,and open pop up and showing all user who set which emoji and add remove emoji functionality
 fix margin issue on the message when we add emoji
 add reply functionality
 add forward functionality
