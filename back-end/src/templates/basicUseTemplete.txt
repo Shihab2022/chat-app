@@ -1,0 +1,37 @@
+      
+      const fromEmail = `"Spatic" <no-reply@gospatic.com>`;
+const attachments = [
+  {
+    filename: "logo-light.png",
+    path: "https://app.gospatic.com/static/logo-light.png",
+    cid: "logoImage", // Same CID as in the HTML
+  },
+];
+      
+      const notifyMsg = {
+        to: ["info@gospatic.com", "gautam@gospatic.com"],
+        from: fromEmail,
+        subject: "New Organization signed up",
+        text: "Unlock profitable growth with our AI based location intelligence platform using real time location data, spatial analysis, and predictive AI for identifying optimal business locations",
+        html: parseHtml(NewOrgTemplate, {
+          firstname: startCase(firstName),
+          email: email,
+          organisation,
+          url: process.env.ACCEPT_ORGANISATION,
+        }),
+        attachments,
+      };
+
+
+            try {
+        await fastify.nodemailer.sendMail(notifyMsg);
+        response.send({
+          success: true,
+          message: "Mail sent",
+        });
+      } catch (err) {
+        response.send({
+          success: false,
+          error: err,
+        });
+      }
