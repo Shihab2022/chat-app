@@ -73,7 +73,7 @@ export default function MoreActions({
   };
   return (
     <>
-      <Menu
+      {/* <Menu
         id="menu-appbar"
         anchorEl={moreAnchorEl}
         open={moreActionOpen}
@@ -103,7 +103,7 @@ export default function MoreActions({
             Profile
           </CCard>
         ))}
-      </Menu>
+      </Menu> */}
     </>
   );
 }
