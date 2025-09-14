@@ -11,11 +11,9 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { randomTwoDigit, toStartCaseStr } from "../utils/common";
+import { randomTwoDigit } from "../utils/common";
 
 export default function Profile({ user }: { user: any }) {
-  const navigate = useNavigate();
   const { name = "Md Shihab Uddin ", img, email = "shihab@gmail.com" } = user;
 
   return (

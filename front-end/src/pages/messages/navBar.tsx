@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AppBar from "@mui/material/AppBar";
 import Typography from "@mui/material/Typography";
 import { DRAWER_WIDTH, NAV_BAR_HEIGHT } from "../../constants/common";
@@ -5,11 +6,12 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useMemo } from "react";
 import { TUser } from "../../types";
-import { Avatar, Stack } from "@mui/material";
+import { Avatar, Box, Stack } from "@mui/material";
 import { StyledBadge } from "../../components/StyledBadge";
 import ProfileMenu from "../../components/ProfileMenu/ProfileMenu";
 
-const NavBar = () => {
+const NavBar = (props: any) => {
+  const { children, isDrawer = false } = props;
   const { receiverId } = useSelector((state: RootState) => state?.message);
   const { allUsers, activeUsers = [] } = useSelector(
     (state: RootState) => state?.auth
@@ -26,8 +28,8 @@ const NavBar = () => {
         position="fixed"
         elevation={1}
         sx={{
-          width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-          ml: { sm: `${DRAWER_WIDTH}px` },
+          width: { sm: isDrawer ? `calc(100% - ${DRAWER_WIDTH}px)` : "100%" },
+          ml: { sm: isDrawer ? `${DRAWER_WIDTH}px` : 0 },
           backgroundColor: "#fff",
           height: NAV_BAR_HEIGHT,
           paddingX: "30px",
@@ -80,6 +82,8 @@ const NavBar = () => {
           <ProfileMenu user={{}} />
         </Stack>
       </AppBar>
+
+      <Box sx={{ mt: 10 }}>{children}</Box>
     </>
   );
 };

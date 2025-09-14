@@ -3,7 +3,6 @@
 import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import Profile from "../../components/profile";
 import LeftSiteBarCard from "../../components";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -15,6 +14,7 @@ import { getMessage } from "../../services/message";
 import { RootState } from "../../redux/store";
 import { TUser } from "../../types";
 import { groupMessagesByDate } from "../../utils/timeFormat";
+import { Typography } from "@mui/material";
 
 const LeftSiteBar = () => {
   const { loginUser, allUsers } = useSelector(
@@ -51,7 +51,7 @@ const LeftSiteBar = () => {
     <>
       <List>
         <ListItem disablePadding>
-          <Profile user={loginUser} />
+          <Typography variant="h1">Chatty</Typography>
         </ListItem>
       </List>
       <Divider />
