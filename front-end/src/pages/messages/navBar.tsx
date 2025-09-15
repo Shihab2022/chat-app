@@ -9,9 +9,11 @@ import { TUser } from "../../types";
 import { Avatar, Box, Stack } from "@mui/material";
 import { StyledBadge } from "../../components/StyledBadge";
 import ProfileMenu from "../../components/ProfileMenu/ProfileMenu";
-
+import { useNavigate } from "react-router-dom";
+import logoImage from "../../assets/logo.png";
 const NavBar = (props: any) => {
   const { children, isDrawer = false } = props;
+  const navigate = useNavigate();
   const { receiverId } = useSelector((state: RootState) => state?.message);
   const { allUsers, activeUsers = [] } = useSelector(
     (state: RootState) => state?.auth
@@ -44,40 +46,49 @@ const NavBar = (props: any) => {
             height: "100% ",
           }}
         >
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{
-              justifyContent: "flex-start",
-              alignItems: "center",
-              height: "100%",
-              color: "#000",
-            }}
-          >
-            {activeUsers?.includes(selectedUserInfo?._id) ? (
-              <Stack direction="row" spacing={2}>
-                <StyledBadge
-                  overlap="circular"
-                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                  variant="dot"
-                >
-                  <Avatar
-                    alt={selectedUserInfo?.name}
-                    src={selectedUserInfo?.img}
-                  />
-                </StyledBadge>
-              </Stack>
-            ) : (
-              <Avatar
-                alt={selectedUserInfo?.name}
-                src={selectedUserInfo?.img}
-              />
-            )}
+          {isDrawer ? (
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                justifyContent: "flex-start",
+                alignItems: "center",
+                height: "100%",
+                color: "#000",
+              }}
+            >
+              {activeUsers?.includes(selectedUserInfo?._id) ? (
+                <Stack direction="row" spacing={2}>
+                  <StyledBadge
+                    overlap="circular"
+                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                    variant="dot"
+                  >
+                    <Avatar
+                      alt={selectedUserInfo?.name}
+                      src={selectedUserInfo?.img}
+                    />
+                  </StyledBadge>
+                </Stack>
+              ) : (
+                <Avatar
+                  alt={selectedUserInfo?.name}
+                  src={selectedUserInfo?.img}
+                />
+              )}
 
-            <Typography component="div" variant="h6">
-              {selectedUserInfo?.name}
-            </Typography>
-          </Stack>
+              <Typography component="div" variant="h6">
+                {selectedUserInfo?.name}
+              </Typography>
+            </Stack>
+          ) : (
+            <Avatar
+              onClick={() => navigate("/")}
+              alt={"logo"}
+              src={logoImage}
+              sx={{ width: 40, height: 40, mb: 2, cursor: "pointer" }}
+            />
+          )}
 
           <ProfileMenu user={{}} />
         </Stack>

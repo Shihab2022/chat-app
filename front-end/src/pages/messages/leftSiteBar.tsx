@@ -14,9 +14,11 @@ import { getMessage } from "../../services/message";
 import { RootState } from "../../redux/store";
 import { TUser } from "../../types";
 import { groupMessagesByDate } from "../../utils/timeFormat";
-import { Typography } from "@mui/material";
-
+import { Avatar, Stack, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import logoImage from "../../assets/logo.png";
 const LeftSiteBar = () => {
+  const navigate = useNavigate();
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth
   );
@@ -51,7 +53,35 @@ const LeftSiteBar = () => {
     <>
       <List>
         <ListItem disablePadding>
-          <Typography variant="h1">Chatty</Typography>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              justifyContent: "flex-start",
+              alignItems: "center",
+              width: "100%",
+              marginLeft: "30px",
+              paddingY: "20px",
+            }}
+          >
+            <Stack
+              direction="row"
+              spacing={0.5}
+              sx={{
+                justifyContent: "flex-start",
+                alignItems: "center",
+              }}
+            >
+              {" "}
+              <Avatar
+                onClick={() => navigate("/")}
+                alt={"logo"}
+                src={logoImage}
+                sx={{ width: 40, height: 40, mb: 2, cursor: "pointer" }}
+              />
+              <Typography variant="h6">Chatty</Typography>
+            </Stack>
+          </Stack>
         </ListItem>
       </List>
       <Divider />

@@ -16,7 +16,6 @@ import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 import LeftSiteBar from "./leftSiteBar";
 import { RootState } from "../../redux/store";
 import { DRAWER_WIDTH } from "../../constants/common";
-import NavBar from "./navBar";
 function ChatContainer() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
@@ -61,7 +60,6 @@ function ChatContainer() {
     <>
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
-        <NavBar />
         <Box
           component="nav"
           sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
