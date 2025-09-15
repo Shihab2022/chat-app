@@ -2,7 +2,6 @@
 import { useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Link, useNavigate } from "react-router-dom";
@@ -25,6 +24,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { registerUserApi } from "../../services/auth";
+import logoImage from "../../assets/logo.png";
 interface SignUpFormInputs {
   userName: string;
   name: string;
@@ -75,9 +75,12 @@ export default function SignUp() {
             alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
+          <Avatar
+            onClick={() => navigate("/")}
+            alt={"logo"}
+            src={logoImage}
+            sx={{ width: 70, height: 70, mb: 2, cursor: "pointer" }}
+          />
           <Typography className="text-4xl " component="h1" variant="h5">
             Sign up
           </Typography>

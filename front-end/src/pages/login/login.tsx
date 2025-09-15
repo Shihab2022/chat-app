@@ -1,6 +1,6 @@
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import logoImage from "../../assets/logo.png";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Link, useNavigate } from "react-router-dom";
@@ -79,9 +79,12 @@ export default function SignIn() {
             alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
+          <Avatar
+            onClick={() => navigate("/")}
+            alt={"logo"}
+            src={logoImage}
+            sx={{ width: 70, height: 70, mb: 2, cursor: "pointer" }}
+          />
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
