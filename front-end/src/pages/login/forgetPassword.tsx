@@ -6,7 +6,7 @@ import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import logoImage from "../../assets/logo.png";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { emailRegex, FORGET_PASSWORD, SUCCESS } from "../../constants/common";
@@ -65,9 +65,12 @@ export default function ForgetPassword() {
             alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
+          <Avatar
+            onClick={() => navigate("/")}
+            alt={"logo"}
+            src={logoImage}
+            sx={{ width: 70, height: 70, mb: 2, cursor: "pointer" }}
+          />
           <Typography component="h1" variant="h5">
             Forget Password
           </Typography>

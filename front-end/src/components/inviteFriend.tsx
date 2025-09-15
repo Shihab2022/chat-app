@@ -4,34 +4,35 @@ import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import Diversity3Icon from "@mui/icons-material/Diversity3";
+import logoImage from "../assets/logo.png";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const defaultTheme = createTheme();
 
 export default function InviteUser() {
-  const location = useLocation();
-  const admin = location?.state?.user;
+  const navigate = useNavigate();
+  // const location = useLocation();
+  // const admin = location?.state?.user;
   const handleSubmit = async (event: {
     preventDefault: () => void;
     currentTarget: HTMLFormElement | undefined;
   }) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const email = data.get("email");
-    const lastMessage = data.get("message");
+    // const data = new FormData(event.currentTarget);
+    // const email = data.get("email");
+    // const lastMessage = data.get("message");
 
-    let userData = {
-      admin: admin.id,
-      participants: {
-        participant: email,
-        lastMessage,
-        timestamp: new Date(),
-      },
-    };
+    // let userData = {
+    //   admin: admin.id,
+    //   participants: {
+    //     participant: email,
+    //     lastMessage,
+    //     timestamp: new Date(),
+    //   },
+    // };
     // try {
     //   const response = await fetch("http://localhost:5000/api/invite/send", {
     //     method: "POST",
@@ -64,9 +65,12 @@ export default function InviteUser() {
             alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <Diversity3Icon />
-          </Avatar>
+          <Avatar
+            onClick={() => navigate("/")}
+            alt={"logo"}
+            src={logoImage}
+            sx={{ width: 70, height: 70, mb: 2, cursor: "pointer" }}
+          />
           <Typography component="h1" variant="h5">
             Invite Your Friend
           </Typography>
