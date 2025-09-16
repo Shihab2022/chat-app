@@ -75,6 +75,8 @@ export default function MoreActions({
   moreActionOpen,
   moreAnchorEl,
   mess,
+  setIconMenuOpen,
+  setIconAnchorEl,
 }: any) {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { _id: myId } = loginUser;
@@ -83,7 +85,31 @@ export default function MoreActions({
     setMoreActionOpen(false);
   };
   const handleClick = (v: any) => {
-    console.log(v);
+    switch (v) {
+      case "React":
+        setIconAnchorEl(moreAnchorEl);
+        setIconMenuOpen(true);
+        setMoreActionOpen(false);
+        break;
+      case "Edit":
+        console.log(v);
+        break;
+      case "Delete":
+        console.log(v);
+        break;
+      case "Reply":
+        console.log(v);
+        break;
+      case "Copy":
+        console.log(v);
+        break;
+      case "Forward":
+        console.log(v);
+        break;
+      default:
+        setMoreActionAnchorEl(null);
+        setMoreActionOpen(false);
+    }
   };
   return (
     <>
@@ -114,7 +140,7 @@ export default function MoreActions({
       >
         {(mess?.senderId === myId ? [...config, ...myActions] : config).map(
           (c) => (
-            <CCard c={c} onClick={handleClick}>
+            <CCard c={c} handleClick={handleClick}>
               Profile
             </CCard>
           )

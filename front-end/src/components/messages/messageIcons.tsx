@@ -147,6 +147,8 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
         moreActionOpen={moreActionOpen}
         moreAnchorEl={moreAnchorEl}
         mess={mess}
+        setIconMenuOpen={setIconMenuOpen}
+        setIconAnchorEl={setIconAnchorEl}
       />
     </>
   );
