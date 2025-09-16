@@ -146,6 +146,7 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
         setMoreActionOpen={setMoreActionOpen}
         moreActionOpen={moreActionOpen}
         moreAnchorEl={moreAnchorEl}
+        mess={mess}
       />
     </>
   );

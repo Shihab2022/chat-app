@@ -6,7 +6,22 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useSelector } from "react-redux";
+import EditIcon from "@mui/icons-material/Edit";
+import { RootState } from "../../redux/store";
 
+const myActions = [
+  {
+    id: 34442,
+    title: "Edit",
+    icon: <EditIcon />,
+  },
+  {
+    id: 1444,
+    title: "Delete",
+    icon: <DeleteIcon />,
+  },
+];
 const config = [
   {
     id: 1,
@@ -18,6 +33,7 @@ const config = [
     title: "Copy",
     icon: <ContentCopyIcon />,
   },
+
   {
     id: 3341,
     title: "React",
@@ -27,11 +43,6 @@ const config = [
     id: 134,
     title: "Forward",
     icon: <ArrowForwardIcon />,
-  },
-  {
-    id: 1444,
-    title: "Delete",
-    icon: <DeleteIcon />,
   },
 ];
 const CCard = ({ c, handleClick }: any) => {
@@ -63,7 +74,10 @@ export default function MoreActions({
   setMoreActionOpen,
   moreActionOpen,
   moreAnchorEl,
+  mess,
 }: any) {
+  const { loginUser } = useSelector((state: RootState) => state?.auth);
+  const { _id: myId } = loginUser;
   const handleClose = () => {
     setMoreActionAnchorEl(null);
     setMoreActionOpen(false);
@@ -98,11 +112,13 @@ export default function MoreActions({
           horizontal: "left",
         }}
       >
-        {config.map((c) => (
-          <CCard c={c} onClick={handleClick}>
-            Profile
-          </CCard>
-        ))}
+        {(mess?.senderId === myId ? [...config, ...myActions] : config).map(
+          (c) => (
+            <CCard c={c} onClick={handleClick}>
+              Profile
+            </CCard>
+          )
+        )}
       </Menu>
     </>
   );
