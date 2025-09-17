@@ -93,18 +93,17 @@ const removeEmoji = async (payload: any) => {
   return updatedMessage;
 };
 const editMessage = async (payload: any) => {
-  const { receiverId, messId, emojiId } = payload;
-  // const updatedMessage = await Message.findByIdAndUpdate(
-  //   { _id: messId },
-  //   { $pull: { reactions: { _id: emojiId } } },
-  //   { new: true }, // return updated document
-  // );
-  // const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
+  const { _id, text } = payload;
+  const updatedMessage = await Message.findByIdAndUpdate(
+    _id,
+    { text: text },
+    { new: true },
+  );
 
-  // if (receiverSocketId) {
-  //   io.to(receiverSocketId).emit('removeEmoji', updatedMessage);
-  // }
-  // return updatedMessage;
+  if (!updatedMessage) {
+    return null;
+  }
+  return updatedMessage;
 };
 export const MessageServices = {
   sendMessageIntoDB,

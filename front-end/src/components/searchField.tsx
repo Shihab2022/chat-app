@@ -7,7 +7,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SendIcon from "@mui/icons-material/Send";
 import { showToast } from "../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../constants/common";
-import { sendMessage } from "../services/message";
+import { editMessage, sendMessage } from "../services/message";
 import { useDispatch, useSelector } from "react-redux";
 import {
   SET_CONVERSATION,
@@ -54,6 +54,18 @@ export default function SearchField({ myId }: { myId: string }) {
       handleInputChange(editedMessage?.text);
     }
   }, [editedMessage]);
+  const handleEditMessage = async () => {
+    const params = { ...editedMessage, text: message };
+    const res = await editMessage(params);
+    console.log({ res });
+  };
+  const handleSubmit = async () => {
+    if (editedMessage?._id) {
+      handleEditMessage();
+    } else {
+      handleClick();
+    }
+  };
   return (
     <>
       <Paper
@@ -88,14 +100,14 @@ export default function SearchField({ myId }: { myId: string }) {
             if (e.key === "Enter") {
               e.preventDefault();
               if (message) {
-                handleClick();
+                handleSubmit();
               }
             }
           }}
         />
         <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
         <IconButton
-          onClick={handleClick}
+          onClick={handleSubmit}
           color="primary"
           sx={{ p: "10px" }}
           aria-label="directions"
