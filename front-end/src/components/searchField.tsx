@@ -19,11 +19,10 @@ import { RootState } from "../redux/store";
 import { groupMessagesByDate } from "../utils/timeFormat";
 import EmojiPicker from "./emoji";
 import useDebouncedText from "../utils/debouncedSearch";
+import { useEffect } from "react";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
-
-  // const [message, setMessage] = useState("");
-  const { receiverId, isEmojiOpen } = useSelector(
+  const { receiverId, isEmojiOpen, editedMessage } = useSelector(
     (state: RootState) => state?.message
   );
   const { handleInputChange, message, stopTypingEvent } =
@@ -49,6 +48,12 @@ export default function SearchField({ myId }: { myId: string }) {
     }
   };
 
+  useEffect(() => {
+    if (editedMessage?._id) {
+      console.log(editedMessage);
+      handleInputChange(editedMessage?.text);
+    }
+  }, [editedMessage]);
   return (
     <>
       <Paper

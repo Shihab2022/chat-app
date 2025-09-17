@@ -6,9 +6,10 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import { RootState } from "../../redux/store";
+import { SET_EDITED_MESSAGE } from "../../redux/features/chat/getConversationSlice";
 
 const myActions = [
   {
@@ -80,6 +81,7 @@ export default function MoreActions({
 }: any) {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { _id: myId } = loginUser;
+  const dispatch = useDispatch();
   const handleClose = () => {
     setMoreActionAnchorEl(null);
     setMoreActionOpen(false);
@@ -92,7 +94,7 @@ export default function MoreActions({
         setMoreActionOpen(false);
         break;
       case "Edit":
-        console.log(v);
+        dispatch(SET_EDITED_MESSAGE(mess));
         break;
       case "Delete":
         console.log(v);

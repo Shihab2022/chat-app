@@ -17,6 +17,7 @@ const initialState: TConversationState = {
   selectedMessage: {},
   emojiDetailsDialogStatus: false,
   selectedReactions: [],
+  editedMessage: {},
 };
 const conversationSlice = createSlice({
   name: "message",
@@ -62,6 +63,9 @@ const conversationSlice = createSlice({
     SET_EMOJI_DETAILS_REACTIONS: (state, action) => {
       state.selectedReactions = action.payload;
     },
+    SET_EDITED_MESSAGE: (state, action) => {
+      state.editedMessage = action.payload;
+    },
     SET_EMOJI_WITH_DATA: (state, action) => {
       state.isEmojiAdded = true;
       const formattedDate = formatDate(action.payload?.createdAt);
@@ -95,5 +99,6 @@ export const {
   SET_EMOJI_DETAILS_DIALOG_STATUS,
   SET_EMOJI_DETAILS_REACTIONS,
   REMOVE_EMOJI,
+  SET_EDITED_MESSAGE,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;

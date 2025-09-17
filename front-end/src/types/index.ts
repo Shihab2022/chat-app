@@ -56,10 +56,11 @@ export type TConversationState = {
   messages: GroupedMessages;
   receiverId: string;
   isEmojiOpen: boolean;
-  isOneIcon: boolean;
-  anchorElEmoji: any;
-  isEmojiAdded: boolean;
+  isOneIcon?: boolean;
+  anchorElEmoji?: any;
+  isEmojiAdded?: boolean;
   emojiDetailsDialogStatus: boolean;
   selectedMessage?: any;
-  selectedReactions: Reaction[];
+  selectedReactions?: Reaction[];
+  editedMessage?: any;
 };

@@ -78,6 +78,20 @@ const removeEmoji = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+const editMessage = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.editMessage(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Remove emoji  successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const MessageController = {
   sendMessage,
@@ -85,4 +99,5 @@ export const MessageController = {
   getUsersForSidebar,
   addEmoji,
   removeEmoji,
+  editMessage,
 };
