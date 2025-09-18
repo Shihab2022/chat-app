@@ -93,7 +93,7 @@ const removeEmoji = async (payload: any) => {
   return updatedMessage;
 };
 const editMessage = async (payload: any) => {
-  const { _id, text } = payload;
+  const { _id, text, receiverId } = payload;
   const updatedMessage = await Message.findByIdAndUpdate(
     _id,
     { text: text },
@@ -102,6 +102,10 @@ const editMessage = async (payload: any) => {
 
   if (!updatedMessage) {
     return null;
+  }
+  const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('editMessage', updatedMessage);
   }
   return updatedMessage;
 };

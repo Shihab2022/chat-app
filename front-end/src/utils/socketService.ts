@@ -9,6 +9,7 @@ import {
   REMOVE_EMOJI,
   SET_EMOJI_WITH_DATA,
   SET_REAL_TIME_CONVERSATION,
+  UPDATE_EDITED_MESSAGE,
 } from "../redux/features/chat/getConversationSlice";
 let lastStopTypingId: string | null = null;
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
@@ -44,6 +45,9 @@ export function connectSocket(userId: string, dispatch: any) {
 
   socket.on("userStopTyping", ({ senderId }) => {
     dispatch(SET_END_TYPING_STATUS(senderId));
+  });
+  socket.on("editMessage", (msg) => {
+    dispatch(UPDATE_EDITED_MESSAGE(msg));
   });
   return socket;
 }
