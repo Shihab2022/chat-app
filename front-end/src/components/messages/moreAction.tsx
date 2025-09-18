@@ -95,6 +95,7 @@ export default function MoreActions({
         break;
       case "Edit":
         dispatch(SET_EDITED_MESSAGE(mess));
+        setMoreActionOpen(false);
         break;
       case "Delete":
         console.log(v);
@@ -103,7 +104,8 @@ export default function MoreActions({
         console.log(v);
         break;
       case "Copy":
-        console.log(v);
+        navigator.clipboard.writeText(mess?.text);
+        setMoreActionOpen(false);
         break;
       case "Forward":
         console.log(v);
