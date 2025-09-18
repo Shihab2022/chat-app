@@ -42,7 +42,7 @@ export type TMessage = {
   receiverId: string;
   text?: string;
   image?: string;
-  createdAt?: string; // usually ISO string from backend
+  createdAt: string; // usually ISO string from backend
   updatedAt?: string;
   time?: string;
 };

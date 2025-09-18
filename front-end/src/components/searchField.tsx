@@ -14,6 +14,7 @@ import {
   SET_EMOJI_ANCHOR_EL,
   SET_EMOJI_STATUS,
   SET_ONE_ICON,
+  UPDATE_EDITED_MESSAGE,
 } from "../redux/features/chat/getConversationSlice";
 import { RootState } from "../redux/store";
 import { groupMessagesByDate } from "../utils/timeFormat";
@@ -50,14 +51,16 @@ export default function SearchField({ myId }: { myId: string }) {
 
   useEffect(() => {
     if (editedMessage?._id) {
-      console.log(editedMessage);
       handleInputChange(editedMessage?.text);
     }
   }, [editedMessage]);
   const handleEditMessage = async () => {
     const params = { ...editedMessage, text: message };
     const res = await editMessage(params);
-    console.log({ res });
+    if (res?.success) {
+      dispatch(UPDATE_EDITED_MESSAGE(res?.data));
+      handleInputChange("");
+    }
   };
   const handleSubmit = async () => {
     if (editedMessage?._id) {
