@@ -109,6 +109,23 @@ const editMessage = async (payload: any) => {
   }
   return updatedMessage;
 };
+const deleteMessage = async (payload: any) => {
+  const { _id, text, receiverId } = payload;
+  const updatedMessage = await Message.findByIdAndUpdate(
+    _id,
+    { text: text },
+    { new: true },
+  );
+
+  if (!updatedMessage) {
+    return null;
+  }
+  const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('editMessage', updatedMessage);
+  }
+  return updatedMessage;
+};
 export const MessageServices = {
   sendMessageIntoDB,
   getMessageFromDB,
@@ -116,4 +133,5 @@ export const MessageServices = {
   addEmoji,
   removeEmoji,
   editMessage,
+  deleteMessage,
 };

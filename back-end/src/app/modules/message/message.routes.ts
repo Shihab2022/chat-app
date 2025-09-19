@@ -13,5 +13,6 @@ router.get('/get', auth(userRole?.USER), MessageController.getMessage);
 router.post('/emoji', auth(userRole?.USER), MessageController.addEmoji);
 router.delete('/emoji', auth(userRole?.USER), MessageController.removeEmoji);
 router.patch('/', auth(userRole?.USER), MessageController.editMessage);
+router.delete('/', auth(userRole?.USER), MessageController.deleteMessage);
 
 export const MessageRoutes = router;
