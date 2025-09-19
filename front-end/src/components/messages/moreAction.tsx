@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import { RootState } from "../../redux/store";
 import { SET_EDITED_MESSAGE } from "../../redux/features/chat/getConversationSlice";
+import { deleteMessage } from "../../services/message";
 
 const myActions = [
   {
@@ -86,6 +87,10 @@ export default function MoreActions({
     setMoreActionAnchorEl(null);
     setMoreActionOpen(false);
   };
+  const handleDeleteMessage = async () => {
+    await deleteMessage(mess?._id);
+    handleClose();
+  };
   const handleClick = (v: any) => {
     switch (v) {
       case "React":
@@ -98,6 +103,7 @@ export default function MoreActions({
         setMoreActionOpen(false);
         break;
       case "Delete":
+        handleDeleteMessage();
         console.log(v);
         break;
       case "Reply":

@@ -62,3 +62,13 @@ export const editMessage = async (params: any) => {
   });
   return res;
 };
+export const deleteMessage = async (params: any) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message",
+    axiosMethod: httpMethod.DELETE,
+    formData: false,
+    params: params,
+  });
+  return res;
+};
