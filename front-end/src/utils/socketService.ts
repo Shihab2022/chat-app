@@ -11,7 +11,7 @@ import {
   SET_EMOJI_WITH_DATA,
   SET_REAL_TIME_CONVERSATION,
   UPDATE_EDITED_MESSAGE,
-} from "../redux/features/chat/getConversationSlice";
+} from "../redux/features/chat/conversationSlice";
 let lastStopTypingId: string | null = null;
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
 let socket: Socket | null = null;

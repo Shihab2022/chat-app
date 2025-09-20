@@ -15,7 +15,7 @@ import { removeEmoji } from "../../services/message";
 import {
   REMOVE_EMOJI,
   SET_EMOJI_DETAILS_DIALOG_STATUS,
-} from "../../redux/features/chat/getConversationSlice";
+} from "../../redux/features/chat/conversationSlice";
 export const CCard = ({ formattedData, selectedEmoji }: any) => {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { receiverId } = useSelector((state: RootState) => state?.message);

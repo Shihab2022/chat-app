@@ -5,7 +5,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { SET_EMOJI_DETAILS_DIALOG_STATUS } from "../../redux/features/chat/getConversationSlice";
+import { SET_EMOJI_DETAILS_DIALOG_STATUS } from "../../redux/features/chat/conversationSlice";
 import { IconButton, Stack, styled, Tab, Tabs } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Divider from "@mui/material/Divider";

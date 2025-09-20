@@ -11,7 +11,7 @@ import { getUsersForSidebar } from "../../services/message";
 import { randomTwoDigit, toStartCaseStr } from "../../utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuthRes } from "../../utils/checkAuth";
-import { SET_RECEIVER_ID } from "../../redux/features/chat/getConversationSlice";
+import { SET_RECEIVER_ID } from "../../redux/features/chat/conversationSlice";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 import LeftSiteBar from "./leftSiteBar";
 import { RootState } from "../../redux/store";

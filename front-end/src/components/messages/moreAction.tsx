@@ -12,7 +12,7 @@ import { RootState } from "../../redux/store";
 import {
   DELETE_MESSAGE,
   SET_EDITED_MESSAGE,
-} from "../../redux/features/chat/getConversationSlice";
+} from "../../redux/features/chat/conversationSlice";
 import { deleteMessage } from "../../services/message";
 
 const myActions = [

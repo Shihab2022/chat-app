@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import {
   SET_CONVERSATION,
   SET_RECEIVER_ID,
-} from "../../redux/features/chat/getConversationSlice";
+} from "../../redux/features/chat/conversationSlice";
 import { getMessage } from "../../services/message";
 import { RootState } from "../../redux/store";
 import { TUser } from "../../types";

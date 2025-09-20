@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   SET_EMOJI_DETAILS_DIALOG_STATUS,
   SET_EMOJI_DETAILS_REACTIONS,
-} from "../../redux/features/chat/getConversationSlice";
+} from "../../redux/features/chat/conversationSlice";
 import EmojiDetailsDialog from "../emoji/dialogEmojiDetails";
 import { RootState } from "../../redux/store";
 

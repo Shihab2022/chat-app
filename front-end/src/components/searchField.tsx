@@ -15,7 +15,7 @@ import {
   SET_EMOJI_STATUS,
   SET_ONE_ICON,
   UPDATE_EDITED_MESSAGE,
-} from "../redux/features/chat/getConversationSlice";
+} from "../redux/features/chat/conversationSlice";
 import { RootState } from "../redux/store";
 import { groupMessagesByDate } from "../utils/timeFormat";
 import EmojiPicker from "./emoji";

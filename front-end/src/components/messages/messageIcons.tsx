@@ -13,7 +13,7 @@ import {
   SET_EMOJI_WITH_DATA,
   SET_ONE_ICON,
   SET_SELECTED_MESSAGE,
-} from "../../redux/features/chat/getConversationSlice";
+} from "../../redux/features/chat/conversationSlice";
 import { addEmoji } from "../../services/message";
 import MoreActions from "./moreAction";
 const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
