@@ -110,10 +110,10 @@ const editMessage = async (payload: any) => {
   return updatedMessage;
 };
 const deleteMessage = async (payload: any) => {
-  const { _id, text, receiverId } = payload;
+  const { _id, receiverId } = payload;
   const updatedMessage = await Message.findByIdAndUpdate(
     _id,
-    { text: text },
+    { isDeleted: true },
     { new: true },
   );
 
