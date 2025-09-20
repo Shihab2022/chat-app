@@ -88,7 +88,7 @@ export default function MoreActions({
     setMoreActionOpen(false);
   };
   const handleDeleteMessage = async () => {
-    await deleteMessage(mess?._id);
+    await deleteMessage(mess);
     handleClose();
   };
   const handleClick = (v: any) => {

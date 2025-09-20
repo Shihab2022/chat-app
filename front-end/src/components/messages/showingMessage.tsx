@@ -10,7 +10,7 @@ import ShowingEmoji from "./showingEmoji";
 import { ImgViewer } from "../imgViewer";
 
 const ShowingMessage = ({ mess, messageEndRef }: any) => {
-  const { text, senderId, createdAt } = mess;
+  const { text, senderId, createdAt, isDeleted } = mess;
   const [isHovered, setIsHovered] = useState(false);
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth
@@ -55,14 +55,15 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
               }}
             >
               <Paper
-                elevation={1}
+                elevation={isDeleted ? 0 : 1}
                 sx={{
                   paddingX: 1.5,
                   paddingY: 1,
                   borderRadius: 2,
-                  backgroundColor: isOwn ? "#DCF8C6" : "#fff",
+                  backgroundColor: isOwn && !isDeleted ? "#DCF8C6" : "#fff",
                   position: "relative", // 👈 container for absolute positioning
                   display: "inline-block",
+                  border: isDeleted ? "1px solid #e07575ff" : "none",
                 }}
               >
                 <Stack
@@ -74,7 +75,15 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                     position: "relative",
                   }}
                 >
-                  <Typography variant="body1">{text}</Typography>
+                  {isDeleted ? (
+                    <Typography sx={{ color: "#e07575ff" }} variant="body1">
+                      {` ${
+                        mess.senderId === myId ? "You" : userInfo?.name
+                      } deleted this message`}
+                    </Typography>
+                  ) : (
+                    <Typography variant="body1">{text}</Typography>
+                  )}
                   <Typography
                     variant="caption"
                     sx={{
@@ -88,14 +97,14 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                     {time || "10:30 PM"}
                   </Typography>
                 </Stack>
-                {mess?.reactions?.length > 0 && (
+                {mess?.reactions?.length > 0 && !isDeleted && (
                   <ShowingEmoji mess={mess} myId={myId} />
                 )}
               </Paper>
             </Box>
           </Stack>
 
-          {isHovered && <MessageIcons mess={mess} myId={myId} />}
+          {isHovered && !isDeleted && <MessageIcons mess={mess} myId={myId} />}
         </Stack>
       </Stack>
     </>
