@@ -123,7 +123,7 @@ const deleteMessage = async (payload: any) => {
   }
   const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
   if (receiverSocketId) {
-    io.to(receiverSocketId).emit('editMessage', updatedMessage);
+    io.to(receiverSocketId).emit('deletedMessage', updatedMessage);
   }
   return updatedMessage;
 };

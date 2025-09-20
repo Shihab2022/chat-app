@@ -72,6 +72,13 @@ const conversationSlice = createSlice({
       ) as GroupedMessages;
       state.editedMessage = {};
     },
+    DELETE_MESSAGE: (state, action) => {
+      state.messages = formateMessageAndUpdate(
+        action.payload,
+        state.messages
+      ) as GroupedMessages;
+      state.editedMessage = {};
+    },
     SET_EMOJI_WITH_DATA: (state, action) => {
       state.isEmojiAdded = true;
       state.messages = formateMessageAndUpdate(
@@ -104,5 +111,6 @@ export const {
   REMOVE_EMOJI,
   SET_EDITED_MESSAGE,
   UPDATE_EDITED_MESSAGE,
+  DELETE_MESSAGE,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;

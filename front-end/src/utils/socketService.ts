@@ -6,6 +6,7 @@ import {
   SET_START_TYPING_STATUS,
 } from "../redux/features/auth/authSlice";
 import {
+  DELETE_MESSAGE,
   REMOVE_EMOJI,
   SET_EMOJI_WITH_DATA,
   SET_REAL_TIME_CONVERSATION,
@@ -48,6 +49,9 @@ export function connectSocket(userId: string, dispatch: any) {
   });
   socket.on("editMessage", (msg) => {
     dispatch(UPDATE_EDITED_MESSAGE(msg));
+  });
+  socket.on("deletedMessage", (msg) => {
+    dispatch(DELETE_MESSAGE(msg));
   });
   return socket;
 }

@@ -9,7 +9,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import { RootState } from "../../redux/store";
-import { SET_EDITED_MESSAGE } from "../../redux/features/chat/getConversationSlice";
+import {
+  DELETE_MESSAGE,
+  SET_EDITED_MESSAGE,
+} from "../../redux/features/chat/getConversationSlice";
 import { deleteMessage } from "../../services/message";
 
 const myActions = [
@@ -88,8 +91,15 @@ export default function MoreActions({
     setMoreActionOpen(false);
   };
   const handleDeleteMessage = async () => {
-    await deleteMessage(mess);
-    handleClose();
+    try {
+      const res = await deleteMessage(mess);
+      if (res?.success) {
+        dispatch(DELETE_MESSAGE(res?.data));
+      }
+      handleClose();
+    } catch (error) {
+      console.log(error);
+    }
   };
   const handleClick = (v: any) => {
     switch (v) {
@@ -104,7 +114,6 @@ export default function MoreActions({
         break;
       case "Delete":
         handleDeleteMessage();
-        console.log(v);
         break;
       case "Reply":
         console.log(v);
