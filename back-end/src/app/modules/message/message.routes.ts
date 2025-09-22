@@ -14,5 +14,6 @@ router.post('/emoji', auth(userRole?.USER), MessageController.addEmoji);
 router.delete('/emoji', auth(userRole?.USER), MessageController.removeEmoji);
 router.patch('/', auth(userRole?.USER), MessageController.editMessage);
 router.delete('/', auth(userRole?.USER), MessageController.deleteMessage);
+router.post('/forward', auth(userRole?.USER), MessageController.ForwardMessage);
 
 export const MessageRoutes = router;

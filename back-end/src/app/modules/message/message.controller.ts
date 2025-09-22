@@ -110,6 +110,24 @@ const deleteMessage = async (
     next(error);
   }
 };
+const ForwardMessage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.ForwardMessage(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Forward message successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const MessageController = {
   sendMessage,
@@ -119,4 +137,5 @@ export const MessageController = {
   removeEmoji,
   editMessage,
   deleteMessage,
+  ForwardMessage,
 };

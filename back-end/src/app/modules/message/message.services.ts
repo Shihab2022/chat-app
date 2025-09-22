@@ -127,6 +127,28 @@ const deleteMessage = async (payload: any) => {
   }
   return updatedMessage;
 };
+
+const ForwardMessage = async (payload: any) => {
+  const { text, receiverIds = [], senderId } = payload;
+  const newMessages = receiverIds.map((receiverId: string) => {
+    return {
+      senderId,
+      receiverId,
+      text,
+      image: '',
+    };
+  });
+
+  const savedMessages = await Message.insertMany(newMessages);
+  for (const msg of savedMessages) {
+    const receiverSocketId = getReceiverSocketId(msg.receiverId.toString());
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('newMessage', msg);
+    }
+  }
+
+  return savedMessages;
+};
 export const MessageServices = {
   sendMessageIntoDB,
   getMessageFromDB,
@@ -135,4 +157,5 @@ export const MessageServices = {
   removeEmoji,
   editMessage,
   deleteMessage,
+  ForwardMessage,
 };
