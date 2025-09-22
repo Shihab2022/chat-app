@@ -9,11 +9,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import { RootState } from "../../redux/store";
-import {
-  DELETE_MESSAGE,
-  SET_EDITED_MESSAGE,
-} from "../../redux/features/chat/conversationSlice";
-import { deleteMessage } from "../../services/message";
+import { SET_EDITED_MESSAGE } from "../../redux/features/chat/conversationSlice";
 import { useState } from "react";
 import DeleteConformations from "./deleteConformations";
 
@@ -94,17 +90,7 @@ export default function MoreActions({
     setMoreActionAnchorEl(null);
     setMoreActionOpen(false);
   };
-  // const handleDeleteMessage = async () => {
-  //   try {
-  //     const res = await deleteMessage(mess);
-  //     if (res?.success) {
-  //       dispatch(DELETE_MESSAGE(res?.data));
-  //     }
-  //     handleClose();
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+
   const handleClick = (v: any) => {
     switch (v) {
       case "React":

@@ -8,6 +8,9 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import { forwardRef } from "react";
+import { deleteMessage } from "../../services/message";
+import { useDispatch } from "react-redux";
+import { DELETE_MESSAGE } from "../../redux/features/chat/conversationSlice";
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -22,6 +25,17 @@ const DeleteConformations = ({
   deleteConformationMenuOpen,
   setDeleteConformationMenuOpen,
 }: any) => {
+  const dispatch = useDispatch();
+  const handleDeleteMessage = async () => {
+    try {
+      const res = await deleteMessage(mess);
+      if (res?.success) {
+        dispatch(DELETE_MESSAGE(res?.data));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <Dialog
@@ -41,7 +55,13 @@ const DeleteConformations = ({
           <Button onClick={() => setDeleteConformationMenuOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={() => setDeleteConformationMenuOpen(false)}>
+          <Button
+            onClick={() => {
+              setDeleteConformationMenuOpen(false);
+              handleDeleteMessage();
+            }}
+            color="error"
+          >
             Delete
           </Button>
         </DialogActions>
