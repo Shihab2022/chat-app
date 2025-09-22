@@ -14,6 +14,8 @@ import {
   SET_EDITED_MESSAGE,
 } from "../../redux/features/chat/conversationSlice";
 import { deleteMessage } from "../../services/message";
+import { useState } from "react";
+import DeleteConformations from "./deleteConformations";
 
 const myActions = [
   {
@@ -86,21 +88,23 @@ export default function MoreActions({
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { _id: myId } = loginUser;
   const dispatch = useDispatch();
+  const [deleteConformationMenuOpen, setDeleteConformationMenuOpen] =
+    useState(false);
   const handleClose = () => {
     setMoreActionAnchorEl(null);
     setMoreActionOpen(false);
   };
-  const handleDeleteMessage = async () => {
-    try {
-      const res = await deleteMessage(mess);
-      if (res?.success) {
-        dispatch(DELETE_MESSAGE(res?.data));
-      }
-      handleClose();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const handleDeleteMessage = async () => {
+  //   try {
+  //     const res = await deleteMessage(mess);
+  //     if (res?.success) {
+  //       dispatch(DELETE_MESSAGE(res?.data));
+  //     }
+  //     handleClose();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
   const handleClick = (v: any) => {
     switch (v) {
       case "React":
@@ -113,7 +117,8 @@ export default function MoreActions({
         setMoreActionOpen(false);
         break;
       case "Delete":
-        handleDeleteMessage();
+        setDeleteConformationMenuOpen(true);
+        handleClose();
         break;
       case "Reply":
         console.log(v);
@@ -165,6 +170,12 @@ export default function MoreActions({
           )
         )}
       </Menu>
+
+      <DeleteConformations
+        mess={mess}
+        deleteConformationMenuOpen={deleteConformationMenuOpen}
+        setDeleteConformationMenuOpen={setDeleteConformationMenuOpen}
+      />
     </>
   );
 }
