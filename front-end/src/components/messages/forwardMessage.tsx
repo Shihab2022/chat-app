@@ -13,9 +13,11 @@ import { RootState } from "../../redux/store";
 import Stack from "@mui/material/Stack/Stack";
 import Avatar from "@mui/material/Avatar/Avatar";
 import Typography from "@mui/material/Typography/Typography";
-import { Box, Checkbox } from "@mui/material";
-import { all } from "axios";
+import { Checkbox } from "@mui/material";
 import { TUser } from "../../types";
+import { showToast } from "../../utils/toast";
+import { WARNING } from "../../constants/common";
+import { forwardMessageAPI } from "../../services/message";
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -34,6 +36,31 @@ const ForwardMessage = ({ mess, forwardMenuOpen, setForwardMenuOpen }: any) => {
     setSelectedUsers((prev) =>
       prev.includes(id) ? prev.filter((uid) => uid !== id) : [...prev, id]
     );
+  };
+  const handleForwardMessage = async () => {
+    if (selectedUsers.length === 0) {
+      showToast(
+        WARNING,
+        "Please select at least one user to forward the message"
+      );
+      return;
+    }
+    try {
+      const params = {
+        text: mess?.text,
+        receiverIds: selectedUsers,
+        senderId: loginUser._id,
+      };
+      const response = await forwardMessageAPI(params);
+      console.log("forward response", response);
+      if (response.success) {
+        showToast("Message forwarded successfully", "success");
+      } else {
+        showToast("Failed to forward message", "error");
+      }
+    } catch (error) {
+      showToast("An error occurred while forwarding the message", "error");
+    }
   };
   return (
     <>
@@ -91,11 +118,11 @@ const ForwardMessage = ({ mess, forwardMenuOpen, setForwardMenuOpen }: any) => {
           <Button
             onClick={() => {
               setForwardMenuOpen(false);
-              //   handleDeleteMessage();
+              handleForwardMessage();
             }}
-            color="error"
+            color="primary"
           >
-            Delete
+            Forward
           </Button>
         </DialogActions>
       </Dialog>

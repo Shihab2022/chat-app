@@ -1,7 +1,7 @@
 import EditIcon from "@mui/icons-material/Edit";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ReplyAllIcon from "@mui/icons-material/ReplyAll";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ReplyIcon from "@mui/icons-material/Reply";
 export const moreActionsConfig = [
@@ -24,7 +24,7 @@ export const moreActionsConfig = [
   {
     id: 134,
     title: "Forward",
-    icon: <ArrowForwardIcon />,
+    icon: <ReplyAllIcon />,
   },
 ];
 export const moreActionsConfigMyActions = [
