@@ -9,4 +9,7 @@ export type TMessages = {
   userToChatId?: string;
   myId?: string;
   text?: string;
+  replyId?: Types.ObjectId;
+  image?: string;
+  reactions?: { emoji: string; userIds: string[] }[];
 };

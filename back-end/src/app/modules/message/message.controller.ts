@@ -128,6 +128,24 @@ const ForwardMessage = async (
     next(error);
   }
 };
+const replyMessage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.replyMessage(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Reply message successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const MessageController = {
   sendMessage,
@@ -138,4 +156,5 @@ export const MessageController = {
   editMessage,
   deleteMessage,
   ForwardMessage,
+  replyMessage,
 };

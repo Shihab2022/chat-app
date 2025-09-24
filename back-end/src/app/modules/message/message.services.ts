@@ -149,6 +149,33 @@ const ForwardMessage = async (payload: any) => {
 
   return savedMessages;
 };
+
+const replyMessage = async (payload: TMessages) => {
+  const { text, senderId, receiverId, replyId } = payload;
+  const newMessage = new Message({
+    senderId,
+    receiverId,
+    text,
+    image: '',
+    replyId,
+  });
+
+  await newMessage.save();
+
+  const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('newMessage', newMessage);
+  }
+
+  const messages = await Message.find({
+    $or: [
+      { senderId, receiverId },
+      { senderId: receiverId, receiverId: senderId },
+    ],
+  });
+
+  return messages;
+};
 export const MessageServices = {
   sendMessageIntoDB,
   getMessageFromDB,
@@ -158,4 +185,5 @@ export const MessageServices = {
   editMessage,
   deleteMessage,
   ForwardMessage,
+  replyMessage,
 };
