@@ -53,6 +53,9 @@ export function connectSocket(userId: string, dispatch: any) {
   socket.on("deletedMessage", (msg) => {
     dispatch(DELETE_MESSAGE(msg));
   });
+  socket.on("forwardMessage", (msg) => {
+    dispatch(SET_REAL_TIME_CONVERSATION(msg));
+  });
   return socket;
 }
 

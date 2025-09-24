@@ -143,7 +143,7 @@ const ForwardMessage = async (payload: any) => {
   for (const msg of savedMessages) {
     const receiverSocketId = getReceiverSocketId(msg.receiverId.toString());
     if (receiverSocketId) {
-      io.to(receiverSocketId).emit('newMessage', msg);
+      io.to(receiverSocketId).emit('forwardMessage', msg);
     }
   }
 
