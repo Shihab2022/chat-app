@@ -21,6 +21,8 @@ import { groupMessagesByDate } from "../utils/timeFormat";
 import EmojiPicker from "./emoji";
 import useDebouncedText from "../utils/debouncedSearch";
 import { useEffect } from "react";
+import { Box, Stack, Typography } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
   const { receiverId, isEmojiOpen, editedMessage } = useSelector(
@@ -75,49 +77,72 @@ export default function SearchField({ myId }: { myId: string }) {
         component="form"
         sx={{
           p: "2px 0px",
-          display: "flex",
-          alignItems: "center",
           border: "1px solid gray",
         }}
       >
-        <IconButton
-          onClick={(e) => {
-            dispatch(SET_EMOJI_ANCHOR_EL(e.currentTarget));
-            dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
-            dispatch(SET_ONE_ICON(false));
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            background: "#d1f5d6ff",
+            paddingX: "15px",
+            marginX: " 10px",
+            borderRadius: "10px",
           }}
-          sx={{ p: "10px" }}
-          aria-label="menu"
         >
-          <AddIcon />
-        </IconButton>
-        <InputBase
-          onChange={(e: any) => {
-            handleInputChange(e.target.value);
-          }}
-          value={message}
-          sx={{ ml: 1, flex: 1 }}
-          placeholder="Type a message"
-          inputProps={{ "aria-label": "search google maps" }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              if (message) {
-                handleSubmit();
+          <Box sx={{ width: "10px" }}>
+            <Typography variant="subtitle1" sx={{ textAlign: "center" }}>
+              "editedMessage?
+            </Typography>
+            <Typography variant="subtitle1" sx={{ textAlign: "center" }}>
+              "editedMessage
+            </Typography>
+          </Box>
+          <CloseIcon sx={{ cursor: "pointer" }} />
+        </Stack>
+
+        <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+          <IconButton
+            onClick={(e) => {
+              dispatch(SET_EMOJI_ANCHOR_EL(e.currentTarget));
+              dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
+              dispatch(SET_ONE_ICON(false));
+            }}
+            sx={{ p: "10px" }}
+            aria-label="menu"
+          >
+            <AddIcon />
+          </IconButton>
+          <InputBase
+            onChange={(e: any) => {
+              handleInputChange(e.target.value);
+            }}
+            value={message}
+            sx={{ ml: 1, flex: 1 }}
+            placeholder="Type a message"
+            inputProps={{ "aria-label": "search google maps" }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (message) {
+                  handleSubmit();
+                }
               }
-            }
-          }}
-        />
-        <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-        <IconButton
-          onClick={handleSubmit}
-          color="primary"
-          sx={{ p: "10px" }}
-          aria-label="directions"
-          disabled={!message}
-        >
-          <SendIcon />
-        </IconButton>
+            }}
+          />
+          <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+          <IconButton
+            onClick={handleSubmit}
+            color="primary"
+            sx={{ p: "10px" }}
+            aria-label="directions"
+            disabled={!message}
+          >
+            <SendIcon />
+          </IconButton>
+        </Box>
       </Paper>
 
       <EmojiPicker
