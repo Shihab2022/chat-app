@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import {
   SET_CONVERSATION,
   SET_RECEIVER_ID,
+  SET_REPLIED_MESSAGE,
 } from "../../redux/features/chat/conversationSlice";
 import { getMessage } from "../../services/message";
 import { RootState } from "../../redux/store";
@@ -34,6 +35,7 @@ const LeftSiteBar = () => {
         userToChatId: user._id,
       };
       dispatch(SET_RECEIVER_ID(user._id));
+      dispatch(SET_REPLIED_MESSAGE({}));
       const res = await getMessage(params);
       if (res?.success) {
         const formattedMessage = groupMessagesByDate(res?.data);
