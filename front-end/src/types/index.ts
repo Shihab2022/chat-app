@@ -63,4 +63,5 @@ export type TConversationState = {
   selectedMessage?: any;
   selectedReactions?: Reaction[];
   editedMessage?: any;
+  repliedMessage?: any;
 };

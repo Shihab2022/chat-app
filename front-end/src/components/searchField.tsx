@@ -14,6 +14,7 @@ import {
   SET_EMOJI_ANCHOR_EL,
   SET_EMOJI_STATUS,
   SET_ONE_ICON,
+  SET_REPLIED_MESSAGE,
   UPDATE_EDITED_MESSAGE,
 } from "../redux/features/chat/conversationSlice";
 import { RootState } from "../redux/store";
@@ -25,9 +26,8 @@ import { Box, Stack, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
-  const { receiverId, isEmojiOpen, editedMessage } = useSelector(
-    (state: RootState) => state?.message
-  );
+  const { receiverId, isEmojiOpen, editedMessage, repliedMessage } =
+    useSelector((state: RootState) => state?.message);
   const { handleInputChange, message, stopTypingEvent } =
     useDebouncedText(receiverId);
   const handleClick = async () => {
@@ -80,28 +80,35 @@ export default function SearchField({ myId }: { myId: string }) {
           border: "1px solid gray",
         }}
       >
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            justifyContent: "space-between",
-            alignItems: "center",
-            background: "#d1f5d6ff",
-            paddingX: "15px",
-            marginX: " 10px",
-            borderRadius: "10px",
-          }}
-        >
-          <Box sx={{ width: "10px" }}>
-            <Typography variant="subtitle1" sx={{ textAlign: "center" }}>
-              "editedMessage?
-            </Typography>
-            <Typography variant="subtitle1" sx={{ textAlign: "center" }}>
-              "editedMessage
-            </Typography>
-          </Box>
-          <CloseIcon sx={{ cursor: "pointer" }} />
-        </Stack>
+        {Object.keys(repliedMessage)?.length > 0 && (
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              justifyContent: "space-between",
+              alignItems: "center",
+              background: "#d1f5d6ff",
+              paddingX: "15px",
+              marginX: " 10px",
+              borderRadius: "10px",
+            }}
+          >
+            <Box sx={{ py: 1 }}>
+              {/* <Typography variant="h6" sx={{ fontWeight: "200" }}>
+                {editedMessage?._id ? "editedMessage?" : "repliedMessage?"}
+              </Typography> */}
+              <Typography variant="subtitle1">
+                {repliedMessage?.text?.length > 50
+                  ? repliedMessage?.text?.substring(0, 50) + "..."
+                  : repliedMessage?.text}
+              </Typography>
+            </Box>
+            <CloseIcon
+              onClick={() => dispatch(SET_REPLIED_MESSAGE({}))}
+              sx={{ cursor: "pointer" }}
+            />
+          </Stack>
+        )}
 
         <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
           <IconButton

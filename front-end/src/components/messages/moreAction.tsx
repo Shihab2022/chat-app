@@ -3,7 +3,10 @@ import Menu from "@mui/material/Menu";
 import { Box, Stack, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { SET_EDITED_MESSAGE } from "../../redux/features/chat/conversationSlice";
+import {
+  SET_EDITED_MESSAGE,
+  SET_REPLIED_MESSAGE,
+} from "../../redux/features/chat/conversationSlice";
 import { useState } from "react";
 import DeleteConformations from "./deleteConformations";
 import { moreActionsConfig, moreActionsConfigMyActions } from "../../config";
@@ -69,7 +72,8 @@ export default function MoreActions({
         handleClose();
         break;
       case "Reply":
-        console.log(v);
+        dispatch(SET_REPLIED_MESSAGE(mess));
+        handleClose();
         break;
       case "Copy":
         navigator.clipboard.writeText(mess?.text);

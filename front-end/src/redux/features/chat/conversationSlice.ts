@@ -17,6 +17,7 @@ const initialState: TConversationState = {
   emojiDetailsDialogStatus: false,
   selectedReactions: [],
   editedMessage: {},
+  repliedMessage: {},
 };
 const conversationSlice = createSlice({
   name: "message",
@@ -94,6 +95,9 @@ const conversationSlice = createSlice({
       state.isEmojiAdded = true;
       state.selectedReactions = action.payload.reactions;
     },
+    SET_REPLIED_MESSAGE: (state, action) => {
+      state.repliedMessage = action.payload;
+    },
   },
 });
 
@@ -112,5 +116,6 @@ export const {
   SET_EDITED_MESSAGE,
   UPDATE_EDITED_MESSAGE,
   DELETE_MESSAGE,
+  SET_REPLIED_MESSAGE,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;

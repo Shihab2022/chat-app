@@ -12,6 +12,7 @@ import {
   SET_EMOJI_STATUS,
   SET_EMOJI_WITH_DATA,
   SET_ONE_ICON,
+  SET_REPLIED_MESSAGE,
   SET_SELECTED_MESSAGE,
 } from "../../redux/features/chat/conversationSlice";
 import { addEmoji } from "../../services/message";
@@ -59,7 +60,10 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
         >
           <InsertEmoticonIcon />
         </IconButton>
-        <IconButton aria-label="menu">
+        <IconButton
+          onClick={() => dispatch(SET_REPLIED_MESSAGE(mess))}
+          aria-label="menu"
+        >
           <ReplyIcon />
         </IconButton>
         <IconButton
