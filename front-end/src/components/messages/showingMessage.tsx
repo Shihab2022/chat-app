@@ -61,9 +61,10 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                   paddingY: 1,
                   borderRadius: 2,
                   backgroundColor: isOwn && !isDeleted ? "#DCF8C6" : "#fff",
-                  position: "relative", // 👈 container for absolute positioning
+                  position: "relative",
                   display: "inline-block",
                   border: isDeleted ? "1px solid #e07575ff" : "none",
+                  maxWidth: "100%", // 👈 keep bubble size realistic like WhatsApp
                 }}
               >
                 <Stack
@@ -75,28 +76,75 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                     position: "relative",
                   }}
                 >
-                  {isDeleted ? (
-                    <Typography sx={{ color: "#e07575ff" }} variant="body1">
-                      {` ${
-                        mess.senderId === myId ? "You" : userInfo?.name
-                      } deleted this message`}
-                    </Typography>
-                  ) : (
-                    <Typography variant="body1">{text}</Typography>
-                  )}
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      display: "block",
-                      textAlign: "right",
-                      mt: 0.5,
-                      opacity: 0.7,
-                      fontSize: "10px",
-                    }}
-                  >
-                    {time || "10:30 PM"}
-                  </Typography>
+                  <Stack spacing={0.5}>
+                    {/* ✅ Reply Preview Section */}
+                    {mess?.replyId && (
+                      <Box
+                        sx={{
+                          borderLeft: "3px solid #4caf50",
+                          pl: 1,
+                          mb: 1,
+                          py: 0.5,
+                          borderRadius: "4px",
+                          backgroundColor: "#f0f0f0",
+                          fontSize: "12px",
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{ fontWeight: 600, color: "#9aaa9bff" }}
+                        >
+                          {/* {mess.replyTo.senderId === myId
+                          ? "You"
+                          : mess.replyTo.senderName} */}
+                          dddddddddddddddd
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          noWrap
+                          sx={{ fontSize: "12px", color: "#555" }}
+                        >
+                          {/* {mess.replyTo.text || "Media"} */}
+                          rererrrrrrrrrr
+                        </Typography>
+                      </Box>
+                    )}
+
+                    <Stack
+                      direction={isOwn ? "row-reverse" : "row"}
+                      spacing={2}
+                      sx={{
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                        position: "relative",
+                      }}
+                    >
+                      {isDeleted ? (
+                        <Typography sx={{ color: "#e07575ff" }} variant="body1">
+                          {` ${
+                            mess.senderId === myId ? "You" : userInfo?.name
+                          } deleted this message`}
+                        </Typography>
+                      ) : (
+                        <Typography variant="body1">{text}</Typography>
+                      )}
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: "block",
+                          textAlign: "right",
+                          mt: 0.5,
+                          opacity: 0.7,
+                          fontSize: "10px",
+                        }}
+                      >
+                        {time || "10:30 PM"}
+                      </Typography>
+                    </Stack>
+                  </Stack>
                 </Stack>
+
+                {/* ✅ Emoji Reactions */}
                 {mess?.reactions?.length > 0 && !isDeleted && (
                   <ShowingEmoji mess={mess} myId={myId} />
                 )}
