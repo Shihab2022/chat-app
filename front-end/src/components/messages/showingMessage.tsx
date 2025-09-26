@@ -10,15 +10,25 @@ import ShowingEmoji from "./showingEmoji";
 import { ImgViewer } from "../imgViewer";
 
 const ShowingMessage = ({ mess, messageEndRef }: any) => {
-  const { text, senderId, createdAt, isDeleted } = mess;
+  const { text, senderId, createdAt, isDeleted, replyId } = mess;
   const [isHovered, setIsHovered] = useState(false);
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth
   );
+  const { messages = {} } = useSelector((state: RootState) => state?.message);
   const { _id: myId } = loginUser;
   const userInfo = allUsers.find((user: any) => user._id === senderId);
   const isOwn = mess.senderId === myId;
   const time = formatTimes(createdAt);
+
+  const repliedMessage = replyId
+    ? Object.values(messages)
+        .flat()
+        .find((m: any) => m._id === replyId)
+    : undefined;
+  const replyUser = repliedMessage
+    ? allUsers.find((user: any) => user._id === repliedMessage.senderId)
+    : undefined;
   return (
     <>
       <Stack
@@ -78,7 +88,7 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                 >
                   <Stack spacing={0.5}>
                     {/* ✅ Reply Preview Section */}
-                    {mess?.replyId && (
+                    {replyId && (
                       <Box
                         sx={{
                           borderLeft: "3px solid #4caf50",
@@ -94,18 +104,17 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                           variant="caption"
                           sx={{ fontWeight: 600, color: "#9aaa9bff" }}
                         >
-                          {/* {mess.replyTo.senderId === myId
-                          ? "You"
-                          : mess.replyTo.senderName} */}
-                          dddddddddddddddd
+                          {replyUser?._id === myId ? "You" : replyUser?.name}
                         </Typography>
                         <Typography
                           variant="body2"
                           noWrap
                           sx={{ fontSize: "12px", color: "#555" }}
                         >
-                          {/* {mess.replyTo.text || "Media"} */}
-                          rererrrrrrrrrr
+                          {repliedMessage?.text &&
+                          repliedMessage.text.length > 100
+                            ? repliedMessage.text.slice(0, 100) + "..."
+                            : repliedMessage?.text || ""}
                         </Typography>
                       </Box>
                     )}
