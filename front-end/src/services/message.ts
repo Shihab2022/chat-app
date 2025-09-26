@@ -82,3 +82,13 @@ export const forwardMessageAPI = async (params: any) => {
   });
   return res;
 };
+export const replyMessageAPI = async (params: any) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/reply",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params: params,
+  });
+  return res;
+};

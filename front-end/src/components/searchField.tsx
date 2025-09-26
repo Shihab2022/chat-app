@@ -7,7 +7,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SendIcon from "@mui/icons-material/Send";
 import { showToast } from "../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../constants/common";
-import { editMessage, sendMessage } from "../services/message";
+import { editMessage, replyMessageAPI, sendMessage } from "../services/message";
 import { useDispatch, useSelector } from "react-redux";
 import {
   SET_CONVERSATION,
@@ -59,16 +59,43 @@ export default function SearchField({ myId }: { myId: string }) {
     }
   }, [editedMessage, messages]);
   const handleEditMessage = async () => {
-    const params = { ...editedMessage, text: message };
-    const res = await editMessage(params);
-    if (res?.success) {
-      dispatch(UPDATE_EDITED_MESSAGE(res?.data));
-      handleInputChange("");
+    try {
+      const params = { ...editedMessage, text: message };
+      const res = await editMessage(params);
+      if (res?.success) {
+        dispatch(UPDATE_EDITED_MESSAGE(res?.data));
+        handleInputChange("");
+      }
+    } catch (error) {
+      console.log({ error });
+    }
+  };
+  const handleReplyMessage = async () => {
+    try {
+      if (message?.length === 0) return;
+      const messageData = {
+        senderId: myId,
+        receiverId: receiverId,
+        text: message,
+        replyId: repliedMessage?._id,
+      };
+      const res = await replyMessageAPI(messageData);
+      if (res?.success) {
+        handleInputChange("");
+        stopTypingEvent();
+        const formattedMessage = groupMessagesByDate(res?.data);
+        dispatch(SET_CONVERSATION(formattedMessage));
+        dispatch(SET_REPLIED_MESSAGE({}));
+      }
+    } catch (error) {
+      console.log({ error });
     }
   };
   const handleSubmit = async () => {
     if (editedMessage?._id) {
       handleEditMessage();
+    } else if (repliedMessage?._id) {
+      handleReplyMessage();
     } else {
       handleClick();
     }
