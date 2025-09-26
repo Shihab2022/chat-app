@@ -65,10 +65,13 @@ export default function MoreActions({
         break;
       case "Edit":
         dispatch(SET_EDITED_MESSAGE(mess));
+        dispatch(SET_REPLIED_MESSAGE({}));
         setMoreActionOpen(false);
         break;
       case "Delete":
         setDeleteConformationMenuOpen(true);
+        dispatch(SET_REPLIED_MESSAGE({}));
+        dispatch(SET_EDITED_MESSAGE({}));
         handleClose();
         break;
       case "Reply":
@@ -81,6 +84,7 @@ export default function MoreActions({
         break;
       case "Forward":
         setForwardMenuOpen(true);
+        dispatch(SET_REPLIED_MESSAGE({}));
         handleClose();
         break;
       default:

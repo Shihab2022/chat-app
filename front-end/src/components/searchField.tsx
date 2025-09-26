@@ -26,7 +26,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
-  const { receiverId, isEmojiOpen, editedMessage, repliedMessage } =
+  const { receiverId, isEmojiOpen, editedMessage, repliedMessage, messages } =
     useSelector((state: RootState) => state?.message);
   const { handleInputChange, message, stopTypingEvent } =
     useDebouncedText(receiverId);
@@ -54,8 +54,10 @@ export default function SearchField({ myId }: { myId: string }) {
   useEffect(() => {
     if (editedMessage?._id) {
       handleInputChange(editedMessage?.text);
+    } else {
+      handleInputChange("");
     }
-  }, [editedMessage]);
+  }, [editedMessage, messages]);
   const handleEditMessage = async () => {
     const params = { ...editedMessage, text: message };
     const res = await editMessage(params);
