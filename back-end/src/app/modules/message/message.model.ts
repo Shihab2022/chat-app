@@ -36,6 +36,14 @@ const messageSchema = new mongoose.Schema(
         emoji: String,
       },
     ],
+    seen: {
+      type: Boolean,
+      default: false,
+    },
+    seenAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );
