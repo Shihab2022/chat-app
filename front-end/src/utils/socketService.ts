@@ -57,14 +57,9 @@ export function connectSocket(userId: string, dispatch: any) {
   socket.on("forwardMessage", (msg) => {
     dispatch(SET_REAL_TIME_CONVERSATION(msg));
   });
-  // socket.on("message:seen:update", ({ messageId, userId }) => {
-  //   console.log("Message seen update received:", { messageId, userId });
-  // });
-  // setMessages((prev) =>
-  //   prev.map((m) =>
-  //     m._id === messageId ? { ...m, seen: true, seenAt: new Date().toISOString() } : m
-  //   )
-  // );
+  socket.on("message:seen:update", ({ messageId, userId }) => {
+    console.log("Message seen update received:", { messageId, userId });
+  });
   return socket;
 }
 
