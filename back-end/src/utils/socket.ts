@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import http from 'http';
 import express from 'express';
 import config from '../app/config';
+import Message from '../app/modules/message/message.model';
 
 const app = express();
 const server = http.createServer(app);
@@ -34,6 +35,14 @@ io.on('connection', (socket) => {
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('userStopTyping', { senderId: userId });
     }
+  });
+  socket.on('message:seen', async ({ messageId, userId }) => {
+    await Message.findByIdAndUpdate(messageId, {
+      $addToSet: { seenBy: { userId, seenAt: new Date() } }, // prevents duplicates
+    });
+
+    // broadcast update
+    io.emit('message:seen:update', { messageId, userId });
   });
   // io.emit() is used to send events to all the connected clients
   io.emit('getOnlineUsers', Object.keys(userSocketMap));
