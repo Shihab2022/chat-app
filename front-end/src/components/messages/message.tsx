@@ -8,6 +8,7 @@ import ShowingMessage from "./showingMessage";
 import { TMessage, TUser } from "../../types";
 import TypingIndicator from "./TypingIndicator";
 import { ImgViewer } from "../imgViewer";
+import { emitMessageSeen } from "../../utils/socketService";
 
 const Message = () => {
   const {
@@ -25,6 +26,19 @@ const Message = () => {
       });
     }
   }, [messages, isEmojiAdded]);
+  useEffect(() => {
+    if (receiverId) {
+      (Object.values(messages) as TMessage[][]).forEach(
+        (msgArray: TMessage[]) => {
+          msgArray.forEach((msg) => {
+            if (msg.receiverId === receiverId && !msg.seen) {
+              emitMessageSeen(receiverId, msg);
+            }
+          });
+        }
+      );
+    }
+  }, [receiverId, messages]);
 
   return (
     <>

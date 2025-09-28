@@ -12,6 +12,7 @@ import {
   SET_REAL_TIME_CONVERSATION,
   UPDATE_EDITED_MESSAGE,
 } from "../redux/features/chat/conversationSlice";
+import { TMessage } from "../types";
 let lastStopTypingId: string | null = null;
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
 let socket: Socket | null = null;
@@ -56,6 +57,14 @@ export function connectSocket(userId: string, dispatch: any) {
   socket.on("forwardMessage", (msg) => {
     dispatch(SET_REAL_TIME_CONVERSATION(msg));
   });
+  // socket.on("message:seen:update", ({ messageId, userId }) => {
+  //   console.log("Message seen update received:", { messageId, userId });
+  // });
+  // setMessages((prev) =>
+  //   prev.map((m) =>
+  //     m._id === messageId ? { ...m, seen: true, seenAt: new Date().toISOString() } : m
+  //   )
+  // );
   return socket;
 }
 
@@ -77,6 +86,12 @@ export function emitTyping(receiverId: string) {
 export function emitStopTyping(receiverId: string) {
   socket?.emit("stopTyping", { receiverId });
   lastStopTypingId = null;
+}
+export function emitMessageSeen(receiverId: string, msg: TMessage) {
+  socket?.emit("message:seen", {
+    messageId: msg._id,
+    userId: receiverId,
+  });
 }
 export function getSocket() {
   return socket;

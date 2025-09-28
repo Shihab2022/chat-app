@@ -45,6 +45,8 @@ export type TMessage = {
   createdAt: string; // usually ISO string from backend
   updatedAt?: string;
   time?: string;
+  seen: boolean;
+  seenAt?: string;
 };
 
 export type Reaction = {

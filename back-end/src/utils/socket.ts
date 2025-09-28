@@ -37,10 +37,12 @@ io.on('connection', (socket) => {
     }
   });
   socket.on('message:seen', async ({ messageId, userId }) => {
-    await Message.findByIdAndUpdate(messageId, {
-      $addToSet: { seenBy: { userId, seenAt: new Date() } }, // prevents duplicates
-    });
-
+    // Update the message in the database to mark it as seen
+    await Message.findByIdAndUpdate(
+      messageId,
+      { seen: true, seenAt: new Date() },
+      { new: true },
+    );
     // broadcast update
     io.emit('message:seen:update', { messageId, userId });
   });
