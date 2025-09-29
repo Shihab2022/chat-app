@@ -18,7 +18,7 @@ export default function LeftSiteBarCard({
   user: any;
 }) {
   const { activeUsers = [] } = useSelector((state: RootState) => state?.auth);
-  const { name, img, _id, email, isTyping = false } = user;
+  const { name, img, _id, email, isTyping = false, lastMessage = {} } = user;
   return (
     <Card
       elevation={0}
@@ -70,7 +70,10 @@ export default function LeftSiteBarCard({
               component="div"
               sx={{ fontSize: "15px" }}
             >
-              {activeUsers?.includes(_id) ? "Online" : "Offline"}
+              {lastMessage?.text?.length > 20
+                ? lastMessage?.text?.slice(0, 20) + "..."
+                : lastMessage?.text}
+              {/* {activeUsers?.includes(_id) ? "Online" : "Offline"} */}
             </Typography>
           )}
         </CardContent>
