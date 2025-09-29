@@ -3,16 +3,11 @@
 Some step
 
 implement message seen fetcher
-implement edit and delete options if the message send time 10 min less
 if the message time difference is 10 min then showing one image on the button
 showing those user top who send message recently
 showing top on the left side who is send message latest
 showing last message on the left side after user name
 fix margin issue on the message when we add emoji
-add reply functionality
-add forward functionality
-add copy functionality
-add delete functionality
 when user share any url then showing this text as a link , when user click it will open on the browser on new tab
 upload image functionality
 edit profile page
