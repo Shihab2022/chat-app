@@ -36,16 +36,16 @@ io.on('connection', (socket) => {
       io.to(receiverSocketId).emit('userStopTyping', { senderId: userId });
     }
   });
-  socket.on('message:seen', async ({ messageId, userId }) => {
-    // Update the message in the database to mark it as seen
-    await Message.findByIdAndUpdate(
-      messageId,
-      { seen: true, seenAt: new Date() },
-      { new: true },
-    );
-    // broadcast update
-    io.emit('message:seen:update', { messageId, userId });
-  });
+  // socket.on('message:seen', async ({ messageId, userId }) => {
+  //   // Update the message in the database to mark it as seen
+  //   await Message.findByIdAndUpdate(
+  //     messageId,
+  //     { seen: true, seenAt: new Date() },
+  //     { new: true },
+  //   );
+  //   // broadcast update
+  //   io.emit('message:seen:update', { messageId, userId });
+  // });
   // io.emit() is used to send events to all the connected clients
   io.emit('getOnlineUsers', Object.keys(userSocketMap));
   socket.on('disconnect', () => {

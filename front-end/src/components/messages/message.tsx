@@ -5,10 +5,10 @@ import { RootState } from "../../redux/store";
 import { NAV_BAR_HEIGHT } from "../../constants/common";
 import { useEffect, useRef } from "react";
 import ShowingMessage from "./showingMessage";
-import { TMessage, TUser } from "../../types";
+import { TUser } from "../../types";
 import TypingIndicator from "./TypingIndicator";
 import { ImgViewer } from "../imgViewer";
-import { emitMessageSeen } from "../../utils/socketService";
+// import { emitMessageSeen } from "../../utils/socketService";
 
 const Message = () => {
   const {
@@ -26,19 +26,19 @@ const Message = () => {
       });
     }
   }, [messages, isEmojiAdded]);
-  useEffect(() => {
-    if (receiverId) {
-      (Object.values(messages) as TMessage[][]).forEach(
-        (msgArray: TMessage[]) => {
-          msgArray.forEach((msg) => {
-            if (msg.receiverId === receiverId && !msg.seen) {
-              emitMessageSeen(receiverId, msg);
-            }
-          });
-        }
-      );
-    }
-  }, [receiverId, messages]);
+  // useEffect(() => {
+  //   if (receiverId) {
+  //     (Object.values(messages) as TMessage[][]).forEach(
+  //       (msgArray: TMessage[]) => {
+  //         msgArray.forEach((msg) => {
+  //           if (msg.receiverId === receiverId && !msg.seen) {
+  //             emitMessageSeen(receiverId, msg);
+  //           }
+  //         });
+  //       }
+  //     );
+  //   }
+  // }, [receiverId, messages]);
 
   return (
     <>
@@ -87,7 +87,7 @@ const Message = () => {
               </Paper>
             </Stack>
 
-            {messages[date].map((mess: TMessage) => {
+            {messages[date].map((mess: any) => {
               return (
                 <ShowingMessage mess={mess} messageEndRef={messageEndRef} />
               );
