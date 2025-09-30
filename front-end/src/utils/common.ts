@@ -57,3 +57,14 @@ export const formateMessageAndUpdate = (
 
   return updatedMessages;
 };
+
+export const formattedSideBarData = (allUsers: any) => {
+  if (!allUsers || allUsers.length === 0) return [];
+  const sortedData = [...allUsers]?.sort((a: any, b: any) => {
+    const dateA = new Date(a.lastMessage.createdAt).getTime();
+    const dateB = new Date(b.lastMessage.createdAt).getTime();
+    return dateB - dateA;
+  });
+
+  return sortedData;
+};
