@@ -24,12 +24,26 @@ import useDebouncedText from "../utils/debouncedSearch";
 import { useEffect } from "react";
 import { Box, Stack, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { SET_ALL_USERS } from "../redux/features/auth/authSlice";
 export default function SearchField({ myId }: { myId: string }) {
   const dispatch = useDispatch();
   const { receiverId, isEmojiOpen, editedMessage, repliedMessage, messages } =
     useSelector((state: RootState) => state?.message);
+  const { allUsers } = useSelector((state: RootState) => state?.auth);
   const { handleInputChange, message, stopTypingEvent } =
     useDebouncedText(receiverId);
+
+  const updateSideBarLastMessage = (msg: any) => {
+    const updatedLastMessage = allUsers?.map((user: any) => {
+      if (user?._id === msg?.receiverId || user?._id === msg?.senderId) {
+        return { ...user, lastMessage: msg };
+      } else {
+        return user;
+      }
+    });
+
+    dispatch(SET_ALL_USERS(updatedLastMessage));
+  };
   const handleClick = async () => {
     const messageData = {
       senderId: myId,
@@ -42,6 +56,11 @@ export default function SearchField({ myId }: { myId: string }) {
       if (res?.success) {
         handleInputChange("");
         stopTypingEvent();
+
+        updateSideBarLastMessage({
+          ...messageData,
+          createdAt: new Date().toISOString(),
+        });
         const formattedMessage = groupMessagesByDate(res?.data);
         dispatch(SET_CONVERSATION(formattedMessage));
       }
@@ -83,6 +102,10 @@ export default function SearchField({ myId }: { myId: string }) {
       if (res?.success) {
         handleInputChange("");
         stopTypingEvent();
+        updateSideBarLastMessage({
+          ...messageData,
+          createdAt: new Date().toISOString(),
+        });
         const formattedMessage = groupMessagesByDate(res?.data);
         dispatch(SET_CONVERSATION(formattedMessage));
         dispatch(SET_REPLIED_MESSAGE({}));

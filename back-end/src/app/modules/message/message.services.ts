@@ -51,26 +51,17 @@ const getMessageFromDB = async (payload: Partial<TMessages>) => {
   return messages;
 };
 const getUsersForSidebar = async (payload: any) => {
-  // const loggedInUserId = payload._id;
-  // const filteredUsers = await User.find({
-  //   _id: { $ne: loggedInUserId },
-  // }).select('-password');
-
-  // return filteredUsers;
-
   const loggedInUserId = payload._id;
-
   const users = await User.find({ _id: { $ne: loggedInUserId } }).select(
     '-password',
   );
-
-  // attach last message for each user
   const usersWithLastMessage = await Promise.all(
     users.map(async (user) => {
       const lastMessage = await Message.findOne({
         $or: [{ receiverId: user._id }, { senderId: user._id }],
       })
         .sort({ createdAt: -1 })
+        .select('senderId receiverId text createdAt')
         .lean();
 
       return {
