@@ -52,11 +52,26 @@ const getMessageFromDB = async (payload: Partial<TMessages>) => {
 };
 const getUsersForSidebar = async (payload: any) => {
   const loggedInUserId = payload._id;
-  const filteredUsers = await User.find({
-    _id: { $ne: loggedInUserId },
-  }).select('-password');
+  const users = await User.find({ _id: { $ne: loggedInUserId } }).select(
+    '-password',
+  );
+  const usersWithLastMessage = await Promise.all(
+    users.map(async (user) => {
+      const lastMessage = await Message.findOne({
+        $or: [{ receiverId: user._id }, { senderId: user._id }],
+      })
+        .sort({ createdAt: -1 })
+        .select('senderId receiverId text createdAt')
+        .lean();
 
-  return filteredUsers;
+      return {
+        ...user.toObject(),
+        lastMessage,
+      };
+    }),
+  );
+
+  return usersWithLastMessage;
 };
 
 const addEmoji = async (payload: any) => {
@@ -93,7 +108,7 @@ const removeEmoji = async (payload: any) => {
   return updatedMessage;
 };
 const editMessage = async (payload: any) => {
-  const { _id, text } = payload;
+  const { _id, text, receiverId } = payload;
   const updatedMessage = await Message.findByIdAndUpdate(
     _id,
     { text: text },
@@ -103,7 +118,78 @@ const editMessage = async (payload: any) => {
   if (!updatedMessage) {
     return null;
   }
+  const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('editMessage', updatedMessage);
+  }
   return updatedMessage;
+};
+const deleteMessage = async (payload: any) => {
+  const { _id, receiverId } = payload;
+  console.log({ payload });
+  const updatedMessage = await Message.findByIdAndUpdate(
+    _id,
+    { isDeleted: true },
+    { new: true },
+  );
+
+  if (!updatedMessage) {
+    return null;
+  }
+  const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('deletedMessage', updatedMessage);
+  }
+  return updatedMessage;
+};
+
+const ForwardMessage = async (payload: any) => {
+  const { text, receiverIds = [], senderId } = payload;
+  const newMessages = receiverIds.map((receiverId: string) => {
+    return {
+      senderId,
+      receiverId,
+      text,
+      image: '',
+    };
+  });
+
+  const savedMessages = await Message.insertMany(newMessages);
+  for (const msg of savedMessages) {
+    const receiverSocketId = getReceiverSocketId(msg.receiverId.toString());
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('forwardMessage', msg);
+    }
+  }
+
+  return savedMessages;
+};
+
+const replyMessage = async (payload: TMessages) => {
+  const { text, senderId, receiverId, replyId } = payload;
+  const newMessage = new Message({
+    senderId,
+    receiverId,
+    text,
+    image: '',
+    replyId,
+  });
+
+  await newMessage.save();
+
+  const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('newMessage', newMessage);
+  }
+
+  const messages = await Message.find({
+    $or: [
+      { senderId, receiverId },
+      { senderId: receiverId, receiverId: senderId },
+    ],
+  });
+
+  return messages;
 };
 export const MessageServices = {
   sendMessageIntoDB,
@@ -112,4 +198,7 @@ export const MessageServices = {
   addEmoji,
   removeEmoji,
   editMessage,
+  deleteMessage,
+  ForwardMessage,
+  replyMessage,
 };

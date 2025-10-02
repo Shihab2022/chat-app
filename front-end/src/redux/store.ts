@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import conversationSlice from "./features/chat/getConversationSlice";
+import conversationSlice from "./features/chat/conversationSlice";
 import authSlice from "./features/auth/authSlice";
 import activitiesSlice from "./features/userActivities";
 

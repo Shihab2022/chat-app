@@ -1,51 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Menu from "@mui/material/Menu";
-import ReplyIcon from "@mui/icons-material/Reply";
 import { Box, Stack, Typography } from "@mui/material";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
-import EditIcon from "@mui/icons-material/Edit";
 import { RootState } from "../../redux/store";
-import { SET_EDITED_MESSAGE } from "../../redux/features/chat/getConversationSlice";
+import {
+  SET_EDITED_MESSAGE,
+  SET_REPLIED_MESSAGE,
+} from "../../redux/features/chat/conversationSlice";
+import { useState } from "react";
+import DeleteConformations from "./deleteConformations";
+import { moreActionsConfig, moreActionsConfigMyActions } from "../../config";
+import ForwardMessage from "./forwardMessage";
 
-const myActions = [
-  {
-    id: 34442,
-    title: "Edit",
-    icon: <EditIcon />,
-  },
-  {
-    id: 1444,
-    title: "Delete",
-    icon: <DeleteIcon />,
-  },
-];
-const config = [
-  {
-    id: 1,
-    title: "Reply",
-    icon: <ReplyIcon />,
-  },
-  {
-    id: 34442,
-    title: "Copy",
-    icon: <ContentCopyIcon />,
-  },
-
-  {
-    id: 3341,
-    title: "React",
-    icon: <InsertEmoticonIcon />,
-  },
-  {
-    id: 134,
-    title: "Forward",
-    icon: <ArrowForwardIcon />,
-  },
-];
 const CCard = ({ c, handleClick }: any) => {
   const { icon, title } = c;
   return (
@@ -82,10 +48,14 @@ export default function MoreActions({
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { _id: myId } = loginUser;
   const dispatch = useDispatch();
+  const [deleteConformationMenuOpen, setDeleteConformationMenuOpen] =
+    useState(false);
+  const [forwardMenuOpen, setForwardMenuOpen] = useState(false);
   const handleClose = () => {
     setMoreActionAnchorEl(null);
     setMoreActionOpen(false);
   };
+
   const handleClick = (v: any) => {
     switch (v) {
       case "React":
@@ -95,18 +65,27 @@ export default function MoreActions({
         break;
       case "Edit":
         dispatch(SET_EDITED_MESSAGE(mess));
+        dispatch(SET_REPLIED_MESSAGE({}));
+        setMoreActionOpen(false);
         break;
       case "Delete":
-        console.log(v);
+        setDeleteConformationMenuOpen(true);
+        dispatch(SET_REPLIED_MESSAGE({}));
+        dispatch(SET_EDITED_MESSAGE({}));
+        handleClose();
         break;
       case "Reply":
-        console.log(v);
+        dispatch(SET_REPLIED_MESSAGE(mess));
+        handleClose();
         break;
       case "Copy":
-        console.log(v);
+        navigator.clipboard.writeText(mess?.text);
+        setMoreActionOpen(false);
         break;
       case "Forward":
-        console.log(v);
+        setForwardMenuOpen(true);
+        dispatch(SET_REPLIED_MESSAGE({}));
+        handleClose();
         break;
       default:
         setMoreActionAnchorEl(null);
@@ -140,14 +119,26 @@ export default function MoreActions({
           horizontal: "left",
         }}
       >
-        {(mess?.senderId === myId ? [...config, ...myActions] : config).map(
-          (c) => (
-            <CCard c={c} handleClick={handleClick}>
-              Profile
-            </CCard>
-          )
-        )}
+        {(mess?.senderId === myId
+          ? moreActionsConfigMyActions
+          : moreActionsConfig
+        ).map((c) => (
+          <CCard c={c} handleClick={handleClick}>
+            Profile
+          </CCard>
+        ))}
       </Menu>
+
+      <DeleteConformations
+        mess={mess}
+        deleteConformationMenuOpen={deleteConformationMenuOpen}
+        setDeleteConformationMenuOpen={setDeleteConformationMenuOpen}
+      />
+      <ForwardMessage
+        mess={mess}
+        forwardMenuOpen={forwardMenuOpen}
+        setForwardMenuOpen={setForwardMenuOpen}
+      />
     </>
   );
 }

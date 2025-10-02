@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Reaction, TUser } from "../types";
+import { get } from "lodash";
+import { Reaction, TMessage, TUser } from "../types";
+import { formatDate } from "./timeFormat";
 
 export const toStartCaseStr = (str: string) => {
   try {
@@ -40,4 +42,29 @@ export const formateEmojiDialogData = (
     {}
   );
   return { All: formattedReactions, ...grouped };
+};
+
+export const formateMessageAndUpdate = (
+  newMessage: any,
+  allMessage: Record<string, TMessage[]>
+) => {
+  const formattedDate = formatDate(newMessage.createdAt);
+  const messagesForUpdate = get(allMessage, formattedDate, []);
+  const newMessages = messagesForUpdate.map((item: TMessage) =>
+    item._id === newMessage._id ? newMessage : item
+  );
+  const updatedMessages = { ...allMessage, [formattedDate]: newMessages };
+
+  return updatedMessages;
+};
+
+export const formattedSideBarData = (allUsers: any) => {
+  if (!allUsers || allUsers.length === 0) return [];
+  const sortedData = [...allUsers]?.sort((a: any, b: any) => {
+    const dateA = new Date(a.lastMessage.createdAt).getTime();
+    const dateB = new Date(b.lastMessage.createdAt).getTime();
+    return dateB - dateA;
+  });
+
+  return sortedData;
 };

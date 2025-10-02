@@ -5,11 +5,12 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import LeftSiteBarCard from "../../components";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   SET_CONVERSATION,
   SET_RECEIVER_ID,
-} from "../../redux/features/chat/getConversationSlice";
+  SET_REPLIED_MESSAGE,
+} from "../../redux/features/chat/conversationSlice";
 import { getMessage } from "../../services/message";
 import { RootState } from "../../redux/store";
 import { TUser } from "../../types";
@@ -17,6 +18,7 @@ import { groupMessagesByDate } from "../../utils/timeFormat";
 import { Avatar, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import logoImage from "../../assets/logo.png";
+import { formattedSideBarData } from "../../utils/common";
 const LeftSiteBar = () => {
   const navigate = useNavigate();
   const { loginUser, allUsers } = useSelector(
@@ -34,6 +36,7 @@ const LeftSiteBar = () => {
         userToChatId: user._id,
       };
       dispatch(SET_RECEIVER_ID(user._id));
+      dispatch(SET_REPLIED_MESSAGE({}));
       const res = await getMessage(params);
       if (res?.success) {
         const formattedMessage = groupMessagesByDate(res?.data);
@@ -49,6 +52,9 @@ const LeftSiteBar = () => {
       handleClick({ _id: receiverId });
     }
   }, [receiverId]);
+  const formattedAllUsers = useMemo(() => {
+    return allUsers?.length > 0 ? formattedSideBarData(allUsers) : [];
+  }, [allUsers, messages]);
   return (
     <>
       <List>
@@ -86,7 +92,7 @@ const LeftSiteBar = () => {
       </List>
       <Divider />
       <List>
-        {allUsers
+        {formattedAllUsers
           ?.filter((d: TUser) => d?._id !== myId)
           ?.map((user: TUser, i: number) => (
             <>

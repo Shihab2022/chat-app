@@ -18,6 +18,15 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    replyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Message',
+      default: null,
+    },
     reactions: [
       {
         userId: {
@@ -27,6 +36,14 @@ const messageSchema = new mongoose.Schema(
         emoji: String,
       },
     ],
+    seen: {
+      type: Boolean,
+      default: false,
+    },
+    seenAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );

@@ -62,3 +62,33 @@ export const editMessage = async (params: any) => {
   });
   return res;
 };
+export const deleteMessage = async (params: any) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message",
+    axiosMethod: httpMethod.DELETE,
+    formData: false,
+    params: params,
+  });
+  return res;
+};
+export const forwardMessageAPI = async (params: any) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/forward",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params: params,
+  });
+  return res;
+};
+export const replyMessageAPI = async (params: any) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/reply",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params: params,
+  });
+  return res;
+};

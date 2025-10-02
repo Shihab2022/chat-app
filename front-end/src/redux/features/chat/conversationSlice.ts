@@ -1,11 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
   addMessageToGroups,
-  formatDate,
   formatFirstMessage,
 } from "../../../utils/timeFormat";
-import { TConversationState } from "../../../types";
-import { get } from "lodash";
+import { GroupedMessages, TConversationState } from "../../../types";
+import { formateMessageAndUpdate } from "../../../utils/common";
 
 const initialState: TConversationState = {
   messages: {},
@@ -18,6 +17,7 @@ const initialState: TConversationState = {
   emojiDetailsDialogStatus: false,
   selectedReactions: [],
   editedMessage: {},
+  repliedMessage: {},
 };
 const conversationSlice = createSlice({
   name: "message",
@@ -66,23 +66,37 @@ const conversationSlice = createSlice({
     SET_EDITED_MESSAGE: (state, action) => {
       state.editedMessage = action.payload;
     },
+    UPDATE_EDITED_MESSAGE: (state, action) => {
+      state.messages = formateMessageAndUpdate(
+        action.payload,
+        state.messages
+      ) as GroupedMessages;
+      state.editedMessage = {};
+    },
+    DELETE_MESSAGE: (state, action) => {
+      state.messages = formateMessageAndUpdate(
+        action.payload,
+        state.messages
+      ) as GroupedMessages;
+      state.editedMessage = {};
+    },
     SET_EMOJI_WITH_DATA: (state, action) => {
       state.isEmojiAdded = true;
-      const formattedDate = formatDate(action.payload?.createdAt);
-      const messagesForUpdate = get(state.messages, formattedDate, []);
-      const newMessages = messagesForUpdate.map((item) =>
-        item._id === action.payload._id ? action.payload : item
-      );
-      state.messages = { ...state.messages, [formattedDate]: newMessages };
+      state.messages = formateMessageAndUpdate(
+        action.payload,
+        state.messages
+      ) as GroupedMessages;
     },
     REMOVE_EMOJI: (state, action) => {
-      const formattedDate = formatDate(action.payload?.createdAt);
-      const messagesForUpdate = get(state.messages, formattedDate, []);
-      const newMessages = messagesForUpdate.map((item) =>
-        item._id === action.payload._id ? action.payload : item
-      );
-      state.messages = { ...state.messages, [formattedDate]: newMessages };
+      state.messages = formateMessageAndUpdate(
+        action.payload,
+        state.messages
+      ) as GroupedMessages;
+      state.isEmojiAdded = true;
       state.selectedReactions = action.payload.reactions;
+    },
+    SET_REPLIED_MESSAGE: (state, action) => {
+      state.repliedMessage = action.payload;
     },
   },
 });
@@ -100,5 +114,8 @@ export const {
   SET_EMOJI_DETAILS_REACTIONS,
   REMOVE_EMOJI,
   SET_EDITED_MESSAGE,
+  UPDATE_EDITED_MESSAGE,
+  DELETE_MESSAGE,
+  SET_REPLIED_MESSAGE,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;

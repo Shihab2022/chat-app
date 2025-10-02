@@ -42,9 +42,11 @@ export type TMessage = {
   receiverId: string;
   text?: string;
   image?: string;
-  createdAt?: string; // usually ISO string from backend
+  createdAt: string; // usually ISO string from backend
   updatedAt?: string;
   time?: string;
+  seen: boolean;
+  seenAt?: string;
 };
 
 export type Reaction = {
@@ -63,4 +65,5 @@ export type TConversationState = {
   selectedMessage?: any;
   selectedReactions?: Reaction[];
   editedMessage?: any;
+  repliedMessage?: any;
 };

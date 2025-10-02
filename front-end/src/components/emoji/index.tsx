@@ -8,7 +8,7 @@ import {
   SET_EMOJI_ANCHOR_EL,
   SET_EMOJI_STATUS,
   SET_EMOJI_WITH_DATA,
-} from "../../redux/features/chat/getConversationSlice";
+} from "../../redux/features/chat/conversationSlice";
 import { addEmoji } from "../../services/message";
 
 const EmojiPicker = ({
