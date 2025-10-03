@@ -25,4 +25,8 @@ export default {
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   },
+  smtp: {
+    user_name: process.env.SMTP_USERNAME,
+    password: process.env.SMTP_PASSWORD,
+  },
 };
