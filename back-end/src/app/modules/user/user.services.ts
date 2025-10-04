@@ -1,11 +1,17 @@
 import { passwordMinLength, userStatus } from '../../../constant';
 import { createToken } from '../../../utils/auth';
+import { parseHtml } from '../../../utils/common';
 import config from '../../config';
 import AppError from '../../error/appError';
 import { TUser } from './user.interface';
 import { User } from './user.model';
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-Status';
+import { toStartCaseStr } from './../../../../../front-end/src/utils/common';
+import transporter from '../../../utils/nodemailer';
+const attachments = [{
+  filename: "logo-light.png", path: "https://app.gospatic.com/static/logo-light.png", cid: "logoImage",
+},];
 const createUserIntoDB = async (payload: TUser) => {
   const { email, password, userName, name } = payload;
   if (!name || !email || !password) {
@@ -30,6 +36,23 @@ const createUserIntoDB = async (payload: TUser) => {
     status: userStatus?.ACTIVE,
   };
   const result = (await User.create(usersInfo)).isSelected('-password');
+
+  const notifyMsg = {
+    to: ["info@gospatic.com", "gautam@gospatic.com"],
+    from: "shihab@gmail.com",
+    subject: "New Organization signed up",
+    text: "Unlock profitable growth with our AI based location intelligence platform...",
+    // html: parseHtml(NewOrgTemplate, {
+    //   firstname: toStartCaseStr(firstName),
+    //   email,
+    //   organisation,
+    //   url: process.env.ACCEPT_ORGANISATION,
+    // }),
+    // attachments,
+  };
+
+  // await transporter.sendMail(notifyMsg);
+
   return result;
 };
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
