@@ -6,4 +6,5 @@ export type TUser = {
   password: string;
   status?: string;
   role?: string;
+  isAccountVerified: boolean
 };

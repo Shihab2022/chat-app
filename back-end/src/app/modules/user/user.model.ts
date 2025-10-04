@@ -31,6 +31,10 @@ const UserSchema = new mongoose.Schema<TUser>(
       type: String,
       default: userRole?.USER,
     },
+    isAccountVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );
