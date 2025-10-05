@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import config from "../app/config";
 
 let transporter;
 
@@ -8,8 +9,8 @@ try {
         port: 465,
         secure: true, // true for 465, false for other ports
         auth: {
-            user: process.env.SMTP_USERNAME,
-            pass: process.env.SMTP_PASSWORD,
+            user: config?.smtp?.user_name,
+            pass: config?.smtp?.password,
         },
     });
 } catch (err) {
