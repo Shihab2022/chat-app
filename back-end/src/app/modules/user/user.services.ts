@@ -8,6 +8,7 @@ import { User } from './user.model';
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-Status';
 import transporter from '../../../utils/nodemailer';
+import { ConfirmAccountTemplate } from './../../../templates/confirmAccount';
 const attachments = [{
   filename: "logo-light.png", path: "https://app.gospatic.com/static/logo-light.png", cid: "logoImage",
 },];
@@ -41,12 +42,11 @@ const createUserIntoDB = async (payload: TUser) => {
     from: "shihab@gmail.com",
     subject: "New Organization signed up",
     text: "Unlock profitable growth with our AI based location intelligence platform...",
-    // html: parseHtml(NewOrgTemplate, {
-    //   firstname: toStartCaseStr(firstName),
-    //   email,
-    //   organisation,
-    //   url: process.env.ACCEPT_ORGANISATION,
-    // }),
+    html: parseHtml(ConfirmAccountTemplate, {
+      firstname: "toStartCaseStr(firstName)",
+      email,
+      // url: process.env.ACCEPT_ORGANISATION,
+    }),
     // attachments,
   };
 
