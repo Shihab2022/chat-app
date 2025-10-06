@@ -29,7 +29,9 @@ export default function InviteUser() {
 
   const onSubmit = async (data: any) => {
     try {
+      const response = await inviteUserApi(data);
       console.log("✅ Form data:", data);
+      console.log("✅ Form response:", response);
       // await inviteUser(data); // your API call here
       alert("Invite sent successfully!");
       reset();

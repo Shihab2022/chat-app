@@ -3,7 +3,7 @@ import { createToken } from '../../../utils/auth';
 import { parseHtml } from '../../../utils/common';
 import config from '../../config';
 import AppError from '../../error/appError';
-import { TUser } from './user.interface';
+import { TInviteUser, TUser } from './user.interface';
 import { User } from './user.model';
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-Status';
@@ -96,9 +96,10 @@ const forgetPassword = async (payload: Partial<TUser>) => {
 const checkAuth = async (payload: Partial<TUser>) => {
   return payload;
 };
-const inviteUser = async (payload: Partial<TUser>) => {
+const inviteUser = async (payload: TInviteUser) => {
+  const { email, message } = payload;
   const notifyMsg = {
-    to: ['shihabdev68@gmail.com'],
+    to: [email],
     from: 'shihab@gmail.com',
     subject: 'New Organization signed up',
     text: 'Unlock profitable growth with our AI based location intelligence platform...',

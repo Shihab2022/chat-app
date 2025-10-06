@@ -6,5 +6,9 @@ export type TUser = {
   password: string;
   status?: string;
   role?: string;
-  isAccountVerified: boolean
+  isAccountVerified: boolean;
+};
+export type TInviteUser = {
+  email: string;
+  message: string;
 };
