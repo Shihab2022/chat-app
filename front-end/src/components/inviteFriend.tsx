@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -10,52 +11,31 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { inviteUserApi } from "../services/auth";
+import { useForm } from "react-hook-form";
 
 const defaultTheme = createTheme();
 
 export default function InviteUser() {
   const navigate = useNavigate();
-  // const location = useLocation();
-  // const admin = location?.state?.user;
-  const handleSubmit = async (event: {
-    preventDefault: () => void;
-    currentTarget: HTMLFormElement | undefined;
-  }) => {
-    event.preventDefault();
-    // const data = new FormData(event.currentTarget);
-    // const email = data.get("email");
-    // const lastMessage = data.get("message");
 
-    // let userData = {
-    //   admin: admin.id,
-    //   participants: {
-    //     participant: email,
-    //     lastMessage,
-    //     timestamp: new Date(),
-    //   },
-    // };
-    // try {
-    //   const response = await fetch("http://localhost:5000/api/invite/send", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(userData),
-    //   });
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     showToast(SUCCESS, result.message);
-    //     navigate("/chat");
-    //   } else {
-    //     showToast(FAILED, "Something is wrong ! ");
-    //   }
-    // } catch (error) {
-    //   showToast(FAILED, "Something is wrong ! ");
-    // }
-  };
-  const inviteUser = async (params: any) => {
-    const res = await inviteUserApi({});
-    console.log(res);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm({
+    mode: "onBlur", // validate on blur
+  });
+
+  const onSubmit = async (data: any) => {
+    try {
+      console.log("✅ Form data:", data);
+      // await inviteUser(data); // your API call here
+      alert("Invite sent successfully!");
+      reset();
+    } catch (error) {
+      console.error("❌ Error sending invite:", error);
+    }
   };
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -71,44 +51,74 @@ export default function InviteUser() {
         >
           <Avatar
             onClick={() => navigate("/")}
-            alt={"logo"}
+            alt="logo"
             src={logoImage}
             sx={{ width: 70, height: 70, mb: 2, cursor: "pointer" }}
           />
           <Typography component="h1" variant="h5">
             Invite Your Friend
           </Typography>
+
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
             noValidate
             sx={{ mt: 1 }}
           >
+            {/* Email Field */}
             <TextField
               margin="normal"
-              required
               fullWidth
               id="email"
               label="Email Address"
-              name="email"
+              type="email"
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Please enter a valid email address",
+                },
+              })}
+              error={!!errors.email}
+              helperText={
+                typeof errors.email?.message === "string"
+                  ? errors.email.message
+                  : ""
+              }
             />
+
+            {/* Message Field */}
             <TextField
               margin="normal"
-              required
               fullWidth
-              name="message"
+              id="message"
               label="Message"
-              type="text"
-              id="text"
+              multiline
+              rows={3}
+              {...register("message", {
+                required: "Message is required",
+                minLength: {
+                  value: 5,
+                  message: "Message must be at least 5 characters",
+                },
+              })}
+              error={!!errors.message}
+              helperText={
+                typeof errors.message?.message === "string"
+                  ? errors.message.message
+                  : ""
+              }
             />
+
+            {/* Submit Button */}
             <Button
-              // type="submit"
-              onClick={() => inviteUser({})}
+              type="submit"
               fullWidth
               variant="contained"
+              disabled={isSubmitting}
               sx={{ mt: 3, mb: 2 }}
             >
-              Send New Message
+              {isSubmitting ? "Sending..." : "Send New Message"}
             </Button>
           </Box>
         </Box>
