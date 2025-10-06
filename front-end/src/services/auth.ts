@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { httpMethod } from "../constants/common";
-import { connectSocket } from "../utils/socketService";
 import { apiHandler } from "./instances";
 
 export const loginUserApi = async (params: any) => {
@@ -41,6 +40,17 @@ export const forgotPasswordApi = async (params: any) => {
     baseURL: import.meta.env.VITE_BASE_API_URL,
     path: "/user/forget-password",
     axiosMethod: "post",
+    formData: false,
+    params: params,
+  });
+  return res;
+};
+
+export const inviteUserApi = async (params: any) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/user/invite",
+    axiosMethod: httpMethod.POST,
     formData: false,
     params: params,
   });

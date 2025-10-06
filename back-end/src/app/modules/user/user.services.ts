@@ -10,9 +10,13 @@ import httpStatus from 'http-Status';
 import transporter from '../../../utils/nodemailer';
 import { ConfirmAccountTemplate } from './../../../templates/confirmAccount';
 
-const attachments = [{
-  filename: "logo-light.png", path: "https://app.gospatic.com/static/logo-light.png", cid: "logoImage",
-},];
+const attachments = [
+  {
+    filename: 'logo-light.png',
+    path: 'https://app.gospatic.com/static/logo-light.png',
+    cid: 'logoImage',
+  },
+];
 const createUserIntoDB = async (payload: TUser) => {
   const { email, password, userName, name } = payload;
   if (!name || !email || !password) {
@@ -36,24 +40,8 @@ const createUserIntoDB = async (payload: TUser) => {
     password,
     status: userStatus?.ACTIVE,
   };
-  // const result = (await User.create(usersInfo)).isSelected('-password');
-
-  const notifyMsg = {
-    to: ["shihabdev68@gmail.com"],
-    from: "shihab@gmail.com",
-    subject: "New Organization signed up",
-    text: "Unlock profitable growth with our AI based location intelligence platform...",
-    // html: parseHtml(ConfirmAccountTemplate, {
-    //   firstname: "toStartCaseStr(firstName)",
-    //   email,
-    //   // url: process.env.ACCEPT_ORGANISATION,
-    // }),
-    // attachments,
-  };
-
-  await transporter.sendMail(notifyMsg);
-
-  // return result;
+  const result = (await User.create(usersInfo)).isSelected('-password');
+  return result;
 };
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const { email } = payload;
@@ -108,10 +96,28 @@ const forgetPassword = async (payload: Partial<TUser>) => {
 const checkAuth = async (payload: Partial<TUser>) => {
   return payload;
 };
+const inviteUser = async (payload: Partial<TUser>) => {
+  const notifyMsg = {
+    to: ['shihabdev68@gmail.com'],
+    from: 'shihab@gmail.com',
+    subject: 'New Organization signed up',
+    text: 'Unlock profitable growth with our AI based location intelligence platform...',
+    // html: parseHtml(ConfirmAccountTemplate, {
+    //   firstname: "toStartCaseStr(firstName)",
+    //   email,
+    //   // url: process.env.ACCEPT_ORGANISATION,
+    // }),
+    // attachments,
+  };
+
+  await transporter.sendMail(notifyMsg);
+  return payload;
+};
 
 export const UserServices = {
   createUserIntoDB,
   LoginUserIntoDB,
   forgetPassword,
   checkAuth,
+  inviteUser,
 };

@@ -68,9 +68,25 @@ const checkAuth = async (
     next(error);
   }
 };
+
+const inviteUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await UserServices.inviteUser(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User is created successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 export const UserController = {
   createUser,
   loginUser,
   forgetPassword,
   checkAuth,
+  inviteUser,
 };

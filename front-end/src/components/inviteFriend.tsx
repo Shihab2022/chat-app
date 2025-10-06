@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+import { inviteUserApi } from "../services/auth";
 
 const defaultTheme = createTheme();
 
@@ -52,7 +53,10 @@ export default function InviteUser() {
     //   showToast(FAILED, "Something is wrong ! ");
     // }
   };
-
+  const inviteUser = async (params: any) => {
+    const res = await inviteUserApi({});
+    console.log(res);
+  };
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
@@ -98,7 +102,8 @@ export default function InviteUser() {
               id="text"
             />
             <Button
-              type="submit"
+              // type="submit"
+              onClick={() => inviteUser({})}
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
