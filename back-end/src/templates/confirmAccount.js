@@ -1,4 +1,4 @@
-export const ConfirmAccountTemplate: string = `
+export const ConfirmAccountTemplate = ({ firstname, url }) => `
 <!doctype html>
 <html lang="en-US">
 

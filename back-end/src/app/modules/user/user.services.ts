@@ -8,7 +8,7 @@ import { User } from './user.model';
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-Status';
 import transporter from '../../../utils/nodemailer';
-import { ConfirmAccountTemplate } from './../../../templates/confirmAccount';
+import { TestAccountTemplate } from '../../../templates/test';
 
 const attachments = [
   {
@@ -108,6 +108,10 @@ const inviteUser = async (payload: TInviteUser) => {
     //   email,
     //   // url: process.env.ACCEPT_ORGANISATION,
     // }),
+    html: TestAccountTemplate(
+      'User',
+      'config.accept_organization_url' as string,
+    ),
     // attachments,
   };
 
