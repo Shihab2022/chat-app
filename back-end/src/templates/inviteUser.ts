@@ -1,4 +1,4 @@
-export const InviteTemplate = `
+export const InviteTemplate = (firstname, url) => `
 <!doctype html>
 <html lang="en-US">
 
