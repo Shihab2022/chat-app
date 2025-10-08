@@ -8,6 +8,6 @@ router.post('/create', UserController.createUser);
 router.post('/login', UserController.loginUser);
 router.post('/forget-password', UserController.forgetPassword);
 router.get('/check', auth(userRole?.USER), UserController.checkAuth);
-router.post('/invite', UserController.inviteUser);
+router.post('/invite', auth(userRole?.USER), UserController.inviteUser);
 
 export const UserRoutes = router;

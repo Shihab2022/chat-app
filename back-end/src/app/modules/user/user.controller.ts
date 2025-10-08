@@ -69,9 +69,13 @@ const checkAuth = async (
   }
 };
 
-const inviteUser = async (req: Request, res: Response, next: NextFunction) => {
+const inviteUser = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const result = await UserServices.inviteUser(req.body);
+    const result = await UserServices.inviteUser(req.body, req?.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,

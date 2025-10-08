@@ -8,7 +8,7 @@ import { User } from './user.model';
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-Status';
 import transporter from '../../../utils/nodemailer';
-import { TestAccountTemplate } from '../../../templates/test';
+import { InviteTemplate } from '../../../templates/inviteUser';
 
 const attachments = [
   {
@@ -96,7 +96,7 @@ const forgetPassword = async (payload: Partial<TUser>) => {
 const checkAuth = async (payload: Partial<TUser>) => {
   return payload;
 };
-const inviteUser = async (payload: TInviteUser) => {
+const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
   const notifyMsg = {
     to: [email],
@@ -108,10 +108,7 @@ const inviteUser = async (payload: TInviteUser) => {
     //   email,
     //   // url: process.env.ACCEPT_ORGANISATION,
     // }),
-    html: TestAccountTemplate(
-      'User',
-      'config.accept_organization_url' as string,
-    ),
+    html: InviteTemplate('User', 'config.accept_organization_url' as string),
     // attachments,
   };
 
