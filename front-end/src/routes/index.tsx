@@ -9,6 +9,7 @@ import InviteUser from "../components/inviteFriend";
 import Profile from "../components/profile";
 import NotFoundPage from "../404";
 import NavBar from "../pages/messages/navBar";
+import AcceptInvite from "../pages/acceptInvite";
 
 export default function Router() {
   return useRoutes([
@@ -73,7 +74,7 @@ export default function Router() {
     },
     {
       path: "/accept-invite",
-      element: <ForgetPassword />,
+      element: <AcceptInvite />,
     },
     { path: "*", element: <NotFoundPage /> },
   ]);
