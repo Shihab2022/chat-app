@@ -108,20 +108,16 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     subject: 'New Organization signed up',
     text: 'Unlock profitable growth with our AI based location intelligence platform...',
     html: InviteTemplate(
-      'User',
-      'https://app.gospatic.com/static/logo-light.png' as string,
+      userIInfo?.name as string,
+      `${config?.front_end_base_url}/signUp` as string,
+      config?.front_end_base_url as string,
     ),
     attachments: [
       {
         filename: 'logo-light.png',
         path: imagePath,
-        cid: 'logoImage', // Same CID as in the HTML
+        cid: 'logoImage',
       },
-      // {
-      //   filename: 'path.txt',
-      //   path: `You are invited to join Chatty. Please click on the accept invite to create your account and login to app.`,
-      //   cid: 'pathText', // Same CID as in the HTML
-      // },
     ],
   };
 

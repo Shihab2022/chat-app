@@ -1,4 +1,4 @@
-export const InviteTemplate = (firstname, url) => `
+export const InviteTemplate = (firstname, url, baseUrl) => `
 <!doctype html>
 <html lang="en-US">
 
@@ -9,11 +9,6 @@ export const InviteTemplate = (firstname, url) => `
     <style type="text/css">
         a:hover {text-decoration: underline !important;}
     </style>
-    <style>
-  a.button:hover {
-    background-color:#1bbf6b !important;
-  }
-</style>
 </head>
 
 <body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
@@ -29,7 +24,7 @@ export const InviteTemplate = (firstname, url) => `
                     </tr>
                     <tr>
                         <td style="text-align:center;">
-                          <a href="https://app.gospatic.com" title="logo" target="_blank">
+                          <a href=${baseUrl} title="logo" target="_blank">
                             <img style="width: 100px; height: auto;" src="cid:logoImage" title="logo" alt="logo">
                           </a>
                         </td>
@@ -50,12 +45,12 @@ export const InviteTemplate = (firstname, url) => `
                                         <span
                                             style="display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px;"></span>
                                         <p align="left" style="color:#455056; font-size:15px;line-height:24px; margin:0; ">
-                                            🚀 You’ve got an invite ! , <br/>
+                                            🚀 You’ve got an invite ! ${firstname} , <br/>
                                             You are invited to join Chatty . Please click on the accept invite to create your account and login to app.
                                         
                                         </p>
-                                           <br/><br/><br/>
-        <a href="{{url}}" class="button"
+                                           <br/>
+        <a href=${url} class="button"
   target="_blank"
   style="
     background-color:#20e277;

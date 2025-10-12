@@ -39,6 +39,17 @@ export default function InviteUser() {
       console.error("❌ Error sending invite:", error);
     }
   };
+
+  const testEmail = async () => {
+    try {
+      const response = await inviteUserApi({
+        email: "shihabvision2.0@gmail.com",
+      });
+      console.log("✅ Test email response:", response);
+    } catch (error) {
+      console.error("❌ Error sending test email:", error);
+    }
+  };
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
@@ -123,6 +134,17 @@ export default function InviteUser() {
               {isSubmitting ? "Sending..." : "Send New Message"}
             </Button>
           </Box>
+
+          <Button
+            // type="submit"
+            onClick={testEmail}
+            fullWidth
+            variant="contained"
+            disabled={isSubmitting}
+            sx={{ mt: 3, mb: 2 }}
+          >
+            {isSubmitting ? "Sending..." : "Send New Message"}
+          </Button>
         </Box>
       </Container>
     </ThemeProvider>
