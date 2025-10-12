@@ -99,7 +99,18 @@ const checkAuth = async (payload: Partial<TUser>) => {
 };
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
+  const { _id, role } = userIInfo;
+  const jwtPayload = {
+    userId: _id,
+    email,
+    message,
+  };
 
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expire_in as string,
+  );
   const notifyMsg = {
     to: [email],
     from: 'shihab@gmail.com',
@@ -107,7 +118,7 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     text: 'Unlock profitable growth with our AI based location intelligence platform...',
     html: InviteTemplate(
       userIInfo?.name as string,
-      `${config?.front_end_base_url}/signUp` as string,
+      `${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string,
       config?.front_end_base_url as string,
     ),
     attachments,

@@ -6,6 +6,9 @@ export type TUser = {
   password: string;
   status?: string;
   role?: string;
+  _id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
   isAccountVerified: boolean;
 };
 export type TInviteUser = {

@@ -71,6 +71,10 @@ export default function Router() {
       path: "/forgetPassword",
       element: <ForgetPassword />,
     },
+    {
+      path: "/accept-invite",
+      element: <ForgetPassword />,
+    },
     { path: "*", element: <NotFoundPage /> },
   ]);
 }
