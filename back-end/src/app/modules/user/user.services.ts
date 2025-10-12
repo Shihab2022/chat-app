@@ -9,6 +9,7 @@ import bcrypt from 'bcrypt';
 import httpStatus from 'http-Status';
 import transporter from '../../../utils/nodemailer';
 import { InviteTemplate } from '../../../templates/inviteUser';
+import path from 'path';
 
 const attachments = [
   {
@@ -98,18 +99,30 @@ const checkAuth = async (payload: Partial<TUser>) => {
 };
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
+  console.log({ userIInfo });
+  console.log({ message });
+  const imagePath = path.resolve(__dirname, '../../../assets/logo.png');
   const notifyMsg = {
     to: [email],
     from: 'shihab@gmail.com',
     subject: 'New Organization signed up',
     text: 'Unlock profitable growth with our AI based location intelligence platform...',
-    // html: parseHtml(ConfirmAccountTemplate, {
-    //   firstname: "toStartCaseStr(firstName)",
-    //   email,
-    //   // url: process.env.ACCEPT_ORGANISATION,
-    // }),
-    html: InviteTemplate('User', 'config.accept_organization_url' as string),
-    // attachments,
+    html: InviteTemplate(
+      'User',
+      'https://app.gospatic.com/static/logo-light.png' as string,
+    ),
+    attachments: [
+      {
+        filename: 'logo-light.png',
+        path: imagePath,
+        cid: 'logoImage', // Same CID as in the HTML
+      },
+      // {
+      //   filename: 'path.txt',
+      //   path: `You are invited to join Chatty. Please click on the accept invite to create your account and login to app.`,
+      //   cid: 'pathText', // Same CID as in the HTML
+      // },
+    ],
   };
 
   await transporter.sendMail(notifyMsg);

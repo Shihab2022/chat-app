@@ -25,7 +25,7 @@ export const InviteTemplate = (firstname, url) => `
                     <tr>
                         <td style="text-align:center;">
                           <a href="https://app.gospatic.com" title="logo" target="_blank">
-                            <img  src="cid:logoImage" title="logo" alt="logo">
+                            <img style="width: 100px; height: auto;" src="cid:logoImage" title="logo" alt="logo">
                           </a>
                         </td>
                     </tr>
@@ -41,12 +41,12 @@ export const InviteTemplate = (firstname, url) => `
                                 </tr>
                                 <tr>
                                     <td style="padding:0 35px;">
-                                        <h1 style="color:#1e1e2d; font-weight:500; margin:0;font-size:32px;font-family:'Rubik',sans-serif;">Spatic Invitation</h1>
+                                        <h1 style="color:#1e1e2d; font-weight:500; margin:0;font-size:32px;font-family:'Rubik',sans-serif;">Chatty Invitation</h1>
                                         <span
                                             style="display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px;"></span>
                                         <p align="left" style="color:#455056; font-size:15px;line-height:24px; margin:0; ">
-                                            Hello {{firstname}},<br/>
-                                            You are invited to join Spatic. Please click on the accept invite to create your account and login to app.
+                                            🚀 You’ve got an invite ! , <br/>
+                                            You are invited to join Chatty . Please click on the accept invite to create your account and login to app.
                                         
                                         </p>
                                         <a href="{{url}}"
@@ -59,7 +59,7 @@ export const InviteTemplate = (firstname, url) => `
                                         </p>
                                         <p align="left" style="color:#455056; font-size:15px;line-height:24px; margin:0;">
                                         Thank you, <br/>
-                                        The Spatic Team
+                                        The Chatty Team
                                         </p>
 
                                     </td>
