@@ -10,11 +10,11 @@ import httpStatus from 'http-Status';
 import transporter from '../../../utils/nodemailer';
 import { InviteTemplate } from '../../../templates/inviteUser';
 import path from 'path';
-
+const imagePath = path.resolve(__dirname, '../../../assets/logo.png');
 const attachments = [
   {
     filename: 'logo-light.png',
-    path: 'https://app.gospatic.com/static/logo-light.png',
+    path: imagePath,
     cid: 'logoImage',
   },
 ];
@@ -99,9 +99,7 @@ const checkAuth = async (payload: Partial<TUser>) => {
 };
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
-  console.log({ userIInfo });
-  console.log({ message });
-  const imagePath = path.resolve(__dirname, '../../../assets/logo.png');
+
   const notifyMsg = {
     to: [email],
     from: 'shihab@gmail.com',
@@ -112,13 +110,7 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
       `${config?.front_end_base_url}/signUp` as string,
       config?.front_end_base_url as string,
     ),
-    attachments: [
-      {
-        filename: 'logo-light.png',
-        path: imagePath,
-        cid: 'logoImage',
-      },
-    ],
+    attachments,
   };
 
   await transporter.sendMail(notifyMsg);

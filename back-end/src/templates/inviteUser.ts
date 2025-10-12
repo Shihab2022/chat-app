@@ -45,9 +45,10 @@ export const InviteTemplate = (firstname, url, baseUrl) => `
                                         <span
                                             style="display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px;"></span>
                                         <p align="left" style="color:#455056; font-size:15px;line-height:24px; margin:0; ">
-                                            🚀 You’ve got an invite ! ${firstname} , <br/>
-                                            You are invited to join Chatty . Please click on the accept invite to create your account and login to app.
-                                        
+                                            👋 Hey there!<br />
+                                            You’ve been invited by your friend ${firstname} to join his chat community.
+                                            <br/>
+                                            Connect instantly, share messages, and collaborate in real time!
                                         </p>
                                            <br/>
         <a href=${url} class="button"
