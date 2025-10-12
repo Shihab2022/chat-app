@@ -9,6 +9,11 @@ export const InviteTemplate = (firstname, url) => `
     <style type="text/css">
         a:hover {text-decoration: underline !important;}
     </style>
+    <style>
+  a.button:hover {
+    background-color:#1bbf6b !important;
+  }
+</style>
 </head>
 
 <body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
@@ -49,12 +54,30 @@ export const InviteTemplate = (firstname, url) => `
                                             You are invited to join Chatty . Please click on the accept invite to create your account and login to app.
                                         
                                         </p>
-                                        <a href="{{url}}"
-                                            style="background:#20e277;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Accept Invite</a>
-
+                                           <br/><br/><br/>
+        <a href="{{url}}" class="button"
+  target="_blank"
+  style="
+    background-color:#20e277;
+    border-radius:50px;
+    color:#ffffff !important;
+    display:inline-block;
+    font-family:Arial, sans-serif;
+    font-size:14px;
+    font-weight:600;
+    text-align:center;
+    text-decoration:none;
+    text-transform:uppercase;
+    padding:12px 30px;
+    margin-top:30px;
+    border:1px solid #20e277;
+  ">
+  Join Chat Now
+</a>
+   <br/><br/><br/>
                                         
                                         <p align="left" style="color:#455056; font-size:15px;line-height:24px; margin:0;">
-                                        If you have received this request as an error, please contact us immediately at support@gospatic.com
+                                        If you have received this request as an error, please contact us immediately at support@chatty.com
                                         <br/><br/><br/>
                                         </p>
                                         <p align="left" style="color:#455056; font-size:15px;line-height:24px; margin:0;">
