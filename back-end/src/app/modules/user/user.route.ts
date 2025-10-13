@@ -5,6 +5,7 @@ import { userRole } from '../../../constant';
 const router = Router();
 
 router.post('/create', UserController.createUser);
+router.post('/accept-invite', UserController.acceptInvite);
 router.post('/login', UserController.loginUser);
 router.post('/forget-password', UserController.forgetPassword);
 router.get('/check', auth(userRole?.USER), UserController.checkAuth);

@@ -15,6 +15,7 @@ import InputAdornment from "@mui/material/InputAdornment/InputAdornment";
 import IconButton from "@mui/material/IconButton/IconButton";
 import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { acceptInviteApi } from "../services/auth";
 
 const defaultTheme = createTheme();
 
@@ -24,7 +25,7 @@ export default function AcceptInvite() {
   const navigate = useNavigate();
   const { search } = useLocation();
   const urlSearchParams = new URLSearchParams(search);
-  const token = urlSearchParams.get("token");  //we send token on the backend the check token and send email to the front end
+  const token = urlSearchParams.get("token"); //we send token on the backend the check token and send email to the front end
   const {
     register,
     handleSubmit,
@@ -36,11 +37,17 @@ export default function AcceptInvite() {
 
   const onSubmit = async (data: any) => {
     try {
-      //   const response = await inviteUserApi(data);
+      const params = {
+        token,
+        ...data,
+      };
+      console.log({ params });
+      // data.token = token;
+      // console.log("🚀 ~ file: acceptInvite.tsx:57 ~ onSubmit ~ data:", data);
+      const response = await acceptInviteApi(params);
       console.log("✅ Form data:", data);
-      //   console.log("✅ Form response:", response);
-      // await inviteUser(data); // your API call here
-      reset();
+      console.log("✅ Form response:", response);
+      // reset();
     } catch (error) {
       console.error("❌ Error sending invite:", error);
     }

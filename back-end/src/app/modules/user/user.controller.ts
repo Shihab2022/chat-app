@@ -18,6 +18,24 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+const acceptInvite = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await UserServices.acceptInvite(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Your account created successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await UserServices.LoginUserIntoDB(req.body);
@@ -93,4 +111,5 @@ export const UserController = {
   forgetPassword,
   checkAuth,
   inviteUser,
+  acceptInvite,
 };
