@@ -12,6 +12,8 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { inviteUserApi } from "../services/auth";
 import { useForm } from "react-hook-form";
+import { showToast } from "../utils/toast";
+import { SUCCESS, WARNING } from "../constants/common";
 
 const defaultTheme = createTheme();
 
@@ -30,24 +32,12 @@ export default function InviteUser() {
   const onSubmit = async (data: any) => {
     try {
       const response = await inviteUserApi(data);
-      console.log("✅ Form data:", data);
-      console.log("✅ Form response:", response);
-      // await inviteUser(data); // your API call here
-      alert("Invite sent successfully!");
-      reset();
+      if (response.success) {
+        showToast(SUCCESS, "Invitation sent successfully!");
+        reset();
+      }
     } catch (error) {
-      console.error("❌ Error sending invite:", error);
-    }
-  };
-
-  const testEmail = async () => {
-    try {
-      const response = await inviteUserApi({
-        email: "shihabvision2.0@gmail.com",
-      });
-      console.log("✅ Test email response:", response);
-    } catch (error) {
-      console.error("❌ Error sending test email:", error);
+      showToast(WARNING, "Failed to send invitation.");
     }
   };
   return (
@@ -134,17 +124,6 @@ export default function InviteUser() {
               {isSubmitting ? "Sending..." : "Send New Message"}
             </Button>
           </Box>
-
-          <Button
-            // type="submit"
-            onClick={testEmail}
-            fullWidth
-            variant="contained"
-            disabled={isSubmitting}
-            sx={{ mt: 3, mb: 2 }}
-          >
-            {isSubmitting ? "Sending..." : "Send New Message"}
-          </Button>
         </Box>
       </Container>
     </ThemeProvider>

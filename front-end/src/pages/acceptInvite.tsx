@@ -9,7 +9,7 @@ import logoImage from "../assets/logo.png";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import InputAdornment from "@mui/material/InputAdornment/InputAdornment";
 import IconButton from "@mui/material/IconButton/IconButton";
@@ -22,7 +22,9 @@ export default function AcceptInvite() {
   const [showPassword, setShowPassword] = useState(false);
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
   const navigate = useNavigate();
-
+  const { search } = useLocation();
+  const urlSearchParams = new URLSearchParams(search);
+  const token = urlSearchParams.get("token");  //we send token on the backend the check token and send email to the front end
   const {
     register,
     handleSubmit,
