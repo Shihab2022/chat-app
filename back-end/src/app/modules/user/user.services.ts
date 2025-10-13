@@ -1,5 +1,5 @@
 import { passwordMinLength, userStatus } from '../../../constant';
-import { createToken } from '../../../utils/auth';
+import { createToken, jwtVerify } from '../../../utils/auth';
 import { parseHtml } from '../../../utils/common';
 import config from '../../config';
 import AppError from '../../error/appError';
@@ -10,6 +10,7 @@ import httpStatus from 'http-Status';
 import transporter from '../../../utils/nodemailer';
 import { InviteTemplate } from '../../../templates/inviteUser';
 import path from 'path';
+import { Secret } from 'jsonwebtoken';
 const imagePath = path.resolve(__dirname, '../../../assets/logo.png');
 const attachments = [
   {
@@ -44,8 +45,15 @@ const createUserIntoDB = async (payload: TUser) => {
   const result = (await User.create(usersInfo)).isSelected('-password');
   return result;
 };
-const acceptInvite = async (payload: TUser) => {
-  console.log({ payload });
+const acceptInvite = async (payload: { token: string }) => {
+  const { token } = payload;
+  if (!token) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
+  }
+  const { userId, email, message } = jwtVerify(
+    token,
+    config.jwt_access_secret as Secret,
+  );
   // const { email, password, userName, name } = payload;
   // if (!name || !email || !password) {
   //   throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
