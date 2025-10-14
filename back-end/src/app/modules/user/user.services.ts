@@ -70,17 +70,17 @@ const acceptInvite = async (payload: {
       `Password must be at min ${passwordMinLength} characters`,
     );
   }
-  const user = await User.findOne({ email });
+  // const user = await User.findOne({ email });
 
-  if (!!user) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
-  }
-  const usersInfo = {
-    name: `${firstname} ${lastname}`,
-    email,
-    password,
-    status: userStatus?.ACTIVE,
-  };
+  // if (!!user) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
+  // }
+  // const usersInfo = {
+  //   name: `${firstname} ${lastname}`,
+  //   email,
+  //   password,
+  //   status: userStatus?.ACTIVE,
+  // };
   // const result = (await User.create(usersInfo)).isSelected('-password');
   const registerUser = await User.findOne({ email });
 

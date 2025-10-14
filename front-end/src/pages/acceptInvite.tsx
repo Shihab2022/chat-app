@@ -1,3 +1,4 @@
+/* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 import Avatar from "@mui/material/Avatar";
@@ -16,6 +17,12 @@ import IconButton from "@mui/material/IconButton/IconButton";
 import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { acceptInviteApi } from "../services/auth";
+import { useDispatch } from "react-redux";
+import {
+  SET_CONVERSATION,
+  SET_RECEIVER_ID,
+} from "../redux/features/chat/conversationSlice";
+import { groupMessagesByDate } from "../utils/timeFormat";
 
 const defaultTheme = createTheme();
 
@@ -34,20 +41,23 @@ export default function AcceptInvite() {
   } = useForm({
     mode: "onBlur", // validate on blur
   });
-
+  const dispatch = useDispatch();
   const onSubmit = async (data: any) => {
     try {
       const params = {
         token,
         ...data,
       };
-      console.log({ params });
-      // data.token = token;
-      // console.log("🚀 ~ file: acceptInvite.tsx:57 ~ onSubmit ~ data:", data);
       const response = await acceptInviteApi(params);
-      console.log("✅ Form data:", data);
-      console.log("✅ Form response:", response);
-      // reset();
+      if (response?.data?.accessToken) {
+        const { accessToken: token, data, mess } = response?.data;
+        dispatch(SET_RECEIVER_ID(data?.senderId));
+        const formattedMessage = groupMessagesByDate(mess);
+        dispatch(SET_CONVERSATION(formattedMessage));
+        localStorage.setItem("accessToken", token);
+        navigate("/chat");
+        reset();
+      }
     } catch (error) {
       console.error("❌ Error sending invite:", error);
     }
