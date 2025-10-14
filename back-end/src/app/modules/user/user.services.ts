@@ -45,8 +45,13 @@ const createUserIntoDB = async (payload: TUser) => {
   const result = (await User.create(usersInfo)).isSelected('-password');
   return result;
 };
-const acceptInvite = async (payload: { token: string }) => {
-  const { token } = payload;
+const acceptInvite = async (payload: {
+  token: string;
+  firstname: string;
+  lastname: string;
+  password: string;
+}) => {
+  const { token, firstname, lastname, password } = payload;
   if (!token) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
   }
@@ -54,29 +59,31 @@ const acceptInvite = async (payload: { token: string }) => {
     token,
     config.jwt_access_secret as Secret,
   );
-  // const { email, password, userName, name } = payload;
-  // if (!name || !email || !password) {
-  //   throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
-  // }
 
-  // if (password.length < passwordMinLength) {
-  //   throw new AppError(
-  //     httpStatus.BAD_REQUEST,
-  //     `Password must be at min ${passwordMinLength} characters`,
-  //   );
-  // }
-  // const user = await User.findOne({ email });
+  console.log(userId, email, message);
+  console.log(payload);
+  if (!firstname || !email || !password) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
+  }
 
-  // if (!!user) {
-  //   throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
-  // }
-  // const usersInfo = {
-  //   name: `${userName} ${name}`,
-  //   email,
-  //   password,
-  //   status: userStatus?.ACTIVE,
-  // };
-  // const result = (await User.create(usersInfo)).isSelected('-password');
+  if (password.length < passwordMinLength) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Password must be at min ${passwordMinLength} characters`,
+    );
+  }
+  const user = await User.findOne({ email });
+
+  if (!!user) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
+  }
+  const usersInfo = {
+    name: `${firstname} ${lastname}`,
+    email,
+    password,
+    status: userStatus?.ACTIVE,
+  };
+  const result = (await User.create(usersInfo)).isSelected('-password');
   return payload;
 };
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
