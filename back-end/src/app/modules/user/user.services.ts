@@ -81,15 +81,35 @@ const acceptInvite = async (payload: {
     password,
     status: userStatus?.ACTIVE,
   };
-  const result = (await User.create(usersInfo)).isSelected('-password');
+  // const result = (await User.create(usersInfo)).isSelected('-password');
   const registerUser = await User.findOne({ email });
+
+  if (!registerUser) {
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'User registration failed.',
+    );
+  }
 
   const mess = await MessageServices.sendMessageIntoDB({
     text: message,
     senderId: userId,
-    receiverId: registerUser?._id as string,
+    receiverId: registerUser._id as string,
   });
-  return { result, mess };
+
+  const { _id, role } = registerUser as TUser;
+  const jwtPayload = {
+    userId: _id,
+    role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expire_in as string,
+  );
+  const { password: pass, ...newData } = registerUser.toObject() as TUser;
+  return { data: newData, accessToken, mess };
 };
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const { email } = payload;
