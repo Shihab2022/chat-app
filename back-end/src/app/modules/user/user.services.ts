@@ -11,6 +11,7 @@ import transporter from '../../../utils/nodemailer';
 import { InviteTemplate } from '../../../templates/inviteUser';
 import path from 'path';
 import { Secret } from 'jsonwebtoken';
+import { MessageServices } from '../message/message.services';
 const imagePath = path.resolve(__dirname, '../../../assets/logo.png');
 const attachments = [
   {
@@ -59,9 +60,6 @@ const acceptInvite = async (payload: {
     token,
     config.jwt_access_secret as Secret,
   );
-
-  console.log(userId, email, message);
-  console.log(payload);
   if (!firstname || !email || !password) {
     throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
   }
@@ -84,7 +82,14 @@ const acceptInvite = async (payload: {
     status: userStatus?.ACTIVE,
   };
   const result = (await User.create(usersInfo)).isSelected('-password');
-  return payload;
+  const registerUser = await User.findOne({ email });
+
+  const mess = await MessageServices.sendMessageIntoDB({
+    text: message,
+    senderId: userId,
+    receiverId: registerUser?._id as string,
+  });
+  return { result, mess };
 };
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const { email } = payload;

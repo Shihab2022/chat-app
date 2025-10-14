@@ -1,11 +1,11 @@
 import { Types } from 'mongoose';
 
 export type TMessages = {
-  senderId?: Types.ObjectId;
-  receiverId?: Types.ObjectId;
-  content: string;
-  timestamp: string;
-  isDeleted: boolean;
+  senderId?: string | Types.ObjectId;
+  receiverId?: string | Types.ObjectId;
+  content?: string;
+  timestamp?: string;
+  isDeleted?: boolean;
   userToChatId?: string;
   myId?: string;
   text?: string;

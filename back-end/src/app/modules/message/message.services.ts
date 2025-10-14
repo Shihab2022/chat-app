@@ -66,7 +66,7 @@ const getUsersForSidebar = async (payload: any) => {
 
       return {
         ...user.toObject(),
-        lastMessage,
+        lastMessage: lastMessage || {},
       };
     }),
   );
