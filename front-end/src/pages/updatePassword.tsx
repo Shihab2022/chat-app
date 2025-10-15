@@ -16,13 +16,16 @@ import InputAdornment from "@mui/material/InputAdornment/InputAdornment";
 import IconButton from "@mui/material/IconButton/IconButton";
 import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+import { updatePasswordApi } from "../services/auth";
 
 const defaultTheme = createTheme();
 
 export default function UpdatePassword() {
   const [showPassword, setShowPassword] = useState(false);
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
+  const [confirmShowPassword, setConfirmShowPassword] = useState(false);
+  const toggleConfirmShowPassword = () =>
+    setConfirmShowPassword((prev) => !prev);
   const navigate = useNavigate();
   const { search } = useLocation();
   const urlSearchParams = new URLSearchParams(search);
@@ -36,24 +39,18 @@ export default function UpdatePassword() {
   } = useForm({
     mode: "onBlur", // validate on blur
   });
-  const dispatch = useDispatch();
   const onSubmit = async (data: any) => {
     try {
       const params = {
         token,
         ...data,
       };
-      console.log({ params });
-      //   const response = await acceptInviteApi(params);
-      //   if (response?.data?.accessToken) {
-      //     const { accessToken: token, data, mess } = response?.data;
-      //     dispatch(SET_RECEIVER_ID(data?.senderId));
-      //     const formattedMessage = groupMessagesByDate(mess);
-      //     dispatch(SET_CONVERSATION(formattedMessage));
-      //     localStorage.setItem("accessToken", token);
-      //     navigate("/chat");
-      //     reset();
-      //   }
+      const response = await updatePasswordApi(params);
+      console.log({ response });
+      if (response?.success) {
+        // navigate("/login");
+        reset();
+      }
     } catch (error) {
       console.error("❌ Error sending invite:", error);
     }
@@ -144,6 +141,15 @@ export default function UpdatePassword() {
                   ? errors.confirmPassword.message
                   : ""
               }
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={toggleConfirmShowPassword} edge="end">
+                      {confirmShowPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
 
             {/* Submit Button */}

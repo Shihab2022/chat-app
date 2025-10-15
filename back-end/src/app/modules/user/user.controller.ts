@@ -62,6 +62,24 @@ const forgetPassword = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
+      message: 'Check your email to reset password !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const updatePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await UserServices.updatePassword(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
       message: 'Password is updated successfully !!!',
       data: result,
     });
@@ -109,6 +127,7 @@ export const UserController = {
   createUser,
   loginUser,
   forgetPassword,
+  updatePassword,
   checkAuth,
   inviteUser,
   acceptInvite,

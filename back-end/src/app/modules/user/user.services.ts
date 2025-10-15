@@ -179,15 +179,33 @@ const forgetPassword = async (payload: Partial<TUser>) => {
   };
 
   await transporter.sendMail(notifyMsg);
-  // const hashPassword = await bcrypt.hash(
-  //   payload.password as string,
-  //   Number(config.bcrypt_salt_rounds),
-  // );
-  // await User.findOneAndUpdate(
-  //   { $or: [{ userName }, { email }] },
-  //   { password: hashPassword },
-  // );
-
+  return true;
+};
+const updatePassword = async (payload: {
+  token: string;
+  password: string;
+  pin: string;
+}) => {
+  const { token, password, pin } = payload;
+  if (!token) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
+  }
+  const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
+  if (!userId || !password || !pin) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
+  }
+  const user = await User.findOne({ _id: userId });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  if (user.verifiedCode !== Number(pin)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid pin');
+  }
+  user.password = await bcrypt.hash(
+    password,
+    Number(config.bcrypt_salt_rounds),
+  );
+  await user.save();
   return true;
 };
 const checkAuth = async (payload: Partial<TUser>) => {
@@ -228,6 +246,7 @@ export const UserServices = {
   createUserIntoDB,
   LoginUserIntoDB,
   forgetPassword,
+  updatePassword,
   checkAuth,
   inviteUser,
   acceptInvite,
