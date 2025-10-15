@@ -69,7 +69,7 @@ export const ForgotPasswordTemplate = (firstname, url, baseUrl, pin) => `
     margin-top:30px;
     border:1px solid #20e277;
   ">
- Reset Your Password
+ Reset  Password
 </a>
    <br/><br/><br/>
                                 

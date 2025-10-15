@@ -10,6 +10,7 @@ import Profile from "../components/profile";
 import NotFoundPage from "../404";
 import NavBar from "../pages/messages/navBar";
 import AcceptInvite from "../pages/acceptInvite";
+import UpdatePassword from "../pages/updatePassword";
 
 export default function Router() {
   return useRoutes([
@@ -71,6 +72,10 @@ export default function Router() {
     {
       path: "/forgetPassword",
       element: <ForgetPassword />,
+    },
+    {
+      path: "/update-password",
+      element: <UpdatePassword />,
     },
     {
       path: "/accept-invite",

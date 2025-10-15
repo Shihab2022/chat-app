@@ -171,7 +171,7 @@ const forgetPassword = async (payload: Partial<TUser>) => {
     text: 'Use this link and code to reset your password. This link and code will expire in 5 minutes',
     html: ForgotPasswordTemplate(
       user?.name as string,
-      `${config?.front_end_base_url}/accept-invite?token=${token}` as string,
+      `${config?.front_end_base_url}/update-password?token=${token}` as string,
       config?.front_end_base_url as string,
       pin,
     ),
