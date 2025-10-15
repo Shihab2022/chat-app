@@ -15,7 +15,7 @@ export default {
   jwt_access_expire_in: process.env.JWT_ACCESS_EXPIRES_IN,
   invite_secret: process.env.INVITE_SECRET,
   invite_expire_in: process.env.INVITE_EXPIRES_IN,
-  //   cookie_expire_in: process.env.COOKIE_EXPIRES_IN,
+  forget_pass_expire_in: process.env.FORGET_PASS_ACCESS_EXPIRES_IN,
   //   jwt_refresh_expire_in: process.env.JWT_REFRESH_EXPIRES_IN,
   // pg_info: {
   //   pg_db_user: process.env.PG_DB_USER,

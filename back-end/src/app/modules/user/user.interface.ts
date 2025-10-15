@@ -9,7 +9,8 @@ export type TUser = {
   _id?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  isAccountVerified: boolean;
+  isAccountVerified?: boolean;
+  verifiedCode?: number | null;
 };
 export type TInviteUser = {
   email: string;

@@ -144,20 +144,44 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   return { data: newData, accessToken };
 };
 const forgetPassword = async (payload: Partial<TUser>) => {
-  const { userName, email } = payload;
+  const { email } = payload;
 
-  const user = await User.findOne({ $or: [{ userName }, { email }] });
+  const user = await User.findOne({ email });
   if (!user) {
     throw new AppError(404, 'User is not found !');
   }
-  const hashPassword = await bcrypt.hash(
-    payload.password as string,
-    Number(config.bcrypt_salt_rounds),
+  const { _id } = user;
+  const jwtPayload = {
+    userId: _id,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.forget_pass_expire_in as string,
   );
-  await User.findOneAndUpdate(
-    { $or: [{ userName }, { email }] },
-    { password: hashPassword },
-  );
+  const notifyMsg = {
+    to: email as string,
+    from: 'shihab@gmail.com',
+    subject: 'Forget Your Password',
+    text: 'Use this link and code to reset your password. This link and code will expire in 5 minutes',
+    html: InviteTemplate(
+      user?.name as string,
+      `${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string,
+      config?.front_end_base_url as string,
+    ),
+    attachments,
+  };
+
+  await transporter.sendMail(notifyMsg);
+  // const hashPassword = await bcrypt.hash(
+  //   payload.password as string,
+  //   Number(config.bcrypt_salt_rounds),
+  // );
+  // await User.findOneAndUpdate(
+  //   { $or: [{ userName }, { email }] },
+  //   { password: hashPassword },
+  // );
 
   return null;
 };
