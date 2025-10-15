@@ -12,6 +12,7 @@ import { InviteTemplate } from '../../../templates/inviteUser';
 import path from 'path';
 import { Secret } from 'jsonwebtoken';
 import { MessageServices } from '../message/message.services';
+import { ForgotPasswordTemplate } from '../../../templates/forgotPassword';
 const imagePath = path.resolve(__dirname, '../../../assets/logo.png');
 const attachments = [
   {
@@ -155,20 +156,24 @@ const forgetPassword = async (payload: Partial<TUser>) => {
     userId: _id,
   };
 
-  const accessToken = createToken(
+  const token = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
     config.forget_pass_expire_in as string,
   );
+  const pin = Math.floor(100000 + Math.random() * 900000);
+  user.verifiedCode = pin;
+  await user.save();
   const notifyMsg = {
     to: email as string,
     from: 'shihab@gmail.com',
     subject: 'Forget Your Password',
     text: 'Use this link and code to reset your password. This link and code will expire in 5 minutes',
-    html: InviteTemplate(
+    html: ForgotPasswordTemplate(
       user?.name as string,
-      `${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string,
+      `${config?.front_end_base_url}/accept-invite?token=${token}` as string,
       config?.front_end_base_url as string,
+      pin,
     ),
     attachments,
   };
@@ -183,7 +188,7 @@ const forgetPassword = async (payload: Partial<TUser>) => {
   //   { password: hashPassword },
   // );
 
-  return null;
+  return true;
 };
 const checkAuth = async (payload: Partial<TUser>) => {
   return payload;

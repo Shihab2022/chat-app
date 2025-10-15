@@ -1,4 +1,4 @@
-export const ForgotPasswordTemplate = (firstname, url, pin) => `
+export const ForgotPasswordTemplate = (firstname, url, baseUrl, pin) => `
 <!doctype html>
 <html lang="en-US">
 
@@ -24,8 +24,8 @@ export const ForgotPasswordTemplate = (firstname, url, pin) => `
                     </tr>
                     <tr>
                         <td style="text-align:center;">
-                          <a href="https://app.gospatic.com" title="logo" target="_blank">
-                            <img  src="cid:logoImage" title="logo" alt="logo">
+                           <a href=${baseUrl} title="logo" target="_blank">
+                            <img style="width: 100px; height: auto;" src="cid:logoImage" title="logo" alt="logo">
                           </a>
                         </td>
                     </tr>
@@ -46,23 +46,42 @@ export const ForgotPasswordTemplate = (firstname, url, pin) => `
                                         <span
                                             style="display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px;"></span>
                                         <p align="left" style="color:#455056; font-size:15px;line-height:24px; margin:0; ">
-                                            Hello {{firstname}},<br/>
-                                            A request has been received to reset the password of your Spatic account. Please click on the reset button and use the pin mentioned below to reset your password.
+                                            Hello ${firstname},<br/>
+                                            A request has been received to reset the password of your Chatty account. Please click on the reset button and use the pin mentioned below to reset your password.
                                         
                                         </p>
-                                        <a href="{{url}}"
-                                            style="background:#20e277;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Reset
-                                            Password</a>
-                                        <h1>PIN: {{pin}}</h1>
+                                                <h1>PIN: ${pin}</h1>
+                    
+                                         <a href=${url} class="button"
+  target="_blank"
+  style="
+    background-color:#20e277;
+    border-radius:50px;
+    color:#ffffff !important;
+    display:inline-block;
+    font-family:Arial, sans-serif;
+    font-size:14px;
+    font-weight:600;
+    text-align:center;
+    text-decoration:none;
+    text-transform:uppercase;
+    padding:12px 30px;
+    margin-top:30px;
+    border:1px solid #20e277;
+  ">
+ Reset Your Password
+</a>
+   <br/><br/><br/>
+                                
 
                                         
                                         <p align="left" style="color:#455056; font-size:15px;line-height:24px; margin:0;">
-                                        If you did not initiate this request, please contact us immediately at support@gospatic.com
+                                        If you did not initiate this request, please contact us immediately at support@chatty.com
                                         <br/><br/><br/>
                                         </p>
                                         <p align="left" style="color:#455056; font-size:15px;line-height:24px; margin:0;">
-                                        Thank you, <br/>
-                                        The Spatic Team
+                                                 Thank you, <br/>
+                                        The Chatty Team
                                         </p>
 
                                     </td>
@@ -84,7 +103,3 @@ export const ForgotPasswordTemplate = (firstname, url, pin) => `
     </table>
     <!--/100% body table-->
 </body>`;
-
-{% comment %} module.exports = {
-  ForgotPasswordTemplate,
-}; {% endcomment %}

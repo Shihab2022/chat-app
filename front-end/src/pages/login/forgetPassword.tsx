@@ -3,13 +3,11 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Box from "@mui/material/Box";
 import logoImage from "../../assets/logo.png";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { emailRegex, FORGET_PASSWORD, SUCCESS } from "../../constants/common";
+import { SUCCESS } from "../../constants/common";
 import { showToast } from "../../utils/toast";
 import Loader from "../../components/loader";
 import { useNavigate } from "react-router-dom";
@@ -29,23 +27,10 @@ export default function ForgetPassword() {
       setIsLoading(true);
       const data = new FormData(event.currentTarget);
       const email = data.get("emailOrUserName");
-      const password = data.get("password");
-      let userData;
-      if (emailRegex.test(email as string)) {
-        userData = {
-          password,
-          email,
-        };
-      } else {
-        userData = {
-          password,
-          userName: email,
-        };
+      const res = await forgotPasswordApi({ email });
+      if (res?.success) {
+        showToast(SUCCESS, "Please check your email to reset password");
       }
-
-      await forgotPasswordApi(userData);
-      showToast(SUCCESS, FORGET_PASSWORD);
-      navigate("/login");
     } catch (error) {
       console.log({ error });
     } finally {
@@ -89,20 +74,6 @@ export default function ForgetPassword() {
               name="emailOrUserName"
               // autoComplete="email"
               // autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="New Password"
-              type="password"
-              id="password"
-              // autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
             />
             <Button
               type="submit"
