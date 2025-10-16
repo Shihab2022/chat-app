@@ -201,10 +201,7 @@ const updatePassword = async (payload: {
   if (user.verifiedCode !== Number(pin)) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Invalid pin');
   }
-  user.password = await bcrypt.hash(
-    password,
-    Number(config.bcrypt_salt_rounds),
-  );
+  user.password = password;
   await user.save();
   return true;
 };
@@ -228,8 +225,8 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const notifyMsg = {
     to: [email],
     from: 'shihab@gmail.com',
-    subject: 'New Organization signed up',
-    text: 'Unlock profitable growth with our AI based location intelligence platform...',
+    subject: 'Invite to join Chatty',
+    text: 'Join Chatty and start chatting with your friends!',
     html: InviteTemplate(
       userIInfo?.name as string,
       `${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string,
