@@ -47,7 +47,7 @@ export const ForgotPasswordTemplate = (firstname, url, baseUrl, pin) => `
                                             style="display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px;"></span>
                                         <p align="left" style="color:#455056; font-size:15px;line-height:24px; margin:0; ">
                                             Hello ${firstname},<br/>
-                                            A request has been received to reset the password of your Chatty account. Please click on the reset button and use the pin mentioned below to reset your password.
+                                            Please click on the reset button and use the pin mentioned below to reset your password. This link and pin will expire in 5 minutes.
                                         
                                         </p>
                                                 <h1>PIN: ${pin}</h1>

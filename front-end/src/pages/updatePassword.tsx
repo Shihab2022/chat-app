@@ -29,7 +29,7 @@ export default function UpdatePassword() {
   const navigate = useNavigate();
   const { search } = useLocation();
   const urlSearchParams = new URLSearchParams(search);
-  const token = urlSearchParams.get("token"); //we send token on the backend the check token and send email to the front end
+  const token = urlSearchParams.get("token");
   const {
     register,
     handleSubmit,
@@ -48,7 +48,7 @@ export default function UpdatePassword() {
       const response = await updatePasswordApi(params);
       console.log({ response });
       if (response?.success) {
-        // navigate("/login");
+        navigate("/login");
         reset();
       }
     } catch (error) {
