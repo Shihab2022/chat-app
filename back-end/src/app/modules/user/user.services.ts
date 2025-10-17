@@ -219,8 +219,18 @@ const updatePassword = async (payload: {
 const checkAuth = async (payload: Partial<TUser>) => {
   return payload;
 };
-const confirmUser = async (payload: Partial<TUser>) => {
-  return payload;
+const confirmUser = async (payload: { token: string }) => {
+  const { token } = payload;
+  if (!token) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
+  }
+  const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
+  const updatedUser = await User.findByIdAndUpdate(
+    userId, // The user's _id
+    { $set: { isAccountVerified: true } }, // The update
+    { new: true, select: '-password' }, // Return the updated doc, without password
+  );
+  return updatedUser;
 };
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
