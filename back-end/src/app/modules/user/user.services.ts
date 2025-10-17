@@ -45,6 +45,17 @@ const createUserIntoDB = async (payload: TUser) => {
     status: userStatus?.ACTIVE,
   };
   const result = (await User.create(usersInfo)).isSelected('-password');
+  const createdUser = await User.findOne({ email });
+  const { _id } = createdUser as TUser;
+  const jwtPayload = {
+    userId: _id,
+  };
+
+  const token = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expire_in as string,
+  );
   return result;
 };
 const acceptInvite = async (payload: {
@@ -208,6 +219,9 @@ const updatePassword = async (payload: {
 const checkAuth = async (payload: Partial<TUser>) => {
   return payload;
 };
+const confirmUser = async (payload: Partial<TUser>) => {
+  return payload;
+};
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
   const { _id, role } = userIInfo;
@@ -241,6 +255,7 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
 
 export const UserServices = {
   createUserIntoDB,
+  confirmUser,
   LoginUserIntoDB,
   forgetPassword,
   updatePassword,

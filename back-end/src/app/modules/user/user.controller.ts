@@ -18,6 +18,20 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+const confirmUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await UserServices.confirmUser(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User account  confirmed successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 const acceptInvite = async (
   req: Request,
   res: Response,
@@ -131,4 +145,5 @@ export const UserController = {
   checkAuth,
   inviteUser,
   acceptInvite,
+  confirmUser,
 };
