@@ -23,32 +23,32 @@ const attachments = [
 ];
 const createUserIntoDB = async (payload: TUser) => {
   const { email, password, userName, name } = payload;
-  if (!name || !email || !password) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
-  }
+  // if (!name || !email || !password) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
+  // }
 
-  if (password.length < passwordMinLength) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      `Password must be at min ${passwordMinLength} characters`,
-    );
-  }
-  const user = await User.findOne({ email });
+  // if (password.length < passwordMinLength) {
+  //   throw new AppError(
+  //     httpStatus.BAD_REQUEST,
+  //     `Password must be at min ${passwordMinLength} characters`,
+  //   );
+  // }
+  // const user = await User.findOne({ email });
 
-  if (!!user) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
-  }
-  const usersInfo = {
-    name: `${userName} ${name}`,
-    email,
-    password,
-    status: userStatus?.ACTIVE,
-  };
-  const result = (await User.create(usersInfo)).isSelected('-password');
-  const createdUser = await User.findOne({ email });
-  const { _id } = createdUser as TUser;
+  // if (!!user) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
+  // }
+  // const usersInfo = {
+  //   name: `${userName} ${name}`,
+  //   email,
+  //   password,
+  //   status: userStatus?.ACTIVE,
+  // };
+  // const result = (await User.create(usersInfo)).isSelected('-password');
+  // const createdUser = await User.findOne({ email });
+  // const { _id } = createdUser as TUser;
   const jwtPayload = {
-    userId: _id,
+    userId: 'qwed34d32er3rd3rsdd2e323werere23',
   };
 
   const token = createToken(
@@ -56,7 +56,21 @@ const createUserIntoDB = async (payload: TUser) => {
     config.jwt_access_secret as string,
     config.jwt_access_expire_in as string,
   );
-  return result;
+  const notifyMsg = {
+    to: [email],
+    from: 'shihab@gmail.com',
+    subject: 'Invite to join Chatty',
+    text: 'Join Chatty and start chatting with your friends!',
+    html: InviteTemplate(
+      'userIInfo?.name' as string,
+      `${config?.back_end_base_url}/user/confirm?token=${token}` as string,
+      config?.front_end_base_url as string,
+    ),
+    attachments,
+  };
+
+  await transporter.sendMail(notifyMsg);
+  return token;
 };
 const acceptInvite = async (payload: {
   token: string;
