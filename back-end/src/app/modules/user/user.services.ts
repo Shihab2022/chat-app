@@ -60,11 +60,11 @@ const createUserIntoDB = async (payload: TUser) => {
   const notifyMsg = {
     to: [email],
     from: 'shihab@gmail.com',
-    subject: 'Invite to join Chatty',
-    text: 'Join Chatty and start chatting with your friends!',
+    subject: 'Welcome to Chatty! Confirm your email address',
+    text: 'Please confirm your Chatty account. Please click on the confirm button and then login to app.',
     html: ConfirmAccountTemplate(
       'userIInfo?.name' as string,
-      `${config?.back_end_base_url}/user/confirm?token=${token}` as string,
+      `${config?.front_end_base_url}/confirm?token=${token}` as string,
       config?.front_end_base_url as string,
     ),
     attachments,
@@ -236,16 +236,17 @@ const checkAuth = async (payload: Partial<TUser>) => {
 };
 const confirmUser = async (payload: { token: string }) => {
   const { token } = payload;
+  console.log('🚀 ~ file: user.services.ts:223 ~ confirmUser ~ token:', token);
   if (!token) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
   }
   const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
-  const updatedUser = await User.findByIdAndUpdate(
-    userId, // The user's _id
-    { $set: { isAccountVerified: true } }, // The update
-    { new: true, select: '-password' }, // Return the updated doc, without password
-  );
-  return updatedUser;
+  // const updatedUser = await User.findByIdAndUpdate(
+  //   userId, // The user's _id
+  //   { $set: { isAccountVerified: true } }, // The update
+  //   { new: true, select: '-password' }, // Return the updated doc, without password
+  // );
+  return { token, userId };
 };
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;

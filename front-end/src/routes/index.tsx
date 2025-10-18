@@ -11,6 +11,7 @@ import NotFoundPage from "../404";
 import NavBar from "../pages/messages/navBar";
 import AcceptInvite from "../pages/acceptInvite";
 import UpdatePassword from "../pages/updatePassword";
+import ConfirmAccount from "../pages/confirmAccount";
 
 export default function Router() {
   return useRoutes([
@@ -80,6 +81,10 @@ export default function Router() {
     {
       path: "/accept-invite",
       element: <AcceptInvite />,
+    },
+    {
+      path: "/confirm",
+      element: <ConfirmAccount />,
     },
     { path: "*", element: <NotFoundPage /> },
   ]);
