@@ -1,4 +1,4 @@
-export const ConfirmAccountTemplate = ({ firstname, url }) => `
+export const ConfirmAccountTemplate = (firstname, url, baseUrl) => `
 <!doctype html>
 <html lang="en-US">
 
@@ -24,9 +24,9 @@ export const ConfirmAccountTemplate = ({ firstname, url }) => `
           <tr><td style="height:80px;">&nbsp;</td></tr>
           <tr>
             <td style="text-align:center;">
-              <a href="https://app.gospatic.com" title="logo" target="_blank">
-                <img src="cid:logoImage" title="logo" alt="logo">
-              </a>
+               <a href=${baseUrl} title="logo" target="_blank">
+                            <img style="width: 100px; height: auto;" src="cid:logoImage" title="logo" alt="logo">
+                          </a>
             </td>
           </tr>
           <tr><td style="height:20px;">&nbsp;</td></tr>
@@ -44,13 +44,26 @@ export const ConfirmAccountTemplate = ({ firstname, url }) => `
                     <span style="display:inline-block; vertical-align:middle; margin:29px 0 26px;
                       border-bottom:1px solid #cecece; width:100px;"></span>
                     <p align="left" style="color:#455056;font-size:15px;line-height:24px;margin:0;">
-                      Hello {{firstname}},<br/>
-                      Please confirm your Spatic account. Please click on the confirm button and then login to app.
+                      Hello ${firstname},<br/>
+                      Please confirm your Chatty account. Please click on the confirm button and then login to app.
                     </p>
-                    <a href="{{url}}"
-                      style="background:#20e277;text-decoration:none!important;font-weight:500;margin-top:35px;
-                        color:#fff;text-transform:uppercase;font-size:14px;padding:10px 24px;display:inline-block;
-                        border-radius:50px;">Confirm Account</a>
+                                                    <a href="${url}" class="button"
+  style="
+    background-color:#20e277;
+    border-radius:50px;
+    color:#ffffff !important;
+    display:inline-block;
+    font-family:Arial, sans-serif;
+    font-size:14px;
+    font-weight:600;
+    text-align:center;
+    text-decoration:none;
+    text-transform:uppercase;
+    padding:12px 30px;
+    border:1px solid #20e277;
+  ">
+Confirm Account
+</a>
                     <p align="left" style="color:#455056;font-size:15px;line-height:24px;margin:0;">
                       If you did not initiate this request, please contact us immediately at support@gospatic.com
                       <br/><br/><br/>

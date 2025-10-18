@@ -13,6 +13,7 @@ import path from 'path';
 import { Secret } from 'jsonwebtoken';
 import { MessageServices } from '../message/message.services';
 import { ForgotPasswordTemplate } from '../../../templates/forgotPassword';
+import { ConfirmAccountTemplate } from '../../../templates/confirmAccount';
 const imagePath = path.resolve(__dirname, '../../../assets/logo.png');
 const attachments = [
   {
@@ -61,7 +62,7 @@ const createUserIntoDB = async (payload: TUser) => {
     from: 'shihab@gmail.com',
     subject: 'Invite to join Chatty',
     text: 'Join Chatty and start chatting with your friends!',
-    html: InviteTemplate(
+    html: ConfirmAccountTemplate(
       'userIInfo?.name' as string,
       `${config?.back_end_base_url}/user/confirm?token=${token}` as string,
       config?.front_end_base_url as string,
