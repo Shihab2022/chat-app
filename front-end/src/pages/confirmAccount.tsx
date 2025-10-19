@@ -9,14 +9,13 @@ export default function ConfirmAccount() {
   const navigate = useNavigate();
   const { search } = useLocation();
   const urlSearchParams = new URLSearchParams(search);
-  const token = urlSearchParams.get("token"); //we send token on the backend the check token and send email to the front end
+  const token = urlSearchParams.get("token");
   const onSubmit = async () => {
     try {
       const response = await confirmAccountApi({ token });
-      console.log({ response });
-      //   if (response?.data?.accessToken) {
-      //     navigate("/chat");
-      //   }
+      if (response?.data) {
+        navigate("/chat");
+      }
     } catch (error) {
       console.error("❌ Error sending invite:", error);
     }

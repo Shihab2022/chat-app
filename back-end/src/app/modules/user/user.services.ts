@@ -24,32 +24,32 @@ const attachments = [
 ];
 const createUserIntoDB = async (payload: TUser) => {
   const { email, password, userName, name } = payload;
-  // if (!name || !email || !password) {
-  //   throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
-  // }
+  if (!name || !email || !password) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
+  }
 
-  // if (password.length < passwordMinLength) {
-  //   throw new AppError(
-  //     httpStatus.BAD_REQUEST,
-  //     `Password must be at min ${passwordMinLength} characters`,
-  //   );
-  // }
-  // const user = await User.findOne({ email });
+  if (password.length < passwordMinLength) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Password must be at min ${passwordMinLength} characters`,
+    );
+  }
+  const user = await User.findOne({ email });
 
-  // if (!!user) {
-  //   throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
-  // }
-  // const usersInfo = {
-  //   name: `${userName} ${name}`,
-  //   email,
-  //   password,
-  //   status: userStatus?.ACTIVE,
-  // };
-  // const result = (await User.create(usersInfo)).isSelected('-password');
-  // const createdUser = await User.findOne({ email });
-  // const { _id } = createdUser as TUser;
+  if (!!user) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
+  }
+  const usersInfo = {
+    name: `${userName} ${name}`,
+    email,
+    password,
+    status: userStatus?.ACTIVE,
+  };
+  const result = (await User.create(usersInfo)).isSelected('-password');
+  const createdUser = await User.findOne({ email });
+  const { _id } = createdUser as TUser;
   const jwtPayload = {
-    userId: 'qwed34d32er3rd3rsdd2e323werere23',
+    userId: _id,
   };
 
   const token = createToken(
@@ -236,17 +236,12 @@ const checkAuth = async (payload: Partial<TUser>) => {
 };
 const confirmUser = async (payload: { token: string }) => {
   const { token } = payload;
-  console.log('🚀 ~ file: user.services.ts:223 ~ confirmUser ~ token:', token);
   if (!token) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
   }
   const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
-  // const updatedUser = await User.findByIdAndUpdate(
-  //   userId, // The user's _id
-  //   { $set: { isAccountVerified: true } }, // The update
-  //   { new: true, select: '-password' }, // Return the updated doc, without password
-  // );
-  return { token, userId };
+  await User.findByIdAndUpdate(userId, { $set: { isAccountVerified: true } });
+  return true;
 };
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
