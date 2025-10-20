@@ -231,8 +231,17 @@ const updatePassword = async (payload: {
   await user.save();
   return true;
 };
-const checkAuth = async (payload: Partial<TUser>) => {
-  return payload;
+const checkAuth = async (payload: { token: string }) => {
+  const { token } = payload;
+  if (!token) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
+  }
+  const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
+  if (!userId) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid token');
+  }
+  const user = await User.findOne({ _id: userId }).select('-password');
+  return user;
 };
 const confirmUser = async (payload: { token: string }) => {
   const { token } = payload;

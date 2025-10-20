@@ -20,6 +20,7 @@ function ChatContainer() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { _id: myId } = loginUser;
+  console.log({ loginUser });
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };

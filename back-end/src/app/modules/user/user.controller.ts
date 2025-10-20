@@ -101,13 +101,9 @@ const updatePassword = async (
     next(error);
   }
 };
-const checkAuth = async (
-  req: Request & { user?: any },
-  res: Response,
-  next: NextFunction,
-) => {
+const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await UserServices.checkAuth(req?.user);
+    const result = await UserServices.checkAuth(req.body);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,

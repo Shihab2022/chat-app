@@ -10,7 +10,7 @@ router.post('/accept-invite', UserController.acceptInvite);
 router.post('/login', UserController.loginUser);
 router.post('/forget-password', UserController.forgetPassword);
 router.post('/update-password', UserController.updatePassword);
-router.get('/check', auth(userRole?.USER), UserController.checkAuth);
+router.post('/check', UserController.checkAuth);
 router.post('/invite', auth(userRole?.USER), UserController.inviteUser);
 
 export const UserRoutes = router;
