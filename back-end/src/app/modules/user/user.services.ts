@@ -147,6 +147,9 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   if (user?.status === userStatus?.INACTIVE) {
     throw new AppError(httpStatus.LOCKED, 'User is in active !');
   }
+  if (user?.isAccountVerified === false) {
+    throw new AppError(httpStatus.LOCKED, 'Account is not verified !');
+  }
   const isPassMatch = await bcrypt.compare(
     payload?.password as string,
     user.password,
