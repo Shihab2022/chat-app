@@ -5,6 +5,7 @@ import config from '../config';
 import httpStatus from 'http-Status';
 import AppError from '../error/appError';
 import { User } from '../modules/user/user.model';
+import { NOT_VERIFIED } from '../../constant';
 
 const auth = (...roles: string[]) => {
   const errorMessage = 'You are not authorized';
@@ -26,6 +27,9 @@ const auth = (...roles: string[]) => {
         { _id: verifyUser?.userId },
         { password: 0 },
       );
+      if (!user?.isAccountVerified) {
+        throw new AppError(httpStatus.NOT_ACCEPTABLE, NOT_VERIFIED);
+      }
       req.user = user;
       next();
     } catch (error) {

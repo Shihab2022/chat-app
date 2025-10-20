@@ -17,3 +17,5 @@ export const userRole = {
   USER: 'user',
   SUPER_ADMIN: 'super-admin',
 };
+
+export const NOT_VERIFIED = 'Your account is not verified';
