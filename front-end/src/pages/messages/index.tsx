@@ -15,12 +15,21 @@ import { SET_RECEIVER_ID } from "../../redux/features/chat/conversationSlice";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 import LeftSiteBar from "./leftSiteBar";
 import { RootState } from "../../redux/store";
-import { DRAWER_WIDTH } from "../../constants/common";
+import { DRAWER_WIDTH, WARNING } from "../../constants/common";
+import { useNavigate } from "react-router-dom";
+import { showToast } from "../../utils/toast";
 function ChatContainer() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
+  const navigate = useNavigate();
   const { _id: myId } = loginUser;
-  console.log({ loginUser });
+  useEffect(() => {
+    if (!loginUser?.isAccountVerified) {
+      navigate("/");
+      showToast(WARNING, "Please verify your account to access chat");
+    }
+    // document.title = "Chat App - Messages";
+  }, [loginUser]);
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
