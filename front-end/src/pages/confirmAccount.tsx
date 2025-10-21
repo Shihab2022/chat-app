@@ -14,7 +14,7 @@ export default function ConfirmAccount() {
     try {
       const response = await confirmAccountApi({ token });
       if (response?.data) {
-        navigate("/chat");
+        navigate("/login");
       }
     } catch (error) {
       console.error("❌ Error sending invite:", error);
