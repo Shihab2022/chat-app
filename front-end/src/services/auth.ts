@@ -53,6 +53,16 @@ export const checkAuth = async (params: any) => {
   });
   return res;
 };
+export const reSendConfirmEmil = async (params: any) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/user/send",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params,
+  });
+  return res;
+};
 
 export const forgotPasswordApi = async (params: any) => {
   const res = await apiHandler({

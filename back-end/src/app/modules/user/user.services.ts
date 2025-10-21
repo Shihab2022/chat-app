@@ -276,6 +276,8 @@ const sendEmail = async (payload: { email: string }) => {
   };
 
   await transporter.sendMail(notifyMsg);
+
+  return true;
 };
 const confirmUser = async (payload: { token: string }) => {
   const { token } = payload;

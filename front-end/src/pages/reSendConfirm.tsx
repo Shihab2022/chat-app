@@ -10,19 +10,33 @@ import Container from "@mui/material/Container";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Loader from "../components/loader";
+import { reSendConfirmEmil } from "../services/auth";
+import { showToast } from "../utils/toast";
+import { SUCCESS, WARNING } from "../constants/common";
 export default function ResendEmail() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement | undefined;
+  }) => {
     try {
+      event.preventDefault();
       setIsLoading(true);
-      //   const response = await confirmAccountApi({});
-      //   if (response?.data) {
-      //     navigate("/chat");
-      //   }
+
+      const data = new FormData(event.currentTarget);
+      const email = data.get("email");
+      if (!email) {
+        showToast(WARNING, "Please enter your email");
+        return;
+      }
+      const response = await reSendConfirmEmil({ email });
+      if (response?.success) {
+        showToast(SUCCESS, "Email sent successfully");
+      }
     } catch (error) {
-      //   console.error("❌ Error sending invite:", error);
+      console.error("❌ Error sending invite:", error);
     } finally {
       setIsLoading(false);
     }
@@ -62,8 +76,6 @@ export default function ResendEmail() {
                 id="email"
                 label="Email Address"
                 name="email"
-                // autoComplete="email"
-                // autoFocus
               />
               <Button
                 type="submit"
