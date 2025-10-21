@@ -6,6 +6,7 @@ const router = Router();
 
 router.post('/create', UserController.createUser);
 router.post('/confirm', UserController.confirmUser);
+router.post('/send', UserController.sendEmail);
 router.post('/accept-invite', UserController.acceptInvite);
 router.post('/login', UserController.loginUser);
 router.post('/forget-password', UserController.forgetPassword);

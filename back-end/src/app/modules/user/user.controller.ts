@@ -114,6 +114,19 @@ const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+const sendEmail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await UserServices.sendEmail(req.body);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Check User successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const inviteUser = async (
   req: Request & { user?: any },
@@ -139,6 +152,7 @@ export const UserController = {
   forgetPassword,
   updatePassword,
   checkAuth,
+  sendEmail,
   inviteUser,
   acceptInvite,
   confirmUser,

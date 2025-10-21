@@ -47,7 +47,7 @@ export default function ResendEmail() {
               sx={{ width: 70, height: 70, mb: 2, cursor: "pointer" }}
             />
             <Typography component="h1" variant="h5">
-              Forget Password
+              Confirm Your Account
             </Typography>
             <Box
               component="form"
@@ -60,8 +60,8 @@ export default function ResendEmail() {
                 required
                 fullWidth
                 id="email"
-                label="Email Address Or User Name"
-                name="emailOrUserName"
+                label="Email Address"
+                name="email"
                 // autoComplete="email"
                 // autoFocus
               />
@@ -71,7 +71,7 @@ export default function ResendEmail() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
               >
-                Forget Password
+                Send Email
               </Button>
             </Box>
           </Box>

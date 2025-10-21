@@ -47,7 +47,7 @@ const createUserIntoDB = async (payload: TUser) => {
   };
   const result = (await User.create(usersInfo)).isSelected('-password');
   const createdUser = await User.findOne({ email });
-  const { _id } = createdUser as TUser;
+  const { _id, name: storedUserName } = createdUser as TUser;
   const jwtPayload = {
     userId: _id,
   };
@@ -63,7 +63,7 @@ const createUserIntoDB = async (payload: TUser) => {
     subject: 'Welcome to Chatty! Confirm your email address',
     text: 'Please confirm your Chatty account. Please click on the confirm button and then login to app.',
     html: ConfirmAccountTemplate(
-      'userIInfo?.name' as string,
+      storedUserName as string,
       `${config?.front_end_base_url}/confirm?token=${token}` as string,
       config?.front_end_base_url as string,
     ),
@@ -246,6 +246,37 @@ const checkAuth = async (payload: { token: string }) => {
   const user = await User.findOne({ _id: userId }).select('-password');
   return user;
 };
+const sendEmail = async (payload: { email: string }) => {
+  const { email } = payload;
+  if (!email) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Email is required !!');
+  }
+  const createdUser = await User.findOne({ email });
+  const { _id, name: storedUserName } = createdUser as TUser;
+  const jwtPayload = {
+    userId: _id,
+  };
+
+  const token = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expire_in as string,
+  );
+  const notifyMsg = {
+    to: [email],
+    from: 'shihab@gmail.com',
+    subject: 'Welcome to Chatty! Confirm your email address',
+    text: 'Please confirm your Chatty account. Please click on the confirm button and then login to app.',
+    html: ConfirmAccountTemplate(
+      storedUserName as string,
+      `${config?.front_end_base_url}/confirm?token=${token}` as string,
+      config?.front_end_base_url as string,
+    ),
+    attachments,
+  };
+
+  await transporter.sendMail(notifyMsg);
+};
 const confirmUser = async (payload: { token: string }) => {
   const { token } = payload;
   if (!token) {
@@ -293,6 +324,7 @@ export const UserServices = {
   forgetPassword,
   updatePassword,
   checkAuth,
+  sendEmail,
   inviteUser,
   acceptInvite,
 };
