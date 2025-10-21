@@ -72,9 +72,11 @@ export const apiHandler: any = ({
     .catch((err) => {
       console.log({ err });
       const e = err.toJSON();
-      console.log({ e });
       if (e.status === 401) {
         window.location.href = "/login";
+      }
+      if (err?.response?.data?.message === "Account is not verified !") {
+        window.location.href = "/re-send-confirm";
       } else {
         return {
           status: e.status,
