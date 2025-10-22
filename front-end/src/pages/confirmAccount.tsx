@@ -1,10 +1,11 @@
 /* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
-import { Button } from "@mui/material";
+import { Avatar, Box, Button, Container, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { confirmAccountApi } from "../services/auth";
 import { useEffect } from "react";
+import logoImage from "../assets/logo.png";
 export default function ConfirmAccount() {
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -25,15 +26,36 @@ export default function ConfirmAccount() {
   }, []);
   return (
     <>
-      <Button
-        onClick={onSubmit}
-        type="submit"
-        fullWidth
-        variant="contained"
-        sx={{ mt: 3, mb: 2 }}
-      >
-        Confirm and Login
-      </Button>
+      <Container component="main" maxWidth="xs">
+        <Box
+          sx={{
+            marginTop: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Avatar
+            onClick={() => navigate("/")}
+            alt={"logo"}
+            src={logoImage}
+            sx={{ width: 70, height: 70, mb: 2, cursor: "pointer" }}
+          />
+          <Typography component="h1" variant="h5">
+            Confirm Your Account
+          </Typography>
+
+          <Button
+            onClick={onSubmit}
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Confirm and Login
+          </Button>
+        </Box>
+      </Container>
     </>
   );
 }
