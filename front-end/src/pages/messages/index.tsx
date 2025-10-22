@@ -23,22 +23,12 @@ function ChatContainer() {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const navigate = useNavigate();
   const { _id: myId } = loginUser;
-  useEffect(() => {
-    if (!loginUser?.isAccountVerified) {
-      navigate("/");
-      showToast(WARNING, "Please verify your account to access chat");
-    }
-    // document.title = "Chat App - Messages";
-  }, [loginUser]);
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
   const dispatch = useDispatch();
-  useEffect(() => {
-    if (!loginUser?._id) {
-      checkAuthRes(dispatch);
-    }
-  }, []);
+
   const getAllUsers = async () => {
     try {
       const params = { _id: myId };
@@ -62,10 +52,19 @@ function ChatContainer() {
       console.log({ error });
     }
   };
-  useEffect(() => {
-    getAllUsers();
-  }, []);
 
+  useEffect(() => {
+    if (!loginUser?._id) {
+      checkAuthRes(dispatch);
+    } else {
+      if (!loginUser?.isAccountVerified) {
+        navigate("/");
+        showToast(WARNING, "Please verify your account to access chat");
+      } else {
+        getAllUsers();
+      }
+    }
+  }, [loginUser]);
   return (
     <>
       <Box sx={{ display: "flex" }}>
