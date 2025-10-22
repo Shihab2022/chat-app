@@ -16,6 +16,7 @@ import { SUCCESS, WARNING } from "../constants/common";
 export default function ResendEmail() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isEmailSend, setIsEmailSend] = useState(!false);
 
   const handleSubmit = async (event: {
     preventDefault: () => void;
@@ -33,6 +34,7 @@ export default function ResendEmail() {
       }
       const response = await reSendConfirmEmil({ email });
       if (response?.success) {
+        setIsEmailSend(true);
         showToast(SUCCESS, "Email sent successfully");
       }
     } catch (error) {
@@ -44,50 +46,85 @@ export default function ResendEmail() {
   return (
     <>
       <>
-        <Container component="main" maxWidth="xs">
-          <CssBaseline />
-          <Box
-            sx={{
-              marginTop: 8,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Avatar
-              onClick={() => navigate("/")}
-              alt={"logo"}
-              src={logoImage}
-              sx={{ width: 70, height: 70, mb: 2, cursor: "pointer" }}
-            />
-            <Typography component="h1" variant="h5">
-              Confirm Your Account
-            </Typography>
+        {isEmailSend ? (
+          <Container component="main" maxWidth="xs">
+            <CssBaseline />
             <Box
-              component="form"
-              onSubmit={handleSubmit}
-              noValidate
-              sx={{ mt: 1 }}
+              sx={{
+                marginTop: 8,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
+              <Avatar
+                onClick={() => navigate("/")}
+                alt={"logo"}
+                src={logoImage}
+                sx={{ width: 70, height: 70, mb: 2, cursor: "pointer" }}
               />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+              <Box
+                sx={{
+                  mt: 1,
+                  background: "#f8d5d5ff",
+                  width: "100%",
+                  padding: 2,
+                  borderRadius: 1,
+                }}
               >
-                Send Email
-              </Button>
+                <Typography component="h1" variant="h5">
+                  {" "}
+                  Check your email and confirm account to access
+                </Typography>
+              </Box>
             </Box>
-          </Box>
-        </Container>
+          </Container>
+        ) : (
+          <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <Box
+              sx={{
+                marginTop: 8,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <Avatar
+                onClick={() => navigate("/")}
+                alt={"logo"}
+                src={logoImage}
+                sx={{ width: 70, height: 70, mb: 2, cursor: "pointer" }}
+              />
+              <Typography component="h1" variant="h5">
+                Confirm Your Account
+              </Typography>
+              <Box
+                component="form"
+                onSubmit={handleSubmit}
+                noValidate
+                sx={{ mt: 1 }}
+              >
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                />
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                >
+                  Send Email
+                </Button>
+              </Box>
+            </Box>
+          </Container>
+        )}
 
         {isLoading && <Loader />}
       </>
