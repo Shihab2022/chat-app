@@ -318,7 +318,15 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   await transporter.sendMail(notifyMsg);
   return payload;
 };
-
+const updateUserInfo = async (payload: { token: string }) => {
+  const { token } = payload;
+  if (!token) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
+  }
+  const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
+  await User.findByIdAndUpdate(userId, { $set: { isAccountVerified: true } });
+  return true;
+};
 export const UserServices = {
   createUserIntoDB,
   confirmUser,
@@ -329,4 +337,5 @@ export const UserServices = {
   sendEmail,
   inviteUser,
   acceptInvite,
+  updateUserInfo,
 };

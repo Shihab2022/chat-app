@@ -146,6 +146,24 @@ const inviteUser = async (
     next(error);
   }
 };
+const updateUserInfo = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await UserServices.updateUserInfo(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User information updated successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 export const UserController = {
   createUser,
   loginUser,
@@ -156,4 +174,5 @@ export const UserController = {
   inviteUser,
   acceptInvite,
   confirmUser,
+  updateUserInfo,
 };
