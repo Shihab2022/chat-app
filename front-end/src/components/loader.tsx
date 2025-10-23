@@ -1,20 +1,26 @@
-// material-ui
-import LinearProgress from "@mui/material/LinearProgress";
-import { styled } from "@mui/material/styles";
+import { Backdrop, CircularProgress, Typography } from "@mui/material";
 
-// styles
-const LoaderWrapper = styled("div")({
-  position: "fixed",
-  top: 0,
-  left: 0,
-  zIndex: 1301,
-  width: "100%",
-});
-
-const Loader = () => (
-  <LoaderWrapper>
-    <LinearProgress color="primary" />
-  </LoaderWrapper>
-);
+const Loader = ({
+  loading = false,
+  title = "Loading...",
+}: {
+  loading?: boolean;
+  title?: string;
+}) => {
+  return (
+    <Backdrop
+      sx={{
+        color: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+      }}
+      open={loading}
+    >
+      <Typography>{title}</Typography>
+      <CircularProgress color="inherit" />
+    </Backdrop>
+  );
+};
 
 export default Loader;

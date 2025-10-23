@@ -18,8 +18,10 @@ import { RootState } from "../../redux/store";
 import { DRAWER_WIDTH, WARNING } from "../../constants/common";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "../../utils/toast";
+import Loader from "../../components/loader";
 function ChatContainer() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const navigate = useNavigate();
   const { _id: myId } = loginUser;
@@ -55,7 +57,7 @@ function ChatContainer() {
 
   useEffect(() => {
     if (!loginUser?._id) {
-      checkAuthRes(dispatch);
+      checkAuthRes(dispatch, setIsLoading);
     } else {
       if (!loginUser?.isAccountVerified) {
         navigate("/");
@@ -127,6 +129,8 @@ function ChatContainer() {
           </Box>
         </Box>
       </Box>
+
+      <Loader loading={isLoading} title="Chat Loading..." />
     </>
   );
 }

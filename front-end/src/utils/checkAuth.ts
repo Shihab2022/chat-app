@@ -4,8 +4,9 @@ import { checkAuth } from "../services/auth";
 import { getToken } from "./auth";
 import { connectSocket } from "./socketService";
 
-export const checkAuthRes = async (dispatch: any) => {
+export const checkAuthRes = async (dispatch: any, setIsLoading: any) => {
   try {
+    setIsLoading(true);
     const token = getToken();
     const res = await checkAuth({ token });
     if (res.success) {
@@ -15,5 +16,7 @@ export const checkAuthRes = async (dispatch: any) => {
     }
   } catch (error) {
     console.log({ error });
+  } finally {
+    setIsLoading(false);
   }
 };
