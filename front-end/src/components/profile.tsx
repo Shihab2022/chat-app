@@ -12,9 +12,12 @@ import {
   Button,
 } from "@mui/material";
 import { randomTwoDigit } from "../utils/common";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 export default function Profile({ user }: { user: any }) {
-  const { name = "Md Shihab Uddin ", img, email = "shihab@gmail.com" } = user;
+  const { loginUser } = useSelector((state: RootState) => state?.auth);
+  const { img, email, name } = loginUser;
 
   return (
     <>

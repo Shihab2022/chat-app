@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import { RootState } from "../../redux/store";
 import { randomTwoDigit } from "../../utils/common";
 import { disconnectSocket } from "../../utils/socketService";
+import { checkAuthRes } from "../../utils/checkAuth";
 const profileMenuStyle = {
   color: "#A1B0CC",
   fontSize: "30px",
@@ -45,11 +46,17 @@ const ProfileMenuItem = ({ onClick, label, icon }: any) => {
 const ProfileMenu = ({ HeaderComp }: any) => {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const userInfo = useSelector((state: RootState) => state?.auth?.loginUser);
+  const { loginUser } = useSelector((state: RootState) => state?.auth);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const { _id: myId } = loginUser;
+  const dispatch = useDispatch();
   //   const dispatch = useDispatch();
   //   const [availableCredits, setAvailableCredits] = useState(0);
   // console.log({ userInfo });
   const navigate = useNavigate();
-
+  useEffect(() => {
+    checkAuthRes(dispatch, setIsLoading);
+  }, []);
   const handleOpenUserMenu = async (event: any) => {
     try {
       setAnchorElUser(event.currentTarget);
@@ -79,7 +86,7 @@ const ProfileMenu = ({ HeaderComp }: any) => {
         navigate("/chat");
         break;
       case "profile":
-        navigate("/profile");
+        navigate(`/profile/id=${myId}`);
         break;
       case "changePassword":
         navigate("/forgetPassword");
