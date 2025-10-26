@@ -11,6 +11,7 @@ export type TUser = {
   updatedAt?: Date;
   isAccountVerified?: boolean;
   verifiedCode?: number | null;
+  bio?: string;
 };
 export type TInviteUser = {
   email: string;

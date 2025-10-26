@@ -23,12 +23,16 @@ export default function Profile({ user }: { user: any }) {
   const [userName, setUserName] = useState(name);
   const [userBio, setUserBio] = useState(user.bio);
   const updateUserData = async () => {
-    const res = await updateUserInfoAPI({
-      name: userName,
-      bio: userBio,
-    });
-    console.log({ res });
-    // Function to handle user data update
+    try {
+      const res = await updateUserInfoAPI({
+        name: userName,
+        bio: userBio,
+      });
+      console.log({ res });
+      // Function to handle user data update
+    } catch (error) {
+      console.log({ error });
+    }
   };
   return (
     <>

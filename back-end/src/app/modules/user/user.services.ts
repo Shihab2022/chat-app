@@ -318,14 +318,22 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   await transporter.sendMail(notifyMsg);
   return payload;
 };
-const updateUserInfo = async (payload: { token: string }) => {
-  const { token } = payload;
-  if (!token) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
+const updateUserInfo = async (
+  payload: { name: string; bio: string },
+  userINfo: TUser,
+) => {
+  const { name, bio } = payload;
+  const { _id } = userINfo;
+
+  const user = await User.findOne({ _id: _id });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
-  const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
-  await User.findByIdAndUpdate(userId, { $set: { isAccountVerified: true } });
-  return true;
+  user.name = name;
+  user.bio = bio;
+  await user.save();
+  const updatedUserInfo = await User.findOne({ _id: _id }).select('-password');
+  return updatedUserInfo;
 };
 export const UserServices = {
   createUserIntoDB,

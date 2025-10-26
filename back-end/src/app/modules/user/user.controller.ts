@@ -152,8 +152,7 @@ const updateUserInfo = async (
   next: NextFunction,
 ) => {
   try {
-    const result = await UserServices.updateUserInfo(req.body);
-
+    const result = await UserServices.updateUserInfo(req.body, req?.user);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,

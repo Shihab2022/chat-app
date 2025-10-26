@@ -35,6 +35,10 @@ const UserSchema = new mongoose.Schema<TUser>(
       type: Number,
       default: null,
     },
+    bio: {
+      type: String,
+      default: '',
+    },
     isAccountVerified: {
       type: Boolean,
       default: false,
