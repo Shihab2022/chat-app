@@ -44,21 +44,11 @@ export default function Router() {
       ),
     },
     {
-      path: "/profile",
-      element: (
-        <ProtectedRoute>
-          <NavBar>
-            <Profile user={{}} />
-          </NavBar>
-        </ProtectedRoute>
-      ),
-    },
-    {
       path: "/profile/:userId",
       element: (
         <ProtectedRoute>
           <NavBar>
-            <Profile user={{}} />
+            <Profile />
           </NavBar>
         </ProtectedRoute>
       ),

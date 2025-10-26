@@ -12,26 +12,38 @@ import {
   Button,
 } from "@mui/material";
 import { randomTwoDigit } from "../utils/common";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { updateUserInfoAPI } from "../services/auth";
 import { useState } from "react";
+import { setUser } from "../redux/features/auth/authSlice";
+import Loader from "./loader";
+import { showToast } from "../utils/toast";
+import { COMMON_ERROR_MESSAGE, WARNING } from "../constants/common";
 
-export default function Profile({ user }: { user: any }) {
+export default function Profile() {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
+  const [isLoading, setIsLoading] = useState(false);
   const { img, email, name, bio } = loginUser;
   const [userName, setUserName] = useState(name);
-  const [userBio, setUserBio] = useState(user.bio);
+  const [userBio, setUserBio] = useState(bio);
+  const dispatch = useDispatch();
   const updateUserData = async () => {
     try {
+      setIsLoading(true);
       const res = await updateUserInfoAPI({
         name: userName,
         bio: userBio,
       });
-      console.log({ res });
-      // Function to handle user data update
-    } catch (error) {
-      console.log({ error });
+      if (res?.success) {
+        const resData = res?.data;
+        dispatch(setUser(resData));
+      }
+    } catch (e) {
+      showToast(WARNING, COMMON_ERROR_MESSAGE);
+      console.log(e);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -110,6 +122,7 @@ export default function Profile({ user }: { user: any }) {
           </Grid>
         </Grid>
       </Container>
+      <Loader loading={isLoading} title="Chat Loading..." />
     </>
   );
 }
