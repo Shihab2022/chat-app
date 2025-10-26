@@ -14,11 +14,22 @@ import {
 import { randomTwoDigit } from "../utils/common";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { updateUserInfoAPI } from "../services/auth";
+import { useState } from "react";
 
 export default function Profile({ user }: { user: any }) {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
-  const { img, email, name } = loginUser;
-
+  const { img, email, name, bio } = loginUser;
+  const [userName, setUserName] = useState(name);
+  const [userBio, setUserBio] = useState(user.bio);
+  const updateUserData = async () => {
+    const res = await updateUserInfoAPI({
+      name: userName,
+      bio: userBio,
+    });
+    console.log({ res });
+    // Function to handle user data update
+  };
   return (
     <>
       <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -56,7 +67,7 @@ export default function Profile({ user }: { user: any }) {
                   About Me
                 </Typography>
                 <Typography variant="body1" paragraph>
-                  {user.bio}
+                  {bio}
                 </Typography>
 
                 {/* Example of editable fields */}
@@ -68,8 +79,9 @@ export default function Profile({ user }: { user: any }) {
                     label="Name"
                     variant="outlined"
                     fullWidth
-                    defaultValue={user.name}
+                    defaultValue={userName}
                     sx={{ mb: 2 }}
+                    onChange={(e) => setUserName(e.target.value)}
                   />
                   <TextField
                     label="Bio"
@@ -77,10 +89,15 @@ export default function Profile({ user }: { user: any }) {
                     fullWidth
                     multiline
                     rows={4}
-                    defaultValue={user.bio}
+                    onChange={(e) => setUserBio(e.target.value)}
+                    defaultValue={bio}
                     sx={{ mb: 2 }}
                   />
-                  <Button variant="contained" color="primary">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={updateUserData}
+                  >
                     Save Changes
                   </Button>
                 </Box>
