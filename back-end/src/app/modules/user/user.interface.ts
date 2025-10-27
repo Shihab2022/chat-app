@@ -28,4 +28,8 @@ export interface TFriendship {
   user: Types.ObjectId;
   friend: Types.ObjectId;
   status: TFriendshipStatus;
+  requestedBy?: Types.ObjectId;
+  updateStatusAt?: Date;
+  isBlocked?: boolean;
+  blockedBy?: Types.ObjectId;
 }

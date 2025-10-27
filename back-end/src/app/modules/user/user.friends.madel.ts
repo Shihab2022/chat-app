@@ -1,4 +1,3 @@
-// Assuming you have a type/interface for your user model's ObjectId
 import mongoose from 'mongoose';
 import { FriendshipStatus } from '../../../constant';
 import { TFriendship } from './user.interface';
@@ -19,6 +18,24 @@ const FriendshipSchema = new mongoose.Schema<TFriendship>(
       type: String,
       enum: Object.values(FriendshipStatus),
       default: FriendshipStatus.PENDING,
+    },
+    updateStatusAt: {
+      type: Date,
+      default: Date.now,
+    },
+    requestedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+    blockedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
     },
   },
   {
