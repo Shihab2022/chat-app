@@ -18,4 +18,9 @@ export const userRole = {
   SUPER_ADMIN: 'super-admin',
 };
 
+export const FriendshipStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+} as const;
 export const NOT_VERIFIED = 'Your account is not verified';

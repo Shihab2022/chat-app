@@ -1,3 +1,6 @@
+import { FriendshipStatus } from '../../../constant';
+import { Types } from 'mongoose';
+
 export type TUser = {
   userName: string;
   name: string;
@@ -17,3 +20,12 @@ export type TInviteUser = {
   email: string;
   message: string;
 };
+
+type TFriendshipStatus =
+  (typeof FriendshipStatus)[keyof typeof FriendshipStatus];
+
+export interface TFriendship {
+  requester: Types.ObjectId;
+  recipient: Types.ObjectId;
+  status: TFriendshipStatus;
+}
