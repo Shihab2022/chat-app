@@ -1,16 +1,16 @@
 // Assuming you have a type/interface for your user model's ObjectId
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import { FriendshipStatus } from '../../../constant';
 import { TFriendship } from './user.interface';
 
 const FriendshipSchema = new mongoose.Schema<TFriendship>(
   {
-    requester: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    recipient: {
+    friend: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,

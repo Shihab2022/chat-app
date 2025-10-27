@@ -25,7 +25,7 @@ type TFriendshipStatus =
   (typeof FriendshipStatus)[keyof typeof FriendshipStatus];
 
 export interface TFriendship {
-  requester: Types.ObjectId;
-  recipient: Types.ObjectId;
+  user: Types.ObjectId;
+  friend: Types.ObjectId;
   status: TFriendshipStatus;
 }
