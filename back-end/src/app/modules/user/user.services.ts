@@ -1,16 +1,7 @@
 import {
-  ALL_FIELDS_REQUIRED,
-  EMAIL_ALREADY_EXISTS,
-  EMAIL_IS_REQUIRED,
-  INVALID_PIN,
-  INVALID_TOKEN,
-  NOT_VERIFIED,
-  PASSWORD_NOT_MATCH,
+  emailSenderMessages,
   passwordMinLength,
-  TOKEN_IS_REQUIRED,
-  USER_INACTIVE,
-  USER_NOT_FOUND,
-  USER_REGISTRATION_FAILED,
+  userServiceMessages,
   userStatus,
 } from '../../../constant';
 import { createToken, jwtVerify } from '../../../utils/auth';
@@ -38,7 +29,10 @@ const attachments = [
 const createUserIntoDB = async (payload: TUser) => {
   const { email, password, userName, name } = payload;
   if (!name || !email || !password) {
-    throw new AppError(httpStatus.BAD_REQUEST, ALL_FIELDS_REQUIRED);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.ALL_FIELDS_REQUIRED,
+    );
   }
 
   if (password.length < passwordMinLength) {
@@ -50,7 +44,10 @@ const createUserIntoDB = async (payload: TUser) => {
   const user = await User.findOne({ email });
 
   if (!!user) {
-    throw new AppError(httpStatus.BAD_REQUEST, EMAIL_ALREADY_EXISTS);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.EMAIL_ALREADY_EXISTS,
+    );
   }
   const usersInfo = {
     name: `${userName} ${name}`,
@@ -72,9 +69,9 @@ const createUserIntoDB = async (payload: TUser) => {
   );
   const notifyMsg = {
     to: [email],
-    from: 'shihab@gmail.com',
-    subject: 'Welcome to Chatty! Confirm your email address',
-    text: 'Please confirm your Chatty account. Please click on the confirm button and then login to app.',
+    from: emailSenderMessages.FROM_JOIN_EMAIL,
+    subject: emailSenderMessages.WELCOME_EMAIL_SUBJECT,
+    text: emailSenderMessages.CONFIRM_EMAIL_MESSAGE,
     html: ConfirmAccountTemplate(
       storedUserName as string,
       `${config?.front_end_base_url}/confirm?token=${token}` as string,
@@ -94,14 +91,20 @@ const acceptInvite = async (payload: {
 }) => {
   const { token, firstname, lastname, password } = payload;
   if (!token) {
-    throw new AppError(httpStatus.BAD_REQUEST, TOKEN_IS_REQUIRED);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.TOKEN_IS_REQUIRED,
+    );
   }
   const { userId, email, message } = jwtVerify(
     token,
     config.jwt_access_secret as Secret,
   );
   if (!firstname || !email || !password) {
-    throw new AppError(httpStatus.BAD_REQUEST, ALL_FIELDS_REQUIRED);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.ALL_FIELDS_REQUIRED,
+    );
   }
 
   if (password.length < passwordMinLength) {
@@ -113,7 +116,10 @@ const acceptInvite = async (payload: {
   const user = await User.findOne({ email });
 
   if (!!user) {
-    throw new AppError(httpStatus.BAD_REQUEST, EMAIL_ALREADY_EXISTS);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.EMAIL_ALREADY_EXISTS,
+    );
   }
   const usersInfo = {
     name: `${firstname} ${lastname}`,
@@ -127,7 +133,7 @@ const acceptInvite = async (payload: {
   if (!registerUser) {
     throw new AppError(
       httpStatus.INTERNAL_SERVER_ERROR,
-      USER_REGISTRATION_FAILED,
+      userServiceMessages.USER_REGISTRATION_FAILED,
     );
   }
 
@@ -155,20 +161,23 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const { email } = payload;
   const user = await User.findOne({ email });
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, USER_NOT_FOUND);
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      userServiceMessages.USER_NOT_FOUND,
+    );
   }
   if (user?.status === userStatus?.INACTIVE) {
-    throw new AppError(httpStatus.LOCKED, USER_INACTIVE);
+    throw new AppError(httpStatus.LOCKED, userServiceMessages.USER_INACTIVE);
   }
   if (user?.isAccountVerified === false) {
-    throw new AppError(httpStatus.LOCKED, NOT_VERIFIED);
+    throw new AppError(httpStatus.LOCKED, userServiceMessages.NOT_VERIFIED);
   }
   const isPassMatch = await bcrypt.compare(
     payload?.password as string,
     user.password,
   );
   if (!isPassMatch) {
-    throw new AppError(404, PASSWORD_NOT_MATCH);
+    throw new AppError(404, userServiceMessages.PASSWORD_NOT_MATCH);
   }
   const objData: Partial<TUser> = user.toObject();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -191,7 +200,7 @@ const forgetPassword = async (payload: Partial<TUser>) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    throw new AppError(404, USER_NOT_FOUND);
+    throw new AppError(404, userServiceMessages.USER_NOT_FOUND);
   }
   const { _id } = user;
   const jwtPayload = {
@@ -208,9 +217,9 @@ const forgetPassword = async (payload: Partial<TUser>) => {
   await user.save();
   const notifyMsg = {
     to: email as string,
-    from: 'shihab@gmail.com',
-    subject: 'Forget Your Password',
-    text: 'Use this link and code to reset your password. This link and code will expire in 5 minutes',
+    from: emailSenderMessages.FROM_JOIN_EMAIL,
+    subject: emailSenderMessages.FORGET_PASSWORD_SUBJECT,
+    text: emailSenderMessages.FORGET_PASSWORD_MESSAGE,
     html: ForgotPasswordTemplate(
       user?.name as string,
       `${config?.front_end_base_url}/update-password?token=${token}` as string,
@@ -230,18 +239,27 @@ const updatePassword = async (payload: {
 }) => {
   const { token, password, pin } = payload;
   if (!token) {
-    throw new AppError(httpStatus.BAD_REQUEST, TOKEN_IS_REQUIRED);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.TOKEN_IS_REQUIRED,
+    );
   }
   const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
   if (!userId || !password || !pin) {
-    throw new AppError(httpStatus.BAD_REQUEST, ALL_FIELDS_REQUIRED);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.ALL_FIELDS_REQUIRED,
+    );
   }
   const user = await User.findOne({ _id: userId });
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, USER_NOT_FOUND);
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      userServiceMessages.USER_NOT_FOUND,
+    );
   }
   if (user.verifiedCode !== Number(pin)) {
-    throw new AppError(httpStatus.BAD_REQUEST, INVALID_PIN);
+    throw new AppError(httpStatus.BAD_REQUEST, userServiceMessages.INVALID_PIN);
   }
   user.password = password;
   await user.save();
@@ -250,11 +268,17 @@ const updatePassword = async (payload: {
 const checkAuth = async (payload: { token: string }) => {
   const { token } = payload;
   if (!token) {
-    throw new AppError(httpStatus.BAD_REQUEST, TOKEN_IS_REQUIRED);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.TOKEN_IS_REQUIRED,
+    );
   }
   const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
   if (!userId) {
-    throw new AppError(httpStatus.UNAUTHORIZED, INVALID_TOKEN);
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      userServiceMessages.INVALID_TOKEN,
+    );
   }
   const user = await User.findOne({ _id: userId }).select('-password');
   return user;
@@ -262,7 +286,10 @@ const checkAuth = async (payload: { token: string }) => {
 const sendEmail = async (payload: { email: string }) => {
   const { email } = payload;
   if (!email) {
-    throw new AppError(httpStatus.BAD_REQUEST, EMAIL_IS_REQUIRED);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.EMAIL_IS_REQUIRED,
+    );
   }
   const createdUser = await User.findOne({ email });
   const { _id, name: storedUserName } = createdUser as TUser;
@@ -277,9 +304,9 @@ const sendEmail = async (payload: { email: string }) => {
   );
   const notifyMsg = {
     to: [email],
-    from: 'shihab@gmail.com',
-    subject: 'Welcome to Chatty! Confirm your email address',
-    text: 'Please confirm your Chatty account. Please click on the confirm button and then login to app.',
+    from: emailSenderMessages.FROM_JOIN_EMAIL,
+    subject: emailSenderMessages.WELCOME_EMAIL_SUBJECT,
+    text: emailSenderMessages.CONFIRM_EMAIL_MESSAGE,
     html: ConfirmAccountTemplate(
       storedUserName as string,
       `${config?.front_end_base_url}/confirm?token=${token}` as string,
@@ -295,7 +322,10 @@ const sendEmail = async (payload: { email: string }) => {
 const confirmUser = async (payload: { token: string }) => {
   const { token } = payload;
   if (!token) {
-    throw new AppError(httpStatus.BAD_REQUEST, TOKEN_IS_REQUIRED);
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.TOKEN_IS_REQUIRED,
+    );
   }
   const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
   await User.findByIdAndUpdate(userId, { $set: { isAccountVerified: true } });
@@ -317,9 +347,9 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   );
   const notifyMsg = {
     to: [email],
-    from: 'shihab@gmail.com',
-    subject: 'Invite to join Chatty',
-    text: 'Join Chatty and start chatting with your friends!',
+    from: emailSenderMessages.FROM_JOIN_EMAIL,
+    subject: emailSenderMessages.INVITE_JOIN_SUBJECT,
+    text: emailSenderMessages.INVITE_JOIN_MESSAGE,
     html: InviteTemplate(
       userIInfo?.name as string,
       `${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string,
@@ -340,7 +370,10 @@ const updateUserInfo = async (
 
   const user = await User.findOne({ _id: _id });
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, USER_NOT_FOUND);
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      userServiceMessages.USER_NOT_FOUND,
+    );
   }
   user.name = name;
   user.bio = bio;
