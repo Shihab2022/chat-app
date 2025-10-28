@@ -38,7 +38,7 @@ const createUserIntoDB = async (payload: TUser) => {
   if (password.length < passwordMinLength) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      `Password must be at min ${passwordMinLength} characters`,
+      userServiceMessages.PASSWORD_LENGTH_ERROR,
     );
   }
   const user = await User.findOne({ email });
@@ -110,7 +110,7 @@ const acceptInvite = async (payload: {
   if (password.length < passwordMinLength) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      `Password must be at min ${passwordMinLength} characters`,
+      userServiceMessages.PASSWORD_LENGTH_ERROR,
     );
   }
   const user = await User.findOne({ email });

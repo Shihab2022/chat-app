@@ -35,6 +35,7 @@ export const userServiceMessages = {
   INVALID_PIN: 'Invalid pin',
   INVALID_TOKEN: 'Invalid token',
   EMAIL_IS_REQUIRED: 'Email is required !!',
+  PASSWORD_LENGTH_ERROR: `Password must be at least ${passwordMinLength} characters long.`,
 };
 
 export const emailSenderMessages = {
