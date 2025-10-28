@@ -1,6 +1,19 @@
-import { passwordMinLength, userStatus } from '../../../constant';
+import {
+  ALL_FIELDS_REQUIRED,
+  EMAIL_ALREADY_EXISTS,
+  EMAIL_IS_REQUIRED,
+  INVALID_PIN,
+  INVALID_TOKEN,
+  NOT_VERIFIED,
+  PASSWORD_NOT_MATCH,
+  passwordMinLength,
+  TOKEN_IS_REQUIRED,
+  USER_INACTIVE,
+  USER_NOT_FOUND,
+  USER_REGISTRATION_FAILED,
+  userStatus,
+} from '../../../constant';
 import { createToken, jwtVerify } from '../../../utils/auth';
-import { parseHtml } from '../../../utils/common';
 import config from '../../config';
 import AppError from '../../error/appError';
 import { TInviteUser, TUser } from './user.interface';
@@ -25,7 +38,7 @@ const attachments = [
 const createUserIntoDB = async (payload: TUser) => {
   const { email, password, userName, name } = payload;
   if (!name || !email || !password) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
+    throw new AppError(httpStatus.BAD_REQUEST, ALL_FIELDS_REQUIRED);
   }
 
   if (password.length < passwordMinLength) {
@@ -37,7 +50,7 @@ const createUserIntoDB = async (payload: TUser) => {
   const user = await User.findOne({ email });
 
   if (!!user) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
+    throw new AppError(httpStatus.BAD_REQUEST, EMAIL_ALREADY_EXISTS);
   }
   const usersInfo = {
     name: `${userName} ${name}`,
@@ -81,14 +94,14 @@ const acceptInvite = async (payload: {
 }) => {
   const { token, firstname, lastname, password } = payload;
   if (!token) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
+    throw new AppError(httpStatus.BAD_REQUEST, TOKEN_IS_REQUIRED);
   }
   const { userId, email, message } = jwtVerify(
     token,
     config.jwt_access_secret as Secret,
   );
   if (!firstname || !email || !password) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
+    throw new AppError(httpStatus.BAD_REQUEST, ALL_FIELDS_REQUIRED);
   }
 
   if (password.length < passwordMinLength) {
@@ -100,7 +113,7 @@ const acceptInvite = async (payload: {
   const user = await User.findOne({ email });
 
   if (!!user) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
+    throw new AppError(httpStatus.BAD_REQUEST, EMAIL_ALREADY_EXISTS);
   }
   const usersInfo = {
     name: `${firstname} ${lastname}`,
@@ -114,7 +127,7 @@ const acceptInvite = async (payload: {
   if (!registerUser) {
     throw new AppError(
       httpStatus.INTERNAL_SERVER_ERROR,
-      'User registration failed.',
+      USER_REGISTRATION_FAILED,
     );
   }
 
@@ -142,20 +155,20 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const { email } = payload;
   const user = await User.findOne({ email });
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User is not found !');
+    throw new AppError(httpStatus.NOT_FOUND, USER_NOT_FOUND);
   }
   if (user?.status === userStatus?.INACTIVE) {
-    throw new AppError(httpStatus.LOCKED, 'User is in active !');
+    throw new AppError(httpStatus.LOCKED, USER_INACTIVE);
   }
   if (user?.isAccountVerified === false) {
-    throw new AppError(httpStatus.LOCKED, 'Account is not verified !');
+    throw new AppError(httpStatus.LOCKED, NOT_VERIFIED);
   }
   const isPassMatch = await bcrypt.compare(
     payload?.password as string,
     user.password,
   );
   if (!isPassMatch) {
-    throw new AppError(404, 'Your password is not match');
+    throw new AppError(404, PASSWORD_NOT_MATCH);
   }
   const objData: Partial<TUser> = user.toObject();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -178,7 +191,7 @@ const forgetPassword = async (payload: Partial<TUser>) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    throw new AppError(404, 'User is not found !');
+    throw new AppError(404, USER_NOT_FOUND);
   }
   const { _id } = user;
   const jwtPayload = {
@@ -217,18 +230,18 @@ const updatePassword = async (payload: {
 }) => {
   const { token, password, pin } = payload;
   if (!token) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
+    throw new AppError(httpStatus.BAD_REQUEST, TOKEN_IS_REQUIRED);
   }
   const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
   if (!userId || !password || !pin) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required !!');
+    throw new AppError(httpStatus.BAD_REQUEST, ALL_FIELDS_REQUIRED);
   }
   const user = await User.findOne({ _id: userId });
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    throw new AppError(httpStatus.NOT_FOUND, USER_NOT_FOUND);
   }
   if (user.verifiedCode !== Number(pin)) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid pin');
+    throw new AppError(httpStatus.BAD_REQUEST, INVALID_PIN);
   }
   user.password = password;
   await user.save();
@@ -237,11 +250,11 @@ const updatePassword = async (payload: {
 const checkAuth = async (payload: { token: string }) => {
   const { token } = payload;
   if (!token) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
+    throw new AppError(httpStatus.BAD_REQUEST, TOKEN_IS_REQUIRED);
   }
   const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
   if (!userId) {
-    throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid token');
+    throw new AppError(httpStatus.UNAUTHORIZED, INVALID_TOKEN);
   }
   const user = await User.findOne({ _id: userId }).select('-password');
   return user;
@@ -249,7 +262,7 @@ const checkAuth = async (payload: { token: string }) => {
 const sendEmail = async (payload: { email: string }) => {
   const { email } = payload;
   if (!email) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Email is required !!');
+    throw new AppError(httpStatus.BAD_REQUEST, EMAIL_IS_REQUIRED);
   }
   const createdUser = await User.findOne({ email });
   const { _id, name: storedUserName } = createdUser as TUser;
@@ -282,7 +295,7 @@ const sendEmail = async (payload: { email: string }) => {
 const confirmUser = async (payload: { token: string }) => {
   const { token } = payload;
   if (!token) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Token is required !!');
+    throw new AppError(httpStatus.BAD_REQUEST, TOKEN_IS_REQUIRED);
   }
   const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
   await User.findByIdAndUpdate(userId, { $set: { isAccountVerified: true } });
@@ -327,7 +340,7 @@ const updateUserInfo = async (
 
   const user = await User.findOne({ _id: _id });
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    throw new AppError(httpStatus.NOT_FOUND, USER_NOT_FOUND);
   }
   user.name = name;
   user.bio = bio;
