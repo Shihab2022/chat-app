@@ -8,7 +8,7 @@ import SearchField from "../../components/searchField";
 import Message from "../../components/messages/message";
 import { useEffect, useState } from "react";
 import { getUsersForSidebar } from "../../services/message";
-import { randomTwoDigit, toStartCaseStr } from "../../utils/common";
+import { toStartCaseStr } from "../../utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuthRes } from "../../utils/checkAuth";
 import { SET_RECEIVER_ID } from "../../redux/features/chat/conversationSlice";
@@ -38,9 +38,7 @@ function ChatContainer() {
       if (res?.success) {
         const resUsers = res?.data;
         const conversation = resUsers?.map((d: any) => {
-          const img =
-            d?.img ||
-            `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`;
+          const img = d?.img || "";
           return {
             ...d,
             img,

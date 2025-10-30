@@ -11,7 +11,6 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import { randomTwoDigit } from "../utils/common";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { updateUserInfoAPI } from "../services/auth";
@@ -61,10 +60,7 @@ export default function Profile() {
               >
                 <Avatar
                   alt={name}
-                  src={
-                    img ||
-                    `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`
-                  }
+                  src={img}
                   sx={{ width: 150, height: 150, mb: 2 }}
                 />
                 <Typography variant="h5" component="div" gutterBottom>
