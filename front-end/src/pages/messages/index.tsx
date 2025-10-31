@@ -15,7 +15,7 @@ import { SET_RECEIVER_ID } from "../../redux/features/chat/conversationSlice";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 import LeftSiteBar from "./leftSiteBar";
 import { RootState } from "../../redux/store";
-import { DRAWER_WIDTH, WARNING } from "../../constants/common";
+import { CONFIRM_MESSAGE, DRAWER_WIDTH, WARNING } from "../../constants/common";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "../../utils/toast";
 import Loader from "../../components/loader";
@@ -59,7 +59,7 @@ function ChatContainer() {
     } else {
       if (!loginUser?.isAccountVerified) {
         navigate("/");
-        showToast(WARNING, "Please verify your account to access chat");
+        showToast(WARNING, CONFIRM_MESSAGE);
       } else {
         getAllUsers();
       }

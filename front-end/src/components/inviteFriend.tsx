@@ -13,7 +13,12 @@ import { useNavigate } from "react-router-dom";
 import { inviteUserApi } from "../services/auth";
 import { useForm } from "react-hook-form";
 import { showToast } from "../utils/toast";
-import { SUCCESS, WARNING } from "../constants/common";
+import {
+  INVITATION_FAILED_MESSAGE,
+  INVITATION_SENT_MESSAGE,
+  SUCCESS,
+  WARNING,
+} from "../constants/common";
 
 const defaultTheme = createTheme();
 
@@ -33,11 +38,11 @@ export default function InviteUser() {
     try {
       const response = await inviteUserApi(data);
       if (response.success) {
-        showToast(SUCCESS, "Invitation sent successfully!");
+        showToast(SUCCESS, INVITATION_SENT_MESSAGE);
         reset();
       }
     } catch (error) {
-      showToast(WARNING, "Failed to send invitation.");
+      showToast(WARNING, INVITATION_FAILED_MESSAGE);
     }
   };
   return (

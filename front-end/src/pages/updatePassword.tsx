@@ -17,6 +17,7 @@ import IconButton from "@mui/material/IconButton/IconButton";
 import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { updatePasswordApi } from "../services/auth";
+import { SENDING_FAILED_MESSAGE } from "../constants/common";
 
 const defaultTheme = createTheme();
 
@@ -52,7 +53,7 @@ export default function UpdatePassword() {
         reset();
       }
     } catch (error) {
-      console.error("❌ Error sending invite:", error);
+      console.error(SENDING_FAILED_MESSAGE, error);
     }
   };
 

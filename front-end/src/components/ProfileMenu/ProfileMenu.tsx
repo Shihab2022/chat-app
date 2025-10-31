@@ -22,6 +22,7 @@ import { RootState } from "../../redux/store";
 import { randomTwoDigit } from "../../utils/common";
 import { disconnectSocket } from "../../utils/socketService";
 import { checkAuthRes } from "../../utils/checkAuth";
+import { ACCESS_TOKEN_KEY, CURRENT_PATH_KEY } from "../../constants/common";
 const profileMenuStyle = {
   color: "#A1B0CC",
   fontSize: "30px",
@@ -74,8 +75,8 @@ const ProfileMenu = ({ HeaderComp }: any) => {
     setAnchorElUser(null);
   };
   const handleLogout = async () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("currentPath");
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(CURRENT_PATH_KEY);
     disconnectSocket();
     navigate("/login");
   };
@@ -130,10 +131,7 @@ const ProfileMenu = ({ HeaderComp }: any) => {
               {userInfo.img ? (
                 <Avatar
                   // src={userInfo.profileImage ? userImage : userInfo.image}
-                  src={
-                    userInfo.img ||
-                    `https://randomuser.me/api/portraits/men/${randomTwoDigit()}.jpg`
-                  }
+                  src={userInfo.img || ""}
                 />
               ) : (
                 <Avatar sx={{ background: "#7c4dff", color: "white" }}>

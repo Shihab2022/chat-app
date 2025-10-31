@@ -23,6 +23,7 @@ import {
   SET_RECEIVER_ID,
 } from "../redux/features/chat/conversationSlice";
 import { groupMessagesByDate } from "../utils/timeFormat";
+import { ACCESS_TOKEN_KEY, SENDING_FAILED_MESSAGE } from "../constants/common";
 
 const defaultTheme = createTheme();
 
@@ -54,12 +55,12 @@ export default function AcceptInvite() {
         dispatch(SET_RECEIVER_ID(data?.senderId));
         const formattedMessage = groupMessagesByDate(mess);
         dispatch(SET_CONVERSATION(formattedMessage));
-        localStorage.setItem("accessToken", token);
+        localStorage.setItem(ACCESS_TOKEN_KEY, token);
         navigate("/chat");
         reset();
       }
     } catch (error) {
-      console.error("❌ Error sending invite:", error);
+      console.error(SENDING_FAILED_MESSAGE, error);
     }
   };
 

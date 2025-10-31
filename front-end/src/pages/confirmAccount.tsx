@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { confirmAccountApi } from "../services/auth";
 import { useEffect } from "react";
 import logoImage from "../assets/logo.png";
+import { SENDING_FAILED_MESSAGE } from "../constants/common";
 export default function ConfirmAccount() {
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -18,7 +19,7 @@ export default function ConfirmAccount() {
         navigate("/login");
       }
     } catch (error) {
-      console.error("❌ Error sending invite:", error);
+      console.error(SENDING_FAILED_MESSAGE, error);
     }
   };
   useEffect(() => {

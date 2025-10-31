@@ -12,7 +12,13 @@ import { useState } from "react";
 import Loader from "../components/loader";
 import { reSendConfirmEmil } from "../services/auth";
 import { showToast } from "../utils/toast";
-import { SUCCESS, WARNING } from "../constants/common";
+import {
+  EMAIL_SENT_SUCCESSFULLY_MESSAGE,
+  ENTER_YOUR_EMAIL_MESSAGE,
+  SENDING_FAILED_MESSAGE,
+  SUCCESS,
+  WARNING,
+} from "../constants/common";
 export default function ResendEmail() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -29,16 +35,16 @@ export default function ResendEmail() {
       const data = new FormData(event.currentTarget);
       const email = data.get("email");
       if (!email) {
-        showToast(WARNING, "Please enter your email");
+        showToast(WARNING, ENTER_YOUR_EMAIL_MESSAGE);
         return;
       }
       const response = await reSendConfirmEmil({ email });
       if (response?.success) {
         setIsEmailSend(true);
-        showToast(SUCCESS, "Email sent successfully");
+        showToast(SUCCESS, EMAIL_SENT_SUCCESSFULLY_MESSAGE);
       }
     } catch (error) {
-      console.error("❌ Error sending invite:", error);
+      console.error(SENDING_FAILED_MESSAGE, error);
     } finally {
       setIsLoading(false);
     }
