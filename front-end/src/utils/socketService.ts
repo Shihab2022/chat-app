@@ -12,6 +12,7 @@ import {
   SET_REAL_TIME_CONVERSATION,
   UPDATE_EDITED_MESSAGE,
 } from "../redux/features/chat/conversationSlice";
+import { SOCKET_EVENTS } from "../constants/socket";
 // import { TMessage } from "../types";
 let lastStopTypingId: string | null = null;
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
@@ -23,38 +24,38 @@ export function connectSocket(userId: string, dispatch: any) {
     query: { userId },
   });
 
-  socket.on("connect", () => {
+  socket.on(SOCKET_EVENTS.CONNECT, () => {
     console.log("✅ Socket connected");
   });
 
-  socket.on("getOnlineUsers", (userIds) => {
+  socket.on(SOCKET_EVENTS.GET_ONLINE_USERS, (userIds) => {
     dispatch(SET_ACTIVE_USERS(userIds));
   });
-  socket.on("newMessage", (msg) => {
+  socket.on(SOCKET_EVENTS.NEW_MESSAGE, (msg) => {
     dispatch(SET_REAL_TIME_CONVERSATION(msg));
   });
-  socket.on("newEmoji", (msg) => {
+  socket.on(SOCKET_EVENTS.NEW_EMOJI, (msg) => {
     dispatch(SET_EMOJI_WITH_DATA(msg));
   });
-  socket.on("removeEmoji", (msg) => {
+  socket.on(SOCKET_EVENTS.REMOVE_EMOJI, (msg) => {
     dispatch(REMOVE_EMOJI(msg));
   });
 
   // ✅ Typing events
-  socket.on("userTyping", ({ senderId }) => {
+  socket.on(SOCKET_EVENTS.USER_TYPING, ({ senderId }) => {
     dispatch(SET_START_TYPING_STATUS(senderId));
   });
 
-  socket.on("userStopTyping", ({ senderId }) => {
+  socket.on(SOCKET_EVENTS.USER_STOP_TYPING, ({ senderId }) => {
     dispatch(SET_END_TYPING_STATUS(senderId));
   });
-  socket.on("editMessage", (msg) => {
+  socket.on(SOCKET_EVENTS.EDIT_MESSAGE, (msg) => {
     dispatch(UPDATE_EDITED_MESSAGE(msg));
   });
-  socket.on("deletedMessage", (msg) => {
+  socket.on(SOCKET_EVENTS.DELETED_MESSAGE, (msg) => {
     dispatch(DELETE_MESSAGE(msg));
   });
-  socket.on("forwardMessage", (msg) => {
+  socket.on(SOCKET_EVENTS.FORWARD_MESSAGE, (msg) => {
     dispatch(SET_REAL_TIME_CONVERSATION(msg));
   });
   // socket.on("message:seen:update", ({ messageId, userId }) => {
@@ -73,13 +74,13 @@ export function emitTyping(receiverId: string) {
   if (lastStopTypingId === receiverId) {
     return;
   }
-  socket?.emit("typing", { receiverId });
+  socket?.emit(SOCKET_EVENTS.TYPING, { receiverId });
   lastStopTypingId = receiverId;
 }
 
 // Emit stop typing event
 export function emitStopTyping(receiverId: string) {
-  socket?.emit("stopTyping", { receiverId });
+  socket?.emit(SOCKET_EVENTS.STOP_TYPING, { receiverId });
   lastStopTypingId = null;
 }
 // export function emitMessageSeen(receiverId: string, msg: TMessage) {
