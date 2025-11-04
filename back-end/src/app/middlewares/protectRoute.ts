@@ -5,10 +5,10 @@ import config from '../config';
 import httpStatus from 'http-Status';
 import AppError from '../error/appError';
 import { User } from '../modules/user/user.model';
-import { NOT_VERIFIED } from '../../constant';
+import { authorizationError, userServiceMessages } from '../../constant';
+// import { NOT_VERIFIED } from '../../constant';
 
 const auth = (...roles: string[]) => {
-  const errorMessage = 'You are not authorized';
   return async (
     req: Request & { user?: any },
     res: Response,
@@ -17,18 +17,18 @@ const auth = (...roles: string[]) => {
     try {
       const token = req?.headers?.authorization;
       if (!token) {
-        throw new AppError(httpStatus.UNAUTHORIZED, errorMessage);
+        throw new AppError(httpStatus.UNAUTHORIZED, authorizationError.UN_AUTHORIZED);
       }
       const verifyUser = jwtVerify(token, config.jwt_access_secret as Secret);
       if (roles.length && !roles.includes(verifyUser.role)) {
-        throw new AppError(httpStatus.FORBIDDEN, errorMessage);
+        throw new AppError(httpStatus.FORBIDDEN, authorizationError.UN_AUTHORIZED);
       }
       const user = await User.findOne(
         { _id: verifyUser?.userId },
         { password: 0 },
       );
       if (!user?.isAccountVerified) {
-        throw new AppError(httpStatus.NOT_ACCEPTABLE, NOT_VERIFIED);
+        throw new AppError(httpStatus.NOT_ACCEPTABLE, userServiceMessages.NOT_VERIFIED);
       }
       req.user = user;
       next();
