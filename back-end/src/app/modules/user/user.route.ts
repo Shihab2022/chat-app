@@ -18,5 +18,6 @@ router.post(
   auth(userRole?.USER),
   UserController.updateUserInfo,
 );
+router.post('/google-login', auth(userRole?.USER), UserController.googleLogin);
 
 export const UserRoutes = router;

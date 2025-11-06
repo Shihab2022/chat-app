@@ -163,6 +163,23 @@ const updateUserInfo = async (
     next(error);
   }
 };
+const googleLogin = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await UserServices.updateUserInfo(req.body, req?.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User information updated successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 export const UserController = {
   createUser,
   loginUser,
@@ -174,4 +191,5 @@ export const UserController = {
   acceptInvite,
   confirmUser,
   updateUserInfo,
+  googleLogin,
 };
