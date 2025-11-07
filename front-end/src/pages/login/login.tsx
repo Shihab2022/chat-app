@@ -80,14 +80,21 @@ export default function SignIn() {
             },
           }
         );
-        console.log("Google User Info:", userInfo.data);
-        // const { email, family_name, given_name, picture = "" } = userInfo?.data;
-        // const params = {
-        //   email,
-        //   firstName: given_name || "",
-        //   lastName: family_name || "",
-        //   picture,
-        // };
+        const {
+          email,
+          family_name,
+          given_name,
+          picture = "",
+          name,
+        } = userInfo?.data ?? {};
+        const params = {
+          email,
+          firstName: given_name || "",
+          lastName: family_name || "",
+          picture,
+          name,
+        };
+        console.log("Google User Info:", params);
         // handleGoogleLogin(params);
       } catch (error) {
         showToast(FAILED, "SOMETHING_WENT_WRONG");
