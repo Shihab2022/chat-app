@@ -16,11 +16,10 @@ import { useState } from "react";
 import {
   Box,
   Button,
-  Checkbox,
-  FormControlLabel,
   Grid,
   IconButton,
   InputAdornment,
+  Stack,
   TextField,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -37,7 +36,6 @@ export default function SignIn() {
   const handleTogglePassword = () => {
     setShowPassword((prev) => !prev);
   };
-  // const [loginUser, { isLoading }] = useLoginMutation();
   const {
     register,
     handleSubmit,
@@ -141,7 +139,16 @@ export default function SignIn() {
                 <Link to="/forgetPassword">Forgot password?</Link>
               </Grid>
               <Grid item>
-                <Link to="/signUp">{"Don't have an account? Sign Up"}</Link>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  sx={{
+                    justifyContent: "flex-start",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  Don't have an account? <Link to="/signUp"> Sign Up</Link>
+                </Stack>
               </Grid>
             </Grid>
             <Button
