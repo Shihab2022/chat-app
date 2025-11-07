@@ -5,7 +5,7 @@ import googleImage from "../../assets/google.png";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Link, useNavigate } from "react-router-dom";
-import { LOGIN_SUCCESS, SUCCESS } from "../../constants/common";
+import { FAILED, LOGIN_SUCCESS, SUCCESS } from "../../constants/common";
 import { showToast } from "../../utils/toast";
 import Loader from "../../components/loader";
 import { useAppDispatch } from "../../redux/hooks";
@@ -26,6 +26,8 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { loginUserApi } from "../../services/auth";
 import { SignInFormInputs } from "../../types";
 import { connectSocket } from "../../utils/socketService";
+import axios from "axios";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -66,6 +68,35 @@ export default function SignIn() {
       setIsLoading(false);
     }
   };
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const userInfo = await axios.get(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${tokenResponse?.access_token}`,
+            },
+          }
+        );
+        console.log("Google User Info:", userInfo.data);
+        // const { email, family_name, given_name, picture = "" } = userInfo?.data;
+        // const params = {
+        //   email,
+        //   firstName: given_name || "",
+        //   lastName: family_name || "",
+        //   picture,
+        // };
+        // handleGoogleLogin(params);
+      } catch (error) {
+        showToast(FAILED, "SOMETHING_WENT_WRONG");
+      }
+    },
+    onError: () => {
+      showToast(FAILED, "Login Failed");
+    },
+  });
   return (
     <>
       <Container component="main" maxWidth="xs">
@@ -161,7 +192,7 @@ export default function SignIn() {
             </Button>
             <Box sx={{ textAlign: "center", width: "100%" }}>
               <Button
-                // onClick={handleLogin}
+                onClick={() => handleGoogleLogin()}
                 fullWidth
                 size="large"
                 variant="contained"
