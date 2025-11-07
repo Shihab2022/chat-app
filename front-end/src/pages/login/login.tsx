@@ -1,6 +1,7 @@
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
 import logoImage from "../../assets/logo.png";
+import googleImage from "../../assets/google.png";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Link, useNavigate } from "react-router-dom";
@@ -135,12 +136,14 @@ export default function SignIn() {
                 ),
               }}
             />
-
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-
+            <Grid sx={{ mt: 2 }} container>
+              <Grid item xs>
+                <Link to="/forgetPassword">Forgot password?</Link>
+              </Grid>
+              <Grid item>
+                <Link to="/signUp">{"Don't have an account? Sign Up"}</Link>
+              </Grid>
+            </Grid>
             <Button
               type="submit"
               fullWidth
@@ -149,15 +152,42 @@ export default function SignIn() {
             >
               Sign In
             </Button>
-
-            <Grid container>
-              <Grid item xs>
-                <Link to="/forgetPassword">Forgot password?</Link>
-              </Grid>
-              <Grid item>
-                <Link to="/signUp">{"Don't have an account? Sign Up"}</Link>
-              </Grid>
-            </Grid>
+            <Box sx={{ textAlign: "center", width: "100%" }}>
+              <Button
+                // onClick={handleLogin}
+                fullWidth
+                size="large"
+                variant="contained"
+                sx={{
+                  backgroundColor: "#fff",
+                  color: "#000",
+                  border: "2px solid #dcdcdc",
+                  textTransform: "none",
+                  padding: "10px 40px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "none",
+                  "&:hover": {
+                    backgroundColor: "#f7f7f7",
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                <img src={googleImage} alt="Google" width="25" height="25" />
+                <Box>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "15px",
+                      marginLeft: "30px",
+                    }}
+                  >
+                    Continue with Google
+                  </Typography>
+                </Box>
+              </Button>
+            </Box>
           </Box>
         </Box>
       </Container>
