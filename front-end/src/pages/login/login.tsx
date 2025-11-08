@@ -23,7 +23,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { loginUserApi } from "../../services/auth";
+import { googleLoginApi, loginUserApi } from "../../services/auth";
 import { SignInFormInputs } from "../../types";
 import { connectSocket } from "../../utils/socketService";
 import axios from "axios";
@@ -95,7 +95,7 @@ export default function SignIn() {
           name,
         };
         console.log("Google User Info:", params);
-        // handleGoogleLogin(params);
+        await googleLoginApi(params);
       } catch (error) {
         showToast(FAILED, "SOMETHING_WENT_WRONG");
       }

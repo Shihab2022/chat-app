@@ -163,17 +163,13 @@ const updateUserInfo = async (
     next(error);
   }
 };
-const googleLogin = async (
-  req: Request & { user?: any },
-  res: Response,
-  next: NextFunction,
-) => {
+const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await UserServices.updateUserInfo(req.body, req?.user);
+    const result = await UserServices.googleLogin(req.body);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User information updated successfully !!!',
+      message: 'User login successfully !!!',
       data: result,
     });
   } catch (error) {

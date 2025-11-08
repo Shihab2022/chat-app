@@ -381,25 +381,28 @@ const updateUserInfo = async (
   const updatedUserInfo = await User.findOne({ _id: _id }).select('-password');
   return updatedUserInfo;
 };
-const googleLogin = async (
-  payload: { name: string; bio: string },
-  userINfo: TUser,
-) => {
-  const { name, bio } = payload;
-  const { _id } = userINfo;
+const googleLogin = async (payload: {
+  name: string;
+  bio: string;
+  email: string;
+  picture: string;
+}) => {
+  const { name, email, picture } = payload;
+  console.log('payload:', payload);
+  // const { _id } = userINfo;
 
-  const user = await User.findOne({ _id: _id });
-  if (!user) {
-    throw new AppError(
-      httpStatus.NOT_FOUND,
-      userServiceMessages.USER_NOT_FOUND,
-    );
-  }
-  user.name = name;
-  user.bio = bio;
-  await user.save();
-  const updatedUserInfo = await User.findOne({ _id: _id }).select('-password');
-  return updatedUserInfo;
+  // const user = await User.findOne({ _id: _id });
+  // if (!user) {
+  //   throw new AppError(
+  //     httpStatus.NOT_FOUND,
+  //     userServiceMessages.USER_NOT_FOUND,
+  //   );
+  // }
+  // user.name = name;
+  // user.bio = bio;
+  // await user.save();
+  // const updatedUserInfo = await User.findOne({ _id: _id }).select('-password');
+  return {};
 };
 export const UserServices = {
   createUserIntoDB,

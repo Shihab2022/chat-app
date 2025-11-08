@@ -9,6 +9,7 @@ router.post('/confirm', UserController.confirmUser);
 router.post('/send', UserController.sendEmail);
 router.post('/accept-invite', UserController.acceptInvite);
 router.post('/login', UserController.loginUser);
+router.post('/google-login', UserController.googleLogin);
 router.post('/forget-password', UserController.forgetPassword);
 router.post('/update-password', UserController.updatePassword);
 router.post('/check', UserController.checkAuth);
@@ -18,6 +19,5 @@ router.post(
   auth(userRole?.USER),
   UserController.updateUserInfo,
 );
-router.post('/google-login', auth(userRole?.USER), UserController.googleLogin);
 
 export const UserRoutes = router;

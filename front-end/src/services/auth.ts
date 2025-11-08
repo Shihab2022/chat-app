@@ -12,6 +12,16 @@ export const loginUserApi = async (params: any) => {
   });
   return res;
 };
+export const googleLoginApi = async (params: any) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/user/google-login",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params: params,
+  });
+  return res;
+};
 
 export const registerUserApi = async (params: any) => {
   const res = await apiHandler({
