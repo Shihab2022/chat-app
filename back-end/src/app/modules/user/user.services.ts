@@ -383,11 +383,28 @@ const updateUserInfo = async (
 };
 const googleLogin = async (payload: {
   name: string;
-  bio: string;
   email: string;
   picture: string;
 }) => {
   const { name, email, picture } = payload;
+  const user = await User.findOne({ email });
+  if (user) {
+    const objData: Partial<TUser> = user.toObject();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { _id, role } = user;
+    const jwtPayload = {
+      userId: _id,
+      role,
+    };
+
+    const accessToken = createToken(
+      jwtPayload,
+      config.jwt_access_secret as string,
+      config.jwt_access_expire_in as string,
+    );
+    const { password, ...newData } = objData;
+    return { data: newData, accessToken };
+  }
   console.log('payload:', payload);
   // const { _id } = userINfo;
 
