@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 import Avatar from "@mui/material/Avatar";
@@ -25,6 +26,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { registerUserApi } from "../../services/auth";
 import logoImage from "../../assets/logo.png";
+import GoogleLoginCom from "./googleLoginCom";
 interface SignUpFormInputs {
   userName: string;
   name: string;
@@ -57,6 +59,15 @@ export default function SignUp() {
         showToast(SUCCESS, REGISTER_SUCCESS);
         navigate("/login");
       }
+    } catch (error) {
+      showToast(FAILED, COMMON_ERROR_MESSAGE);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleRegister = async (params: any) => {
+    try {
+      setIsLoading(true);
     } catch (error) {
       showToast(FAILED, COMMON_ERROR_MESSAGE);
     } finally {
@@ -156,7 +167,11 @@ export default function SignUp() {
                 />
               </Grid>
             </Grid>
-
+            <Grid sx={{ mt: 2 }} container justifyContent="flex-end">
+              <Grid item>
+                <Link to="/login">Already have an account? Sign in</Link>
+              </Grid>
+            </Grid>
             <Button
               type="submit"
               fullWidth
@@ -165,12 +180,7 @@ export default function SignUp() {
             >
               Sign Up
             </Button>
-
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link to="/login">Already have an account? Sign in</Link>
-              </Grid>
-            </Grid>
+            <GoogleLoginCom handleClick={handleRegister} />
           </Box>
         </Box>
       </Container>
