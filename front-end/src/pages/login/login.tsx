@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
 import logoImage from "../../assets/logo.png";
-import googleImage from "../../assets/google.png";
+
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Link, useNavigate } from "react-router-dom";
-import { FAILED, LOGIN_SUCCESS, SUCCESS } from "../../constants/common";
+import { LOGIN_SUCCESS, SUCCESS } from "../../constants/common";
 import { showToast } from "../../utils/toast";
 import Loader from "../../components/loader";
 import { useAppDispatch } from "../../redux/hooks";
@@ -26,8 +27,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { googleLoginApi, loginUserApi } from "../../services/auth";
 import { SignInFormInputs } from "../../types";
 import { connectSocket } from "../../utils/socketService";
-import axios from "axios";
-import { useGoogleLogin } from "@react-oauth/google";
+import GoogleLoginCom from "./googleLoginCom";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -69,41 +69,13 @@ export default function SignIn() {
     }
   };
 
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const userInfo = await axios.get(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: {
-              Authorization: `Bearer ${tokenResponse?.access_token}`,
-            },
-          }
-        );
-        const {
-          email,
-          family_name,
-          given_name,
-          picture = "",
-          name,
-        } = userInfo?.data ?? {};
-        const params = {
-          email,
-          firstName: given_name || "",
-          lastName: family_name || "",
-          picture,
-          name,
-        };
-        console.log("Google User Info:", params);
-        await googleLoginApi(params);
-      } catch (error) {
-        showToast(FAILED, "SOMETHING_WENT_WRONG");
-      }
-    },
-    onError: () => {
-      showToast(FAILED, "Login Failed");
-    },
-  });
+  const handleLogin = async (params: any) => {
+    try {
+      await googleLoginApi(params);
+    } catch (error) {
+      console.log({ error });
+    }
+  };
   return (
     <>
       <Container component="main" maxWidth="xs">
@@ -197,42 +169,7 @@ export default function SignIn() {
             >
               Sign In
             </Button>
-            <Box sx={{ textAlign: "center", width: "100%" }}>
-              <Button
-                onClick={() => handleGoogleLogin()}
-                fullWidth
-                size="large"
-                variant="contained"
-                sx={{
-                  backgroundColor: "#fff",
-                  color: "#000",
-                  border: "2px solid #dcdcdc",
-                  textTransform: "none",
-                  padding: "10px 40px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "none",
-                  "&:hover": {
-                    backgroundColor: "#f7f7f7",
-                    boxShadow: "none",
-                  },
-                }}
-              >
-                <img src={googleImage} alt="Google" width="25" height="25" />
-                <Box>
-                  <Typography
-                    sx={{
-                      fontWeight: "bold",
-                      fontSize: "15px",
-                      marginLeft: "30px",
-                    }}
-                  >
-                    Continue with Google
-                  </Typography>
-                </Box>
-              </Button>
-            </Box>
+            <GoogleLoginCom handleClick={handleLogin} />
           </Box>
         </Box>
       </Container>
