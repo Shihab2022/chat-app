@@ -15,6 +15,7 @@ export type TUser = {
   isAccountVerified?: boolean;
   verifiedCode?: number | null;
   bio?: string;
+  isGoogleLogin?: boolean
 };
 export type TInviteUser = {
   email: string;
