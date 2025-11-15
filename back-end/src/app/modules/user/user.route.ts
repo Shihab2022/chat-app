@@ -10,6 +10,7 @@ router.post('/send', UserController.sendEmail);
 router.post('/accept-invite', UserController.acceptInvite);
 router.post('/login', UserController.loginUser);
 router.post('/google-login', UserController.googleLogin);
+router.post('/google-register', UserController.googleRegister);
 router.post('/forget-password', UserController.forgetPassword);
 router.post('/update-password', UserController.updatePassword);
 router.post('/check', UserController.checkAuth);

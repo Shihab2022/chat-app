@@ -421,6 +421,46 @@ const googleLogin = async (payload: {
   // const updatedUserInfo = await User.findOne({ _id: _id }).select('-password');
   return {};
 };
+const googleRegister = async (payload: {
+  name: string;
+  email: string;
+  picture: string;
+}) => {
+  const { name, email, picture } = payload;
+  const user = await User.findOne({ email });
+  if (user) {
+    const objData: Partial<TUser> = user.toObject();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { _id, role } = user;
+    const jwtPayload = {
+      userId: _id,
+      role,
+    };
+
+    const accessToken = createToken(
+      jwtPayload,
+      config.jwt_access_secret as string,
+      config.jwt_access_expire_in as string,
+    );
+    const { password, ...newData } = objData;
+    return { data: newData, accessToken };
+  }
+  console.log('payload:', payload);
+  // const { _id } = userINfo;
+
+  // const user = await User.findOne({ _id: _id });
+  // if (!user) {
+  //   throw new AppError(
+  //     httpStatus.NOT_FOUND,
+  //     userServiceMessages.USER_NOT_FOUND,
+  //   );
+  // }
+  // user.name = name;
+  // user.bio = bio;
+  // await user.save();
+  // const updatedUserInfo = await User.findOne({ _id: _id }).select('-password');
+  return {};
+};
 export const UserServices = {
   createUserIntoDB,
   confirmUser,
@@ -433,4 +473,5 @@ export const UserServices = {
   acceptInvite,
   updateUserInfo,
   googleLogin,
+  googleRegister,
 };

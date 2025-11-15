@@ -176,6 +176,23 @@ const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+const googleRegister = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await UserServices.googleRegister(req.body);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User login successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 export const UserController = {
   createUser,
   loginUser,
@@ -188,4 +205,5 @@ export const UserController = {
   confirmUser,
   updateUserInfo,
   googleLogin,
+  googleRegister,
 };
