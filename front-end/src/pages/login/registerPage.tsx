@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { registerUserApi } from "../../services/auth";
+import { googleRegisterApi, registerUserApi } from "../../services/auth";
 import logoImage from "../../assets/logo.png";
 import GoogleLoginCom from "./googleLoginCom";
 interface SignUpFormInputs {
@@ -68,6 +68,7 @@ export default function SignUp() {
   const handleRegister = async (params: any) => {
     try {
       setIsLoading(true);
+      await googleRegisterApi(params);
     } catch (error) {
       showToast(FAILED, COMMON_ERROR_MESSAGE);
     } finally {
