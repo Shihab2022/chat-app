@@ -386,11 +386,10 @@ const googleLogin = async (payload: {
   email: string;
   picture: string;
 }) => {
-  const { name, email, picture } = payload;
+  const { email } = payload;
   const user = await User.findOne({ email });
-  if (user) {
+  if (user?.isGoogleLogin) {
     const objData: Partial<TUser> = user.toObject();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { _id, role } = user;
     const jwtPayload = {
       userId: _id,
@@ -404,22 +403,14 @@ const googleLogin = async (payload: {
     );
     const { password, ...newData } = objData;
     return { data: newData, accessToken };
+  } else if (user && !user?.isGoogleLogin) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'User exists but is not registered with Google login',
+    );
+  } else {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found !');
   }
-  console.log('payload:', payload);
-  // const { _id } = userINfo;
-
-  // const user = await User.findOne({ _id: _id });
-  // if (!user) {
-  //   throw new AppError(
-  //     httpStatus.NOT_FOUND,
-  //     userServiceMessages.USER_NOT_FOUND,
-  //   );
-  // }
-  // user.name = name;
-  // user.bio = bio;
-  // await user.save();
-  // const updatedUserInfo = await User.findOne({ _id: _id }).select('-password');
-  return {};
 };
 const googleRegister = async (payload: {
   name: string;
