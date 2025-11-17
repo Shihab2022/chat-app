@@ -418,39 +418,39 @@ const googleRegister = async (payload: {
   picture: string;
 }) => {
   const { name, email, picture } = payload;
-  const user = await User.findOne({ email });
-  if (user) {
-    const objData: Partial<TUser> = user.toObject();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, role } = user;
-    const jwtPayload = {
-      userId: _id,
-      role,
-    };
-
-    const accessToken = createToken(
-      jwtPayload,
-      config.jwt_access_secret as string,
-      config.jwt_access_expire_in as string,
+  if (!email) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.EMAIL_IS_REQUIRED,
     );
-    const { password, ...newData } = objData;
-    return { data: newData, accessToken };
   }
-  console.log('payload:', payload);
-  // const { _id } = userINfo;
+  const user = await User.findOne({ email });
 
-  // const user = await User.findOne({ _id: _id });
-  // if (!user) {
-  //   throw new AppError(
-  //     httpStatus.NOT_FOUND,
-  //     userServiceMessages.USER_NOT_FOUND,
-  //   );
-  // }
-  // user.name = name;
-  // user.bio = bio;
-  // await user.save();
-  // const updatedUserInfo = await User.findOne({ _id: _id }).select('-password');
-  return {};
+  if (!!user) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.EMAIL_ALREADY_EXISTS,
+    );
+  }
+  const usersInfo = {
+    name,
+    email,
+    picture,
+    status: userStatus?.ACTIVE,
+  };
+  const result = (await User.create(usersInfo)).isSelected('-password');
+  const createdUser = await User.findOne({ email });
+  const { _id, name: storedUserName } = createdUser as TUser;
+  const jwtPayload = {
+    userId: _id,
+  };
+
+  const token = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expire_in as string,
+  );
+  return token;
 };
 export const UserServices = {
   createUserIntoDB,
