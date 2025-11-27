@@ -156,7 +156,7 @@ const updateUserInfo = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User information updated successfully !!!',
+      message: 'Updated successfully !!!',
       data: result,
     });
   } catch (error) {
@@ -169,7 +169,7 @@ const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User login successfully !!!',
+      message: 'Google login successfully !!!',
       data: result,
     });
   } catch (error) {
@@ -186,7 +186,7 @@ const googleRegister = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User login successfully !!!',
+      message: 'Google register successfully !!!',
       data: result,
     });
   } catch (error) {
