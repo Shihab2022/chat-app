@@ -40,6 +40,21 @@ export const userServiceMessages = {
   PASSWORD_LENGTH_ERROR: `Password must be at least ${passwordMinLength} characters long.`,
 };
 
+export const userControllerMessages = {
+  USER_CREATED: 'Your account created successfully !!!',
+  USER_LOGIN: 'User login successfully !!!',
+  CHECK_EMAIL_RESET_PASSWORD: 'Check your email to reset password !!!',
+  PASSWORD_UPDATED: 'Password is updated successfully !!!',
+  USER_CONFIRMED: 'User account  confirmed successfully !!!',
+  ACCEPT_INVITE: 'Accept invite successfully',
+  UPDATE_PASSWORD: 'Password is updated successfully !!!',
+  CHECK_USER: 'Check User successfully !!!',
+  EMAIL_SEND: 'Email send successfully !!!',
+  INVITE_USER: 'Invite user',
+  UPDATED_USER: 'Updated successfully !!!',
+  GOOGLE_LOGIN: 'Google login successfully !!!',
+  GOOGLE_REGISTER: 'Google register successfully !!!',
+};
 export const authorizationError = {
   UN_AUTHORIZED: 'You are not authorized',
 };

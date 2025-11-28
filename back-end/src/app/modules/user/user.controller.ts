@@ -3,6 +3,7 @@ import sendResponse from '../../../utils/sentResponce';
 import httpStatus from 'http-Status';
 import { UserServices } from './user.services';
 import { setTokenOnCookie } from '../../../utils/auth';
+import { userControllerMessages } from '../../../constant';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -11,7 +12,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User is created successfully !!!',
+      message: userControllerMessages.USER_CREATED,
       data: result,
     });
   } catch (error) {
@@ -25,7 +26,7 @@ const confirmUser = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User account  confirmed successfully !!!',
+      message: userControllerMessages.USER_CONFIRMED,
       data: result,
     });
   } catch (error) {
@@ -43,7 +44,7 @@ const acceptInvite = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Your account created successfully !!!',
+      message: userControllerMessages.ACCEPT_INVITE,
       data: result,
     });
   } catch (error) {
@@ -58,7 +59,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User login successfully !!!',
+      message: userControllerMessages.USER_LOGIN,
       data: result,
     });
   } catch (error) {
@@ -76,7 +77,7 @@ const forgetPassword = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Check your email to reset password !!!',
+      message: userControllerMessages?.CHECK_EMAIL_RESET_PASSWORD,
       data: result,
     });
   } catch (error) {
@@ -94,7 +95,7 @@ const updatePassword = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Password is updated successfully !!!',
+      message: userControllerMessages.UPDATE_PASSWORD,
       data: result,
     });
   } catch (error) {
@@ -107,7 +108,7 @@ const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Check User successfully !!!',
+      message: userControllerMessages?.CHECK_USER,
       data: result,
     });
   } catch (error) {
@@ -120,7 +121,7 @@ const sendEmail = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Check User successfully !!!',
+      message: userControllerMessages?.EMAIL_SEND,
       data: result,
     });
   } catch (error) {
@@ -139,7 +140,7 @@ const inviteUser = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User is created successfully !!!',
+      message: userControllerMessages.INVITE_USER,
       data: result,
     });
   } catch (error) {
@@ -156,7 +157,7 @@ const updateUserInfo = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Updated successfully !!!',
+      message: userControllerMessages.UPDATED_USER,
       data: result,
     });
   } catch (error) {
@@ -169,7 +170,7 @@ const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Google login successfully !!!',
+      message: userControllerMessages.GOOGLE_LOGIN,
       data: result,
     });
   } catch (error) {
@@ -186,7 +187,7 @@ const googleRegister = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Google register successfully !!!',
+      message: userControllerMessages.GOOGLE_REGISTER,
       data: result,
     });
   } catch (error) {
