@@ -334,6 +334,7 @@ const confirmUser = async (payload: { token: string }) => {
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
   const { _id, role } = userIInfo;
+
   const jwtPayload = {
     userId: _id,
     email,
