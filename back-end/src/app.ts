@@ -8,6 +8,7 @@ import { corsAllowOrigin } from './constant';
 import { app, server } from './utils/socket';
 import config from './app/config';
 import { connectDB } from './utils/db';
+import { runMigrations } from './utils/migrate';
 
 app.use(json());
 app.use(cors(corsAllowOrigin));
@@ -17,8 +18,20 @@ app.use('/', rootRouter);
 app.use(globalErrorHandler);
 app.use(notFound);
 
-server.listen(config.port, () => {
-  console.log(`App listening on port ${config.port}`);
-  connectDB();
-});
+async function startServer() {
+  // 1. Run migrations first
+  await runMigrations();
+
+  // 2. Start the Express app
+  app.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
+  });
+}
+
+startServer();
+
+// server.listen(config.port, () => {
+//   console.log(`App listening on port ${config.port}`);
+//   connectDB();
+// });
 // export default app;

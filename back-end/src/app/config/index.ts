@@ -18,13 +18,13 @@ export default {
   invite_expire_in: process.env.INVITE_EXPIRES_IN,
   forget_pass_expire_in: process.env.FORGET_PASS_ACCESS_EXPIRES_IN,
   //   jwt_refresh_expire_in: process.env.JWT_REFRESH_EXPIRES_IN,
-  // pg_info: {
-  //   pg_db_user: process.env.PG_DB_USER,
-  //   pg_db_host: process.env.PG_DB_HOST,
-  //   pg_db_url: process.env.PG_DB,
-  //   pg_db_pass: process.env.PG_DB_PASSWORD,
-  //   pg_db_port: process.env.PG_DB_PORT,
-  // },
+  pg_info: {
+    pg_db_user: process.env.PG_DB_USER,
+    pg_db_host: process.env.PG_DB_HOST,
+    pg_db_url: process.env.PG_DB,
+    pg_db_pass: process.env.PG_DB_PASSWORD,
+    pg_db_port: process.env.PG_DB_PORT,
+  },
   cloudinary: {
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
