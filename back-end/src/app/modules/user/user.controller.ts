@@ -8,7 +8,6 @@ import { userControllerMessages } from '../../../constant';
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await UserServices.createUserIntoDB(req.body);
-
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,

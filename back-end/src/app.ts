@@ -19,12 +19,11 @@ app.use(globalErrorHandler);
 app.use(notFound);
 
 async function startServer() {
-  // 1. Run migrations first
+  //  Run migrations first
   await runMigrations();
 
-  // 2. Start the Express app
-  app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
+  app.listen(config.port, () => {
+    console.log(`Server is running on http://localhost:${config.port}`);
   });
 }
 

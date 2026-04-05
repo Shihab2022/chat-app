@@ -18,6 +18,7 @@ import { Secret } from 'jsonwebtoken';
 import { MessageServices } from '../message/message.services';
 import { ForgotPasswordTemplate } from '../../../templates/forgotPassword';
 import { ConfirmAccountTemplate } from '../../../templates/confirmAccount';
+import { pool } from '../../../utils/pg';
 const imagePath = path.resolve(__dirname, '../../../assets/logo.png');
 const attachments = [
   {
@@ -41,25 +42,45 @@ const createUserIntoDB = async (payload: TUser) => {
       userServiceMessages.PASSWORD_LENGTH_ERROR,
     );
   }
-  const user = await User.findOne({ email });
 
-  if (!!user) {
+  // 🔹 Check existing user
+  const existingUser = await pool.query(
+    `SELECT id FROM users WHERE email = $1`,
+    [email],
+  );
+  if (existingUser.rows.length > 0) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.EMAIL_ALREADY_EXISTS,
     );
   }
-  const usersInfo = {
-    name: `${userName} ${name}`,
-    email,
+
+  // 🔥 Hash password (replacement of mongoose pre-save)
+  const hashedPassword = await bcrypt.hash(
     password,
-    status: userStatus?.ACTIVE,
-  };
-  const result = (await User.create(usersInfo)).isSelected('-password');
-  const createdUser = await User.findOne({ email });
-  const { _id, name: storedUserName } = createdUser as TUser;
+    Number(config.bcrypt_salt_rounds),
+  );
+
+  const fullName = `${userName} ${name}`;
+
+  // 🔹 Insert user
+  const insertQuery = `
+    INSERT INTO users (name, email, password, status)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id, name, email
+  `;
+
+  const result = await pool.query(insertQuery, [
+    fullName,
+    email,
+    hashedPassword,
+    userStatus?.ACTIVE,
+  ]);
+
+  const createdUser = result.rows[0];
+  // 🔹 JWT
   const jwtPayload = {
-    userId: _id,
+    userId: createdUser.id,
   };
 
   const token = createToken(
@@ -67,20 +88,23 @@ const createUserIntoDB = async (payload: TUser) => {
     config.jwt_access_secret as string,
     config.jwt_access_expire_in as string,
   );
+
+  // 🔹 Email
   const notifyMsg = {
     to: [email],
     from: emailSenderMessages.FROM_JOIN_EMAIL,
     subject: emailSenderMessages.WELCOME_EMAIL_SUBJECT,
     text: emailSenderMessages.CONFIRM_EMAIL_MESSAGE,
     html: ConfirmAccountTemplate(
-      storedUserName as string,
-      `${config?.front_end_base_url}/confirm?token=${token}` as string,
-      config?.front_end_base_url as string,
+      createdUser.name,
+      `${config?.front_end_base_url}/confirm?token=${token}`,
+      config?.front_end_base_url,
     ),
     attachments,
   };
 
   await transporter.sendMail(notifyMsg);
+
   return token;
 };
 const acceptInvite = async (payload: {
