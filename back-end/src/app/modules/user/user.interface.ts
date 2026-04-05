@@ -9,13 +9,14 @@ export type TUser = {
   password: string;
   status?: string;
   role?: string;
+  id?: string;
   _id?: string;
   createdAt?: Date;
   updatedAt?: Date;
   isAccountVerified?: boolean;
   verifiedCode?: number | null;
   bio?: string;
-  isGoogleLogin?: boolean
+  isGoogleLogin?: boolean;
 };
 export type TInviteUser = {
   email: string;

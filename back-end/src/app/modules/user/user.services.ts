@@ -8,14 +8,12 @@ import { createToken, jwtVerify } from '../../../utils/auth';
 import config from '../../config';
 import AppError from '../../error/appError';
 import { TInviteUser, TUser } from './user.interface';
-import { User } from './user.model';
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-Status';
 import transporter from '../../../utils/nodemailer';
 import { InviteTemplate } from '../../../templates/inviteUser';
 import path from 'path';
 import { Secret } from 'jsonwebtoken';
-import { MessageServices } from '../message/message.services';
 import { ForgotPasswordTemplate } from '../../../templates/forgotPassword';
 import { ConfirmAccountTemplate } from '../../../templates/confirmAccount';
 import { pool } from '../../../utils/pg';
@@ -276,7 +274,12 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
 const forgetPassword = async (payload: Partial<TUser>) => {
   const { email } = payload;
 
-  const user = await User.findOne({ email });
+  const result = await pool.query(
+    `SELECT * FROM users WHERE email = $1 LIMIT 1`,
+    [email],
+  );
+
+  const user = result.rows[0];
   if (!user) {
     throw new AppError(404, userServiceMessages.USER_NOT_FOUND);
   }
@@ -316,49 +319,135 @@ const updatePassword = async (payload: {
   pin: string;
 }) => {
   const { token, password, pin } = payload;
+
+  // 🔹 Token check
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.TOKEN_IS_REQUIRED,
     );
   }
-  const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
+
+  // 🔹 Verify token
+  let decoded;
+  try {
+    decoded = jwtVerify(token, config.jwt_access_secret as Secret);
+  } catch {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid or expired token');
+  }
+
+  const { userId } = decoded as { userId: number };
+
+  // 🔹 Validation
   if (!userId || !password || !pin) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.ALL_FIELDS_REQUIRED,
     );
   }
-  const user = await User.findOne({ _id: userId });
+
+  // 🔹 Get user
+  const result = await pool.query(
+    `SELECT id, verified_code FROM users WHERE id = $1`,
+    [userId],
+  );
+
+  const user = result.rows[0];
+
   if (!user) {
     throw new AppError(
       httpStatus.NOT_FOUND,
       userServiceMessages.USER_NOT_FOUND,
     );
   }
-  if (user.verifiedCode !== Number(pin)) {
+
+  // 🔹 Check PIN
+  if (user.verified_code !== Number(pin)) {
     throw new AppError(httpStatus.BAD_REQUEST, userServiceMessages.INVALID_PIN);
   }
-  user.password = password;
-  await user.save();
+
+  // 🔥 Hash new password
+  const hashedPassword = await bcrypt.hash(
+    password,
+    Number(config.bcrypt_salt_rounds),
+  );
+
+  // 🔹 Update password + reset pin
+  await pool.query(
+    `
+    UPDATE users
+    SET password = $1,
+        verified_code = NULL,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = $2
+    `,
+    [hashedPassword, userId],
+  );
+
   return true;
 };
 const checkAuth = async (payload: { token: string }) => {
   const { token } = payload;
+
+  // 🔹 Token check
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.TOKEN_IS_REQUIRED,
     );
   }
-  const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
+
+  // 🔹 Verify token
+  let decoded;
+  try {
+    decoded = jwtVerify(token, config.jwt_access_secret as Secret);
+  } catch {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      userServiceMessages.INVALID_TOKEN,
+    );
+  }
+
+  const { userId } = decoded as { userId: number };
+
   if (!userId) {
     throw new AppError(
       httpStatus.UNAUTHORIZED,
       userServiceMessages.INVALID_TOKEN,
     );
   }
-  const user = await User.findOne({ _id: userId }).select('-password');
+
+  // 🔹 Get user (excluding password)
+  const result = await pool.query(
+    `
+    SELECT 
+      id,
+      name,
+      email,
+      img,
+      role,
+      status,
+      is_account_verified,
+      is_google_login,
+      bio,
+      created_at,
+      updated_at
+    FROM users
+    WHERE id = $1
+    LIMIT 1
+    `,
+    [userId],
+  );
+
+  const user = result.rows[0];
+
+  if (!user) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      userServiceMessages.USER_NOT_FOUND || 'User not found',
+    );
+  }
+
   return user;
 };
 const sendEmail = async (payload: { email: string }) => {
@@ -493,19 +582,46 @@ const updateUserInfo = async (
   userINfo: TUser,
 ) => {
   const { name, bio } = payload;
-  const { _id } = userINfo;
+  const { id } = userINfo;
 
-  const user = await User.findOne({ _id: _id });
-  if (!user) {
+  // 🔹 Check user exists
+  const userCheck = await pool.query(`SELECT id FROM users WHERE id = $1`, [
+    id,
+  ]);
+
+  if (userCheck.rows.length === 0) {
     throw new AppError(
       httpStatus.NOT_FOUND,
       userServiceMessages.USER_NOT_FOUND,
     );
   }
-  user.name = name;
-  user.bio = bio;
-  await user.save();
-  const updatedUserInfo = await User.findOne({ _id: _id }).select('-password');
+
+  // 🔹 Update user
+  const updateQuery = `
+    UPDATE users
+    SET 
+      name = $1,
+      bio = $2,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = $3
+    RETURNING 
+      id,
+      name,
+      email,
+      img,
+      role,
+      status,
+      bio,
+      is_account_verified,
+      is_google_login,
+      created_at,
+      updated_at
+  `;
+
+  const result = await pool.query(updateQuery, [name, bio, id]);
+
+  const updatedUserInfo = result.rows[0];
+
   return updatedUserInfo;
 };
 const googleLogin = async (payload: {
