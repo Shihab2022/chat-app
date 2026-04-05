@@ -1,11 +1,7 @@
-import AppError from '../../error/appError';
-
-import bcrypt from 'bcrypt';
 import { TMessages } from './message.interface';
-import { User } from '../user/user.model';
-import Message from './message.model';
 import { getReceiverSocketId, io } from '../../../utils/socket';
 import { pool } from '../../../utils/pg';
+
 const sendMessageIntoDB = async (payload: TMessages) => {
   const { text, senderId, receiverId } = payload;
   // const senderId = req.user._id;
@@ -60,13 +56,14 @@ const sendMessageIntoDB = async (payload: TMessages) => {
 };
 const getMessageFromDB = async (payload: Partial<TMessages>) => {
   const { myId, userToChatId } = payload;
-  const messages = await Message.find({
-    $or: [
-      { senderId: myId, receiverId: userToChatId },
-      { senderId: userToChatId, receiverId: myId },
-    ],
-  });
-
+  const query = `
+  SELECT * FROM messages 
+  WHERE (sender_id = $1 AND receiver_id = $2) 
+     OR (sender_id = $2 AND receiver_id = $1)
+`;
+  const values = [myId, userToChatId];
+  const result = await pool.query(query, values);
+  const messages = result.rows;
   return messages;
 };
 const getUsersForSidebar = async (payload: any) => {
@@ -141,45 +138,53 @@ const getUsersForSidebar = async (payload: any) => {
 
 const addEmoji = async (payload: any) => {
   const { messageId, userId, emoji, receiverId } = payload;
-  await Message.findByIdAndUpdate(messageId, {
-    $pull: { reactions: { userId } },
-  });
+  const query = `
+  INSERT INTO message_reactions (message_id, user_id, emoji)
+  VALUES ($1, $2, $3)
+  ON CONFLICT (message_id, user_id) 
+  DO UPDATE SET emoji = EXCLUDED.emoji
+  RETURNING *;
+`;
 
-  // 2. Add the new reaction
-  const updatedMessage = await Message.findByIdAndUpdate(
-    messageId,
-    { $push: { reactions: { userId, emoji } } },
-    { new: true }, // return updated doc
-  );
+  const { rows } = await pool.query(query, [messageId, userId, emoji]);
+  const updatedReaction = rows[0];
   const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
 
   if (receiverSocketId) {
-    io.to(receiverSocketId).emit('newEmoji', updatedMessage);
+    io.to(receiverSocketId).emit('newEmoji', updatedReaction);
   }
-  return updatedMessage;
+  return updatedReaction;
 };
 const removeEmoji = async (payload: any) => {
   const { receiverId, messId, emojiId } = payload;
-  const updatedMessage = await Message.findByIdAndUpdate(
-    { _id: messId },
-    { $pull: { reactions: { _id: emojiId } } },
-    { new: true }, // return updated document
-  );
+  const deleteQuery = `
+  DELETE FROM message_reactions 
+  WHERE id = $1 AND message_id = $2
+  RETURNING *;
+`;
+
+  const { rows } = await pool.query(deleteQuery, [emojiId, messId]);
+  const deletedReaction = rows[0];
   const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
 
   if (receiverSocketId) {
-    io.to(receiverSocketId).emit('removeEmoji', updatedMessage);
+    io.to(receiverSocketId).emit('removeEmoji', deletedReaction);
   }
-  return updatedMessage;
+  return deletedReaction;
 };
 const editMessage = async (payload: any) => {
   const { _id, text, receiverId } = payload;
-  const updatedMessage = await Message.findByIdAndUpdate(
-    _id,
-    { text: text },
-    { new: true },
-  );
+  const query = `
+  UPDATE messages 
+  SET text = $2 
+  WHERE id = $1 
+  RETURNING *;
+`;
 
+  const { rows } = await pool.query(query, [_id, text]);
+  const updatedMessage = rows[0];
+
+  // 2. Handle the null check
   if (!updatedMessage) {
     return null;
   }
@@ -191,12 +196,15 @@ const editMessage = async (payload: any) => {
 };
 const deleteMessage = async (payload: any) => {
   const { _id, receiverId } = payload;
-  console.log({ payload });
-  const updatedMessage = await Message.findByIdAndUpdate(
-    _id,
-    { isDeleted: true },
-    { new: true },
-  );
+  const query = `
+  UPDATE messages 
+  SET is_deleted = true 
+  WHERE id = $1 
+  RETURNING *;
+`;
+
+  const { rows } = await pool.query(query, [_id]);
+  const updatedMessage = rows[0];
 
   if (!updatedMessage) {
     return null;
@@ -210,16 +218,14 @@ const deleteMessage = async (payload: any) => {
 
 const ForwardMessage = async (payload: any) => {
   const { text, receiverIds = [], senderId } = payload;
-  const newMessages = receiverIds.map((receiverId: string) => {
-    return {
-      senderId,
-      receiverId,
-      text,
-      image: '',
-    };
-  });
+  const query = `
+  INSERT INTO messages (sender_id, receiver_id, text, image)
+  SELECT $1, unnest($2::text[]), $3, $4
+  RETURNING *;
+`;
 
-  const savedMessages = await Message.insertMany(newMessages);
+  const values = [senderId, receiverIds, text, ''];
+  const { rows: savedMessages } = await pool.query(query, values);
   for (const msg of savedMessages) {
     const receiverSocketId = getReceiverSocketId(msg.receiverId.toString());
     if (receiverSocketId) {
@@ -231,28 +237,38 @@ const ForwardMessage = async (payload: any) => {
 };
 
 const replyMessage = async (payload: TMessages) => {
-  const { text, senderId, receiverId, replyId } = payload;
-  const newMessage = new Message({
-    senderId,
-    receiverId,
-    text,
-    image: '',
-    replyId,
-  });
+  const { senderId, receiverId, text, replyId } = payload;
 
-  await newMessage.save();
+  // 1. Insert the new message
+  const insertQuery = `
+  INSERT INTO messages (sender_id, receiver_id, text, image, reply_id)
+  VALUES ($1, $2, $3, $4, $5)
+  RETURNING *;
+`;
 
+  const insertValues = [senderId, receiverId, text, '', replyId];
+  const {
+    rows: [newMessage],
+  } = await pool.query(insertQuery, insertValues);
+
+  // 2. Socket logic
   const receiverSocketId = getReceiverSocketId(receiverId as unknown as string);
   if (receiverSocketId) {
     io.to(receiverSocketId).emit('newMessage', newMessage);
   }
 
-  const messages = await Message.find({
-    $or: [
-      { senderId, receiverId },
-      { senderId: receiverId, receiverId: senderId },
-    ],
-  });
+  // 3. Fetch the updated conversation history
+  const fetchQuery = `
+  SELECT * FROM messages 
+  WHERE (sender_id = $1 AND receiver_id = $2)
+     OR (sender_id = $2 AND receiver_id = $1)
+  ORDER BY created_at ASC;
+`;
+
+  const { rows: messages } = await pool.query(fetchQuery, [
+    senderId,
+    receiverId,
+  ]);
 
   return messages;
 };
