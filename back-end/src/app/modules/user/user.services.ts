@@ -257,9 +257,9 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   if (!isPassMatch) {
     throw new AppError(404, userServiceMessages.PASSWORD_NOT_MATCH);
   }
-  const { _id, role } = user;
+  const { id, role } = user;
   const jwtPayload = {
-    userId: _id,
+    userId: id,
     role,
   };
 
@@ -397,19 +397,9 @@ const checkAuth = async (payload: { token: string }) => {
     );
   }
 
-  // 🔹 Verify token
-  let decoded;
-  try {
-    decoded = jwtVerify(token, config.jwt_access_secret as Secret);
-  } catch {
-    throw new AppError(
-      httpStatus.UNAUTHORIZED,
-      userServiceMessages.INVALID_TOKEN,
-    );
-  }
-
-  const { userId } = decoded as { userId: number };
-
+  const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
+  console.log({ userId });
+  console.log({ token });
   if (!userId) {
     throw new AppError(
       httpStatus.UNAUTHORIZED,
@@ -548,10 +538,10 @@ const confirmUser = async (payload: { token: string }) => {
 };
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
-  const { _id, role } = userIInfo;
+  const { id, role } = userIInfo;
 
   const jwtPayload = {
-    userId: _id,
+    userId: id,
     email,
     message,
   };
@@ -637,9 +627,9 @@ const googleLogin = async (payload: {
 
   const user = result.rows[0];
   if (user?.isGoogleLogin) {
-    const { _id, role } = user;
+    const { id, role } = user;
     const jwtPayload = {
-      userId: _id,
+      userId: id,
       role,
     };
 
