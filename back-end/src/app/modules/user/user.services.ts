@@ -114,16 +114,30 @@ const acceptInvite = async (payload: {
   password: string;
 }) => {
   const { token, firstname, lastname, password } = payload;
+
+  // 🔹 Token check
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.TOKEN_IS_REQUIRED,
     );
   }
-  const { userId, email, message } = jwtVerify(
-    token,
-    config.jwt_access_secret as Secret,
-  );
+
+  // 🔹 Verify token
+  let decoded;
+  try {
+    decoded = jwtVerify(token, config.jwt_access_secret as Secret);
+  } catch {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid or expired token');
+  }
+
+  const { userId, email, message } = decoded as {
+    userId: number;
+    email: string;
+    message: string;
+  };
+
+  // 🔹 Validation
   if (!firstname || !email || !password) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -137,22 +151,43 @@ const acceptInvite = async (payload: {
       userServiceMessages.PASSWORD_LENGTH_ERROR,
     );
   }
-  const user = await User.findOne({ email });
 
-  if (!!user) {
+  // 🔹 Check existing user
+  const existingUser = await pool.query(
+    `SELECT id FROM users WHERE email = $1`,
+    [email],
+  );
+
+  if (existingUser.rows.length > 0) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.EMAIL_ALREADY_EXISTS,
     );
   }
-  const usersInfo = {
-    name: `${firstname} ${lastname}`,
-    email,
+
+  // 🔥 Hash password
+  const hashedPassword = await bcrypt.hash(
     password,
-    status: userStatus?.ACTIVE,
-  };
-  (await User.create(usersInfo)).isSelected('-password');
-  const registerUser = await User.findOne({ email });
+    Number(config.bcrypt_salt_rounds),
+  );
+
+  const fullName = `${firstname} ${lastname}`;
+
+  // 🔹 Insert user
+  const insertUserQuery = `
+    INSERT INTO users (name, email, password, status)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id, name, email, role
+  `;
+
+  const userResult = await pool.query(insertUserQuery, [
+    fullName,
+    email,
+    hashedPassword,
+    userStatus?.ACTIVE,
+  ]);
+
+  const registerUser = userResult.rows[0];
 
   if (!registerUser) {
     throw new AppError(
@@ -161,16 +196,25 @@ const acceptInvite = async (payload: {
     );
   }
 
-  const mess = await MessageServices.sendMessageIntoDB({
-    text: message,
-    senderId: userId,
-    receiverId: registerUser._id as string,
-  });
+  // 🔹 Insert message (replacement of MessageServices)
+  const messageQuery = `
+    INSERT INTO messages (text, sender_id, receiver_id)
+    VALUES ($1, $2, $3)
+    RETURNING *
+  `;
 
-  const { _id, role } = registerUser as TUser;
+  const messageResult = await pool.query(messageQuery, [
+    message,
+    userId,
+    registerUser.id,
+  ]);
+
+  const mess = messageResult.rows[0];
+
+  // 🔹 JWT
   const jwtPayload = {
-    userId: _id,
-    role,
+    userId: registerUser.id,
+    role: registerUser.role,
   };
 
   const accessToken = createToken(
@@ -178,8 +222,15 @@ const acceptInvite = async (payload: {
     config.jwt_access_secret as string,
     config.jwt_access_expire_in as string,
   );
-  const { password: pass, ...newData } = registerUser.toObject() as TUser;
-  return { data: newData, accessToken, mess };
+
+  // 🔹 Remove password (not selected anyway, but safe)
+  const newData = registerUser;
+
+  return {
+    data: newData,
+    accessToken,
+    mess,
+  };
 };
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const { email } = payload;
@@ -309,16 +360,36 @@ const checkAuth = async (payload: { token: string }) => {
 };
 const sendEmail = async (payload: { email: string }) => {
   const { email } = payload;
+
+  // 🔹 Validation
   if (!email) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.EMAIL_IS_REQUIRED,
     );
   }
-  const createdUser = await User.findOne({ email });
-  const { _id, name: storedUserName } = createdUser as TUser;
+
+  // 🔹 Find user by email
+  const result = await pool.query(
+    `SELECT id, name FROM users WHERE email = $1 LIMIT 1`,
+    [email],
+  );
+
+  const createdUser = result.rows[0];
+
+  // 🔹 Handle not found
+  if (!createdUser) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      userServiceMessages.USER_NOT_FOUND || 'User not found',
+    );
+  }
+
+  // 🔹 Prepare data (same as mongoose)
+  const { id, name: storedUserName } = createdUser;
+
   const jwtPayload = {
-    userId: _id,
+    userId: id,
   };
 
   const token = createToken(
@@ -345,14 +416,42 @@ const sendEmail = async (payload: { email: string }) => {
 };
 const confirmUser = async (payload: { token: string }) => {
   const { token } = payload;
+
+  // 🔹 Validation
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.TOKEN_IS_REQUIRED,
     );
   }
-  const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
-  await User.findByIdAndUpdate(userId, { $set: { isAccountVerified: true } });
+
+  // 🔹 Verify token
+  let decoded;
+  try {
+    decoded = jwtVerify(token, config.jwt_access_secret as Secret);
+  } catch (err) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid or expired token');
+  }
+
+  const { userId } = decoded as { userId: number };
+
+  // 🔹 Update user
+  const result = await pool.query(
+    `
+    UPDATE users
+    SET is_account_verified = TRUE,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = $1
+    RETURNING id
+    `,
+    [userId],
+  );
+
+  // 🔹 Check if user exists
+  if (result.rows.length === 0) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
   return true;
 };
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
