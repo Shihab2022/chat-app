@@ -234,7 +234,12 @@ const acceptInvite = async (payload: {
 };
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const { email } = payload;
-  const user = await User.findOne({ email });
+  const result = await pool.query(
+    `SELECT * FROM users WHERE email = $1 LIMIT 1`,
+    [email],
+  );
+
+  const user = result.rows[0];
   if (!user) {
     throw new AppError(
       httpStatus.NOT_FOUND,
@@ -254,8 +259,6 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   if (!isPassMatch) {
     throw new AppError(404, userServiceMessages.PASSWORD_NOT_MATCH);
   }
-  const objData: Partial<TUser> = user.toObject();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { _id, role } = user;
   const jwtPayload = {
     userId: _id,
@@ -267,7 +270,7 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
     config.jwt_access_secret as string,
     config.jwt_access_expire_in as string,
   );
-  const { password, ...newData } = objData;
+  const { password, ...newData } = user;
   return { data: newData, accessToken };
 };
 const forgetPassword = async (payload: Partial<TUser>) => {
@@ -511,9 +514,13 @@ const googleLogin = async (payload: {
   picture: string;
 }) => {
   const { email } = payload;
-  const user = await User.findOne({ email });
+  const result = await pool.query(
+    `SELECT * FROM users WHERE email = $1 LIMIT 1`,
+    [email],
+  );
+
+  const user = result.rows[0];
   if (user?.isGoogleLogin) {
-    const objData: Partial<TUser> = user.toObject();
     const { _id, role } = user;
     const jwtPayload = {
       userId: _id,
@@ -525,7 +532,7 @@ const googleLogin = async (payload: {
       config.jwt_access_secret as string,
       config.jwt_access_expire_in as string,
     );
-    const { password, ...newData } = objData;
+    const { password, ...newData } = user;
     return { data: newData, accessToken };
   } else if (user && !user?.isGoogleLogin) {
     throw new AppError(
@@ -542,31 +549,54 @@ const googleRegister = async (payload: {
   picture: string;
 }) => {
   const { name, email, picture } = payload;
+
+  // 🔹 Validation
   if (!email) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.EMAIL_IS_REQUIRED,
     );
   }
-  const user = await User.findOne({ email });
 
-  if (!!user) {
+  // 🔹 Check existing user
+  const existingUser = await pool.query(
+    `SELECT id FROM users WHERE email = $1`,
+    [email],
+  );
+
+  if (existingUser.rows.length > 0) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.EMAIL_ALREADY_EXISTS,
     );
   }
-  const usersInfo = {
+
+  // 🔹 Insert user (Google login → no password)
+  const insertQuery = `
+    INSERT INTO users (name, email, img, status, is_google_login, is_account_verified)
+    VALUES ($1, $2, $3, $4, TRUE, TRUE)
+    RETURNING id, name, email
+  `;
+
+  const result = await pool.query(insertQuery, [
     name,
     email,
-    picture,
-    status: userStatus?.ACTIVE,
-  };
-  const result = (await User.create(usersInfo)).isSelected('-password');
-  const createdUser = await User.findOne({ email });
-  const { _id, name: storedUserName } = createdUser as TUser;
+    picture, // mapped to img
+    userStatus?.ACTIVE,
+  ]);
+
+  const createdUser = result.rows[0];
+
+  if (!createdUser) {
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      'User registration failed',
+    );
+  }
+
+  // 🔹 JWT
   const jwtPayload = {
-    userId: _id,
+    userId: createdUser.id,
   };
 
   const token = createToken(
@@ -574,6 +604,7 @@ const googleRegister = async (payload: {
     config.jwt_access_secret as string,
     config.jwt_access_expire_in as string,
   );
+
   return token;
 };
 export const UserServices = {
