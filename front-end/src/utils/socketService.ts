@@ -85,7 +85,7 @@ export function emitStopTyping(receiverId: string) {
 }
 // export function emitMessageSeen(receiverId: string, msg: TMessage) {
 //   socket?.emit("message:seen", {
-//     messageId: msg._id,
+//     messageId: msg.id,
 //     userId: receiverId,
 //   });
 // }

@@ -283,9 +283,9 @@ const forgetPassword = async (payload: Partial<TUser>) => {
   if (!user) {
     throw new AppError(404, userServiceMessages.USER_NOT_FOUND);
   }
-  const { _id } = user;
+  const { id } = user;
   const jwtPayload = {
-    userId: _id,
+    userId: id,
   };
 
   const token = createToken(

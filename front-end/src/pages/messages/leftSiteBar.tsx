@@ -22,20 +22,20 @@ import { formattedSideBarData } from "../../utils/common";
 const LeftSiteBar = () => {
   const navigate = useNavigate();
   const { loginUser, allUsers } = useSelector(
-    (state: RootState) => state?.auth
+    (state: RootState) => state?.auth,
   );
   const { receiverId, messages } = useSelector(
-    (state: RootState) => state?.message
+    (state: RootState) => state?.message,
   );
-  const { _id: myId } = loginUser;
+  const { id: myId } = loginUser;
   const dispatch = useDispatch();
   const handleClick = async (user: any) => {
     try {
       const params = {
         myId,
-        userToChatId: user._id,
+        userToChatId: user.id,
       };
-      dispatch(SET_RECEIVER_ID(user._id));
+      dispatch(SET_RECEIVER_ID(user.id));
       dispatch(SET_REPLIED_MESSAGE({}));
       const res = await getMessage(params);
       if (res?.success) {
@@ -49,7 +49,7 @@ const LeftSiteBar = () => {
 
   useEffect(() => {
     if (Object.keys(messages).length <= 0 && !!receiverId) {
-      handleClick({ _id: receiverId });
+      handleClick({ id: receiverId });
     }
   }, [receiverId]);
   const formattedAllUsers = useMemo(() => {
@@ -93,7 +93,7 @@ const LeftSiteBar = () => {
       <Divider />
       <List>
         {formattedAllUsers
-          ?.filter((d: TUser) => d?._id !== myId)
+          ?.filter((d: TUser) => d?.id !== myId)
           ?.map((user: TUser, i: number) => (
             <>
               <ListItem key={i} disablePadding>

@@ -17,7 +17,7 @@ const Message = () => {
     receiverId,
   } = useSelector((state: RootState) => state?.message);
   const { allUsers } = useSelector((state: RootState) => state?.auth);
-  const senderUser = allUsers.find((u: TUser) => u._id === receiverId);
+  const senderUser = allUsers.find((u: TUser) => u.id === receiverId);
   const messageEndRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (messageEndRef.current && messages && !isEmojiAdded) {

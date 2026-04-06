@@ -13,21 +13,21 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
   const { text, senderId, createdAt, isDeleted, replyId } = mess;
   const [isHovered, setIsHovered] = useState(false);
   const { loginUser, allUsers } = useSelector(
-    (state: RootState) => state?.auth
+    (state: RootState) => state?.auth,
   );
   const { messages = {} } = useSelector((state: RootState) => state?.message);
-  const { _id: myId } = loginUser;
-  const userInfo = allUsers.find((user: any) => user._id === senderId);
+  const { id: myId } = loginUser;
+  const userInfo = allUsers.find((user: any) => user.id === senderId);
   const isOwn = mess.senderId === myId;
   const time = formatTimes(createdAt);
 
   const repliedMessage = replyId
     ? Object.values(messages)
         .flat()
-        .find((m: any) => m._id === replyId)
+        .find((m: any) => m.id === replyId)
     : undefined;
   const replyUser = repliedMessage
-    ? allUsers.find((user: any) => user._id === repliedMessage.senderId)
+    ? allUsers.find((user: any) => user.id === repliedMessage.senderId)
     : undefined;
   return (
     <>
@@ -57,7 +57,7 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
           >
             <ImgViewer img={userInfo?.img} tooltipText={userInfo?.name} />
             <Box
-              key={mess._id}
+              key={mess.id}
               sx={{
                 display: "flex",
                 justifyContent: isOwn ? "flex-start" : "flex-end",
@@ -104,7 +104,7 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                           variant="caption"
                           sx={{ fontWeight: 600, color: "#9aaa9bff" }}
                         >
-                          {replyUser?._id === myId ? "You" : replyUser?.name}
+                          {replyUser?.id === myId ? "You" : replyUser?.name}
                         </Typography>
                         <Typography
                           variant="body2"

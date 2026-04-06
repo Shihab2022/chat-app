@@ -24,7 +24,7 @@ function ChatContainer() {
   const [isLoading, setIsLoading] = useState(false);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const navigate = useNavigate();
-  const { _id: myId } = loginUser;
+  const { id: myId } = loginUser;
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -33,7 +33,7 @@ function ChatContainer() {
 
   const getAllUsers = async () => {
     try {
-      const params = { _id: myId };
+      const params = { id: myId };
       const res = await getUsersForSidebar(params);
       if (res?.success) {
         const resUsers = res?.data;
@@ -45,7 +45,7 @@ function ChatContainer() {
             name: toStartCaseStr(d?.name),
           };
         });
-        dispatch(SET_RECEIVER_ID(conversation[0]._id));
+        dispatch(SET_RECEIVER_ID(conversation[0].id));
         dispatch(SET_ALL_USERS(conversation));
       }
     } catch (error) {
@@ -54,7 +54,7 @@ function ChatContainer() {
   };
 
   useEffect(() => {
-    if (!loginUser?._id) {
+    if (!loginUser?.id) {
       checkAuthRes(dispatch, setIsLoading);
     } else {
       if (!loginUser?.isAccountVerified) {

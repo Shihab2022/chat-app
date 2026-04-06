@@ -55,7 +55,7 @@ export default function SignIn() {
       if (res?.success) {
         const accessToken = res?.data?.accessToken;
         const userData = res?.data?.data;
-        const userId = res?.data?.data?._id;
+        const userId = res?.data?.data?.id;
         connectSocket(userId, dispatch); // ✅ Connect after login success
         setToken(accessToken);
         showToast(SUCCESS, LOGIN_SUCCESS);

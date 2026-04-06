@@ -20,11 +20,11 @@ export const randomTwoDigit = () =>
 
 export const formateEmojiDialogData = (
   reactions: Reaction[],
-  allUsers: TUser[]
+  allUsers: TUser[],
 ) => {
   // Group reactions by emoji
   const formattedReactions = reactions?.map((r) => {
-    const u = allUsers.find((u: TUser) => u?._id === r?.userId);
+    const u = allUsers.find((u: TUser) => u?.id === r?.userId);
     return {
       ...r,
       img: u?.img,
@@ -39,19 +39,19 @@ export const formateEmojiDialogData = (
       acc[item.emoji].push(item);
       return acc;
     },
-    {}
+    {},
   );
   return { All: formattedReactions, ...grouped };
 };
 
 export const formateMessageAndUpdate = (
   newMessage: any,
-  allMessage: Record<string, TMessage[]>
+  allMessage: Record<string, TMessage[]>,
 ) => {
   const formattedDate = formatDate(newMessage.createdAt);
   const messagesForUpdate = get(allMessage, formattedDate, []);
   const newMessages = messagesForUpdate.map((item: TMessage) =>
-    item._id === newMessage._id ? newMessage : item
+    item.id === newMessage.id ? newMessage : item,
   );
   const updatedMessages = { ...allMessage, [formattedDate]: newMessages };
 

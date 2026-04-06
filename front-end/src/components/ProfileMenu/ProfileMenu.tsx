@@ -49,7 +49,7 @@ const ProfileMenu = ({ HeaderComp }: any) => {
   const userInfo = useSelector((state: RootState) => state?.auth?.loginUser);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const [isLoading, setIsLoading] = React.useState(false);
-  const { _id: myId } = loginUser;
+  const { id: myId } = loginUser;
   const dispatch = useDispatch();
   //   const dispatch = useDispatch();
   //   const [availableCredits, setAvailableCredits] = useState(0);

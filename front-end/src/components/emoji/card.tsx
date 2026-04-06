@@ -19,7 +19,7 @@ import {
 export const CCard = ({ formattedData, selectedEmoji }: any) => {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { receiverId } = useSelector((state: RootState) => state?.message);
-  const { _id: myId } = loginUser;
+  const { id: myId } = loginUser;
   const dispatch = useDispatch();
   const data = get(formattedData, selectedEmoji, []);
   const handelRemoveEmoji = async (id: string, messId: string) => {
@@ -36,7 +36,7 @@ export const CCard = ({ formattedData, selectedEmoji }: any) => {
   return (
     <>
       {data.map((d: any) => {
-        const { emoji, img, name, _id, userId, messId } = d;
+        const { emoji, img, name, id, userId, messId } = d;
         return (
           <Stack
             direction="row"
@@ -92,7 +92,7 @@ export const CCard = ({ formattedData, selectedEmoji }: any) => {
                   fontSize: "15px",
                 }}
                 onClick={() => {
-                  handelRemoveEmoji(_id, messId);
+                  handelRemoveEmoji(id, messId);
                 }}
               >
                 Remove

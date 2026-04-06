@@ -11,7 +11,7 @@ import { RootState } from "../../redux/store";
 const ShowingEmoji = ({ mess, myId }: any) => {
   const dispatch = useDispatch();
   const { emojiDetailsDialogStatus } = useSelector(
-    (state: RootState) => state?.message
+    (state: RootState) => state?.message,
   );
   return (
     <>
@@ -20,8 +20,8 @@ const ShowingEmoji = ({ mess, myId }: any) => {
           dispatch(SET_EMOJI_DETAILS_DIALOG_STATUS(true));
           dispatch(
             SET_EMOJI_DETAILS_REACTIONS(
-              mess?.reactions.map((d: any) => ({ ...d, messId: mess._id }))
-            )
+              mess?.reactions.map((d: any) => ({ ...d, messId: mess.id })),
+            ),
           );
         }}
         sx={{
@@ -46,7 +46,7 @@ const ShowingEmoji = ({ mess, myId }: any) => {
           {[...new Set(mess.reactions.map((r: any) => r.emoji))].map(
             (emoji: any, idx: number) => (
               <span key={idx}>{emoji}</span>
-            )
+            ),
           )}
           {mess?.reactions?.length > 1 && (
             <Typography

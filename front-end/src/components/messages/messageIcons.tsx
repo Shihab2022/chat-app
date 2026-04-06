@@ -19,18 +19,18 @@ import { addEmoji } from "../../services/message";
 import MoreActions from "./moreAction";
 const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
   const { isEmojiOpen, receiverId } = useSelector(
-    (state: RootState) => state?.message
+    (state: RootState) => state?.message,
   );
   const dispatch = useDispatch();
   const [isIconMenuOpen, setIconMenuOpen] = useState(false);
   const [iconAnchorEl, setIconAnchorEl] = useState<null | HTMLElement>(null);
   const [moreActionOpen, setMoreActionOpen] = useState(false);
   const [moreAnchorEl, setMoreActionAnchorEl] = useState<null | HTMLElement>(
-    null
+    null,
   );
 
   const handleEmoji = async (emoji: string) => {
-    const params = { messageId: mess?._id, userId: myId, emoji, receiverId };
+    const params = { messageId: mess?.id, userId: myId, emoji, receiverId };
     try {
       const res = await addEmoji(params);
       if (res?.success) {

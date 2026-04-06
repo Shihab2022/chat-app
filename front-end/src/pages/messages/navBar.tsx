@@ -16,11 +16,11 @@ const NavBar = (props: any) => {
   const navigate = useNavigate();
   const { receiverId } = useSelector((state: RootState) => state?.message);
   const { allUsers, activeUsers = [] } = useSelector(
-    (state: RootState) => state?.auth
+    (state: RootState) => state?.auth,
   );
   const selectedUserInfo = useMemo(() => {
     if (allUsers?.length > 0 && receiverId) {
-      const user = allUsers.find((u: TUser) => u?._id === receiverId);
+      const user = allUsers.find((u: TUser) => u?.id === receiverId);
       return user;
     }
   }, [receiverId]);
@@ -57,7 +57,7 @@ const NavBar = (props: any) => {
                 color: "#000",
               }}
             >
-              {activeUsers?.includes(selectedUserInfo?._id) ? (
+              {activeUsers?.includes(selectedUserInfo?.id) ? (
                 <Stack direction="row" spacing={2}>
                   <StyledBadge
                     overlap="circular"

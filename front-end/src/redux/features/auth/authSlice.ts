@@ -4,7 +4,7 @@ import { TConversation, TUser } from "../../../types";
 
 const initialState: TConversation = {
   loginUser: {
-    _id: "",
+    id: "",
   },
   activeUsers: [],
   allUsers: [],
@@ -24,22 +24,22 @@ const authSlice = createSlice({
     },
     SET_START_TYPING_STATUS: (state, action) => {
       state.allUsers = state.allUsers.map((user: TUser) =>
-        user?._id === action.payload
+        user?.id === action.payload
           ? {
               ...user,
               isTyping: true,
             }
-          : { ...user }
+          : { ...user },
       );
     },
     SET_END_TYPING_STATUS: (state, action) => {
       state.allUsers = state.allUsers.map((user: TUser) =>
-        user?._id === action.payload
+        user?.id === action.payload
           ? {
               ...user,
               isTyping: false,
             }
-          : { ...user }
+          : { ...user },
       );
     },
   },

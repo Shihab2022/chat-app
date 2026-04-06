@@ -29,7 +29,7 @@ const activitiesSlice = createSlice({
     //   state.email = action.payload.email;
     //   state.name = action.payload.name;
     //   state.userName = action.payload.userName;
-    //   state.id = action.payload._id;
+    //   state.id = action.payload.id;
     // },
   },
 });

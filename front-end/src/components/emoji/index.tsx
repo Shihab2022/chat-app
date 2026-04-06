@@ -21,11 +21,11 @@ const EmojiPicker = ({
   const { isEmojiOpen, anchorElEmoji, isOneIcon, receiverId, selectedMessage } =
     useSelector((state: RootState) => state?.message);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
-  const { _id: myId } = loginUser;
+  const { id: myId } = loginUser;
 
   const handleEmoji = async (emoji: string) => {
     const params = {
-      messageId: selectedMessage?._id,
+      messageId: selectedMessage?.id,
       userId: myId,
       emoji,
       receiverId,

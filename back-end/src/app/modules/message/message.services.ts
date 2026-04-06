@@ -4,7 +4,7 @@ import { pool } from '../../../utils/pg';
 
 const sendMessageIntoDB = async (payload: TMessages) => {
   const { text, senderId, receiverId } = payload;
-  // const senderId = req.user._id;
+  // const senderId = req.user.id;
 
   // let imageUrl;
   // if (image) {
@@ -67,7 +67,7 @@ const getMessageFromDB = async (payload: Partial<TMessages>) => {
   return messages;
 };
 const getUsersForSidebar = async (payload: any) => {
-  const loggedInUserId = payload._id;
+  const loggedInUserId = payload.id;
 
   const query = `
     SELECT 
@@ -173,7 +173,7 @@ const removeEmoji = async (payload: any) => {
   return deletedReaction;
 };
 const editMessage = async (payload: any) => {
-  const { _id, text, receiverId } = payload;
+  const { id, text, receiverId } = payload;
   const query = `
   UPDATE messages 
   SET text = $2 
@@ -181,7 +181,7 @@ const editMessage = async (payload: any) => {
   RETURNING *;
 `;
 
-  const { rows } = await pool.query(query, [_id, text]);
+  const { rows } = await pool.query(query, [id, text]);
   const updatedMessage = rows[0];
 
   // 2. Handle the null check
@@ -195,7 +195,7 @@ const editMessage = async (payload: any) => {
   return updatedMessage;
 };
 const deleteMessage = async (payload: any) => {
-  const { _id, receiverId } = payload;
+  const { id, receiverId } = payload;
   const query = `
   UPDATE messages 
   SET is_deleted = true 
@@ -203,7 +203,7 @@ const deleteMessage = async (payload: any) => {
   RETURNING *;
 `;
 
-  const { rows } = await pool.query(query, [_id]);
+  const { rows } = await pool.query(query, [id]);
   const updatedMessage = rows[0];
 
   if (!updatedMessage) {

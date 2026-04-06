@@ -35,7 +35,7 @@ export default function SearchField({ myId }: { myId: string }) {
 
   const updateSideBarLastMessage = (msg: any) => {
     const updatedLastMessage = allUsers?.map((user: any) => {
-      if (user?._id === msg?.receiverId || user?._id === msg?.senderId) {
+      if (user?.id === msg?.receiverId || user?.id === msg?.senderId) {
         return { ...user, lastMessage: msg };
       } else {
         return user;
@@ -71,7 +71,7 @@ export default function SearchField({ myId }: { myId: string }) {
   };
 
   useEffect(() => {
-    if (editedMessage?._id) {
+    if (editedMessage?.id) {
       handleInputChange(editedMessage?.text);
     } else {
       handleInputChange("");
@@ -96,7 +96,7 @@ export default function SearchField({ myId }: { myId: string }) {
         senderId: myId,
         receiverId: receiverId,
         text: message,
-        replyId: repliedMessage?._id,
+        replyId: repliedMessage?.id,
       };
       const res = await replyMessageAPI(messageData);
       if (res?.success) {
@@ -115,9 +115,9 @@ export default function SearchField({ myId }: { myId: string }) {
     }
   };
   const handleSubmit = async () => {
-    if (editedMessage?._id) {
+    if (editedMessage?.id) {
       handleEditMessage();
-    } else if (repliedMessage?._id) {
+    } else if (repliedMessage?.id) {
       handleReplyMessage();
     } else {
       handleClick();
@@ -147,7 +147,7 @@ export default function SearchField({ myId }: { myId: string }) {
           >
             <Box sx={{ py: 1 }}>
               {/* <Typography variant="h6" sx={{ fontWeight: "200" }}>
-                {editedMessage?._id ? "editedMessage?" : "repliedMessage?"}
+                {editedMessage?.id ? "editedMessage?" : "repliedMessage?"}
               </Typography> */}
               <Typography variant="subtitle1">
                 {repliedMessage?.text?.length > 50

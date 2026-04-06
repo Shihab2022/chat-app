@@ -11,7 +11,7 @@ export const checkAuthRes = async (dispatch: any, setIsLoading: any) => {
     const res = await checkAuth({ token });
     if (res.success) {
       const user = res?.data;
-      connectSocket(user?._id, dispatch);
+      connectSocket(user?.id, dispatch);
       dispatch(setUser(user));
     }
   } catch (error) {

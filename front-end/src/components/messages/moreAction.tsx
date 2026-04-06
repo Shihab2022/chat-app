@@ -46,7 +46,7 @@ export default function MoreActions({
   setIconAnchorEl,
 }: any) {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
-  const { _id: myId } = loginUser;
+  const { id: myId } = loginUser;
   const dispatch = useDispatch();
   const [deleteConformationMenuOpen, setDeleteConformationMenuOpen] =
     useState(false);

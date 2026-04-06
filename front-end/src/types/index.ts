@@ -17,7 +17,7 @@ export interface SignInFormInputs {
 }
 
 export type TUser = {
-  _id: string; // 👈 add any property you expect
+  id: string; // 👈 add any property you expect
 } & Record<string, any>;
 export type TConversation = {
   activeUsers?: string[];
@@ -26,7 +26,7 @@ export type TConversation = {
 };
 
 export interface ChatMessage {
-  _id: string;
+  id: string;
   senderId: string;
   receiverId: string;
   text: string;
@@ -37,7 +37,7 @@ export type GroupedMessages = {
   [date: string]: ChatMessage[];
 };
 export type TMessage = {
-  _id: string; // comes as string in JSON
+  id: string; // comes as string in JSON
   senderId: string;
   receiverId: string;
   text?: string;
@@ -52,7 +52,7 @@ export type TMessage = {
 export type Reaction = {
   userId: string;
   emoji: string;
-  _id: string;
+  id: string;
 };
 export type TConversationState = {
   messages: GroupedMessages;

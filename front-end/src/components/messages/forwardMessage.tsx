@@ -23,25 +23,25 @@ const Transition = forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<any, any>;
   },
-  ref: React.Ref<unknown>
+  ref: React.Ref<unknown>,
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 const ForwardMessage = ({ mess, forwardMenuOpen, setForwardMenuOpen }: any) => {
   const { loginUser, allUsers } = useSelector(
-    (state: RootState) => state?.auth
+    (state: RootState) => state?.auth,
   );
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const handleToggle = (id: string) => {
     setSelectedUsers((prev) =>
-      prev.includes(id) ? prev.filter((uid) => uid !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((uid) => uid !== id) : [...prev, id],
     );
   };
   const handleForwardMessage = async () => {
     if (selectedUsers.length === 0) {
       showToast(
         WARNING,
-        "Please select at least one user to forward the message"
+        "Please select at least one user to forward the message",
       );
       return;
     }
@@ -49,7 +49,7 @@ const ForwardMessage = ({ mess, forwardMenuOpen, setForwardMenuOpen }: any) => {
       const params = {
         text: mess?.text,
         receiverIds: selectedUsers,
-        senderId: loginUser._id,
+        senderId: loginUser.id,
       };
       const response = await forwardMessageAPI(params);
       console.log("forward response", response);
@@ -75,9 +75,9 @@ const ForwardMessage = ({ mess, forwardMenuOpen, setForwardMenuOpen }: any) => {
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
             {allUsers
-              .filter((user: TUser) => user._id !== loginUser._id)
+              .filter((user: TUser) => user.id !== loginUser.id)
               .map((user: TUser) => {
-                const { _id, name, img } = user;
+                const { id, name, img } = user;
                 return (
                   <Stack
                     direction="row"
@@ -105,8 +105,8 @@ const ForwardMessage = ({ mess, forwardMenuOpen, setForwardMenuOpen }: any) => {
                       </Typography>
                     </Stack>
                     <Checkbox
-                      checked={selectedUsers.includes(_id)}
-                      onChange={() => handleToggle(_id)}
+                      checked={selectedUsers.includes(id)}
+                      onChange={() => handleToggle(id)}
                     />
                   </Stack>
                 );

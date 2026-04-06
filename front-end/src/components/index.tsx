@@ -18,7 +18,7 @@ export default function LeftSiteBarCard({
   user: any;
 }) {
   const { activeUsers = [] } = useSelector((state: RootState) => state?.auth);
-  const { name, img, _id, email, isTyping = false, lastMessage = {} } = user;
+  const { name, img, id, email, isTyping = false, lastMessage = {} } = user;
   return (
     <Card
       elevation={0}
@@ -34,7 +34,7 @@ export default function LeftSiteBarCard({
       }}
       onClick={() => onClick(user)}
     >
-      {activeUsers?.includes(_id) ? (
+      {activeUsers?.includes(id) ? (
         <Stack direction="row" spacing={2}>
           <StyledBadge
             overlap="circular"
@@ -73,7 +73,7 @@ export default function LeftSiteBarCard({
               {lastMessage?.text?.length > 20
                 ? lastMessage?.text?.slice(0, 20) + "..."
                 : lastMessage?.text}
-              {/* {activeUsers?.includes(_id) ? "Online" : "Offline"} */}
+              {/* {activeUsers?.includes(id) ? "Online" : "Offline"} */}
             </Typography>
           )}
         </CardContent>
