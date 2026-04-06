@@ -57,7 +57,7 @@ function ChatContainer() {
     if (!loginUser?.id) {
       checkAuthRes(dispatch, setIsLoading);
     } else {
-      if (!loginUser?.isAccountVerified) {
+      if (!loginUser?.is_account_verified) {
         navigate("/");
         showToast(WARNING, CONFIRM_MESSAGE);
       } else {
