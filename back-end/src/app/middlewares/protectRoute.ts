@@ -23,7 +23,7 @@ const auth = (...roles: string[]) => {
         );
       }
       const verifyUser = jwtVerify(token, config.jwt_access_secret as Secret);
-      if (roles.length && !roles.includes(verifyUser.role)) {
+      if (roles.length && !roles.includes(verifyUser?.role?.toLowerCase())) {
         throw new AppError(
           httpStatus.FORBIDDEN,
           authorizationError.UN_AUTHORIZED,

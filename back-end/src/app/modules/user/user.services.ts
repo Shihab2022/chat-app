@@ -398,8 +398,6 @@ const checkAuth = async (payload: { token: string }) => {
   }
 
   const { userId } = jwtVerify(token, config.jwt_access_secret as Secret);
-  console.log({ userId });
-  console.log({ token });
   if (!userId) {
     throw new AppError(
       httpStatus.UNAUTHORIZED,
