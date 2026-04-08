@@ -4,8 +4,8 @@ import { jwtVerify } from '../../utils/auth';
 import config from '../config';
 import httpStatus from 'http-Status';
 import AppError from '../error/appError';
-import { User } from '../modules/user/user.model';
 import { authorizationError, userServiceMessages } from '../../constant';
+import { pool } from '../../utils/pg';
 // import { NOT_VERIFIED } from '../../constant';
 
 const auth = (...roles: string[]) => {
@@ -29,11 +29,13 @@ const auth = (...roles: string[]) => {
           authorizationError.UN_AUTHORIZED,
         );
       }
-      const user = await User.findOne(
-        { id: verifyUser?.userId },
-        { password: 0 },
+      const result = await pool.query(
+        `SELECT * FROM users WHERE id = $1 LIMIT 1`,
+        [verifyUser?.userId],
       );
-      if (!user?.isAccountVerified) {
+
+      const user = result.rows[0];
+      if (!user?.is_account_verified) {
         throw new AppError(
           httpStatus.NOT_ACCEPTABLE,
           userServiceMessages.NOT_VERIFIED,
