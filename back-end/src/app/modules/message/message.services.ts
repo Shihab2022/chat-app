@@ -81,32 +81,50 @@ const getUsersForSidebar = async (payload: any) => {
       u.is_account_verified,
       u.is_google_login,
       u.created_at,
-      u.updated_at,
-
-      m.id AS message_id,
-      m.sender_id,
-      m.receiver_id,
-      m.text,
-      m.created_at AS message_created_at
+      u.updated_at
 
     FROM users u
-
-    LEFT JOIN LATERAL (
-      SELECT *
-      FROM messages m
-      WHERE 
-        (m.sender_id = u.id AND m.receiver_id = $1)
-        OR
-        (m.sender_id = $1 AND m.receiver_id = u.id)
-      ORDER BY m.created_at DESC
-      LIMIT 1
-    ) m ON TRUE
-
-    WHERE u.id != $1
-    ORDER BY m.created_at DESC NULLS LAST
+    ORDER BY u.created_at DESC NULLS LAST
   `;
+  // const query = `
+  //   SELECT
+  //     u.id,
+  //     u.name,
+  //     u.email,
+  //     u.img,
+  //     u.bio,
+  //     u.role,
+  //     u.status,
+  //     u.is_account_verified,
+  //     u.is_google_login,
+  //     u.created_at,
+  //     u.updated_at,
 
-  const result = await pool.query(query, [loggedInUserId]);
+  //     m.id AS message_id,
+  //     m.sender_id,
+  //     m.receiver_id,
+  //     m.text,
+  //     m.created_at AS message_created_at
+
+  //   FROM users u
+
+  //   LEFT JOIN LATERAL (
+  //     SELECT *
+  //     FROM messages m
+  //     WHERE
+  //       (m.sender_id = u.id AND m.receiver_id = $1)
+  //       OR
+  //       (m.sender_id = $1 AND m.receiver_id = u.id)
+  //     ORDER BY m.created_at DESC
+  //     LIMIT 1
+  //   ) m ON TRUE
+
+  //   WHERE u.id != $1
+  //   ORDER BY m.created_at DESC NULLS LAST
+  // `;
+
+  const result = await pool.query(query);
+  // const result = await pool.query(query, [loggedInUserId]);
 
   // 🔹 format like mongoose output
   const usersWithLastMessage = result.rows.map((row) => ({
