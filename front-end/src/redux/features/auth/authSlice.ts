@@ -24,7 +24,7 @@ const authSlice = createSlice({
     },
     SET_START_TYPING_STATUS: (state, action) => {
       state.allUsers = state.allUsers.map((user: TUser) =>
-        user?.id === action.payload
+        user?.id?.toString() === action.payload.toString()
           ? {
               ...user,
               isTyping: true,
@@ -34,7 +34,7 @@ const authSlice = createSlice({
     },
     SET_END_TYPING_STATUS: (state, action) => {
       state.allUsers = state.allUsers.map((user: TUser) =>
-        user?.id === action.payload
+        user?.id?.toString() === action.payload.toString()
           ? {
               ...user,
               isTyping: false,

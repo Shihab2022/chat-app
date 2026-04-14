@@ -19,7 +19,6 @@ export default function LeftSiteBarCard({
 }) {
   const { activeUsers = [] } = useSelector((state: RootState) => state?.auth);
   const { name, img, id, email, isTyping = false, lastMessage = {} } = user;
-  console.log({ user });
   return (
     <Card
       elevation={0}
