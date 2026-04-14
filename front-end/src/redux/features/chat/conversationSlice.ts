@@ -28,11 +28,11 @@ const conversationSlice = createSlice({
       state.isEmojiAdded = false;
     },
     SET_REAL_TIME_CONVERSATION: (state, action) => {
-      if (action?.payload?.senderId === state.receiverId) {
+      if (action?.payload?.sender_id === state.receiverId) {
         if (Object.keys(state.messages).length > 0) {
           const addedMessage = addMessageToGroups(
             state.messages,
-            action.payload
+            action.payload,
           );
           state.messages = addedMessage;
         } else {
@@ -69,14 +69,14 @@ const conversationSlice = createSlice({
     UPDATE_EDITED_MESSAGE: (state, action) => {
       state.messages = formateMessageAndUpdate(
         action.payload,
-        state.messages
+        state.messages,
       ) as GroupedMessages;
       state.editedMessage = {};
     },
     DELETE_MESSAGE: (state, action) => {
       state.messages = formateMessageAndUpdate(
         action.payload,
-        state.messages
+        state.messages,
       ) as GroupedMessages;
       state.editedMessage = {};
     },
@@ -84,13 +84,13 @@ const conversationSlice = createSlice({
       state.isEmojiAdded = true;
       state.messages = formateMessageAndUpdate(
         action.payload,
-        state.messages
+        state.messages,
       ) as GroupedMessages;
     },
     REMOVE_EMOJI: (state, action) => {
       state.messages = formateMessageAndUpdate(
         action.payload,
-        state.messages
+        state.messages,
       ) as GroupedMessages;
       state.isEmojiAdded = true;
       state.selectedReactions = action.payload.reactions;

@@ -46,7 +46,7 @@ const MessageIcons = ({ mess, myId }: { mess: any; myId: string }) => {
   return (
     <>
       <Stack
-        direction={`${mess.senderId === myId ? "row-reverse" : "row"}`}
+        direction={`${mess.sender_id === myId ? "row-reverse" : "row"}`}
         sx={{
           justifyContent: "flex-start",
         }}

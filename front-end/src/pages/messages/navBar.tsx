@@ -57,7 +57,7 @@ const NavBar = (props: any) => {
                 color: "#000",
               }}
             >
-              {activeUsers?.includes(selectedUserInfo?.id) ? (
+              {activeUsers?.includes(selectedUserInfo?.id?.toString()) ? (
                 <Stack direction="row" spacing={2}>
                   <StyledBadge
                     overlap="circular"

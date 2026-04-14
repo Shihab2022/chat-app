@@ -3,8 +3,8 @@ import { getReceiverSocketId, io } from '../../../utils/socket';
 import { pool } from '../../../utils/pg';
 
 const sendMessageIntoDB = async (payload: TMessages) => {
-  const { text, senderId, receiverId } = payload;
-  // const senderId = req.user.id;
+  const { text, sender_id, receiverId } = payload;
+  // const sender_id = req.user.id;
 
   // let imageUrl;
   // if (image) {
@@ -21,7 +21,7 @@ const sendMessageIntoDB = async (payload: TMessages) => {
   `;
 
   const insertResult = await pool.query(insertQuery, [
-    senderId,
+    sender_id,
     receiverId,
     text,
     '', // image empty (same as your code)
@@ -48,7 +48,7 @@ const sendMessageIntoDB = async (payload: TMessages) => {
   `;
 
   const messagesResult = await pool.query(messagesQuery, [
-    senderId,
+    sender_id,
     receiverId,
   ]);
 
@@ -143,7 +143,7 @@ const getUsersForSidebar = async (payload: any) => {
     lastMessage: row.message_id
       ? {
           id: row.message_id,
-          senderId: row.sender_id,
+          sender_id: row.sender_id,
           receiverId: row.receiver_id,
           text: row.text,
           created_at: row.message_created_at,
@@ -235,14 +235,14 @@ const deleteMessage = async (payload: any) => {
 };
 
 const ForwardMessage = async (payload: any) => {
-  const { text, receiverIds = [], senderId } = payload;
+  const { text, receiverIds = [], sender_id } = payload;
   const query = `
   INSERT INTO messages (sender_id, receiver_id, text, image)
   SELECT $1, unnest($2::text[]), $3, $4
   RETURNING *;
 `;
 
-  const values = [senderId, receiverIds, text, ''];
+  const values = [sender_id, receiverIds, text, ''];
   const { rows: savedMessages } = await pool.query(query, values);
   for (const msg of savedMessages) {
     const receiverSocketId = getReceiverSocketId(msg.receiverId.toString());
@@ -255,7 +255,7 @@ const ForwardMessage = async (payload: any) => {
 };
 
 const replyMessage = async (payload: TMessages) => {
-  const { senderId, receiverId, text, replyId } = payload;
+  const { sender_id, receiverId, text, replyId } = payload;
 
   // 1. Insert the new message
   const insertQuery = `
@@ -264,7 +264,7 @@ const replyMessage = async (payload: TMessages) => {
   RETURNING *;
 `;
 
-  const insertValues = [senderId, receiverId, text, '', replyId];
+  const insertValues = [sender_id, receiverId, text, '', replyId];
   const {
     rows: [newMessage],
   } = await pool.query(insertQuery, insertValues);
@@ -284,7 +284,7 @@ const replyMessage = async (payload: TMessages) => {
 `;
 
   const { rows: messages } = await pool.query(fetchQuery, [
-    senderId,
+    sender_id,
     receiverId,
   ]);
 

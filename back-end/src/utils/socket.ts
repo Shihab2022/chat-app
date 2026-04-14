@@ -25,7 +25,7 @@ io.on('connection', (socket) => {
   socket.on('typing', ({ receiverId }) => {
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
-      io.to(receiverSocketId).emit('userTyping', { senderId: userId });
+      io.to(receiverSocketId).emit('userTyping', { sender_id: userId });
     }
   });
 
@@ -33,7 +33,7 @@ io.on('connection', (socket) => {
   socket.on('stopTyping', ({ receiverId }) => {
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
-      io.to(receiverSocketId).emit('userStopTyping', { senderId: userId });
+      io.to(receiverSocketId).emit('userStopTyping', { sender_id: userId });
     }
   });
   // socket.on('message:seen', async ({ messageId, userId }) => {

@@ -39,7 +39,6 @@ const Message = () => {
   //     );
   //   }
   // }, [receiverId, messages]);
-  console.log({ messages });
   return (
     <>
       <Box sx={{ paddingTop: NAV_BAR_HEIGHT }}>

@@ -33,7 +33,7 @@ const ShowingEmoji = ({ mess, myId }: any) => {
           borderRadius: "10px",
           padding: "3px 1px",
           fontSize: "18px",
-          ...(mess.senderId === myId ? { left: 1 } : { right: 1 }),
+          ...(mess.sender_id === myId ? { left: 1 } : { right: 1 }),
         }}
       >
         <Stack

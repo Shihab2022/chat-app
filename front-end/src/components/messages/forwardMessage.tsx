@@ -49,7 +49,7 @@ const ForwardMessage = ({ mess, forwardMenuOpen, setForwardMenuOpen }: any) => {
       const params = {
         text: mess?.text,
         receiverIds: selectedUsers,
-        senderId: loginUser.id,
+        sender_id: loginUser.id,
       };
       const response = await forwardMessageAPI(params);
       console.log("forward response", response);

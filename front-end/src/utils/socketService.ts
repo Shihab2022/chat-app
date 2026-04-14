@@ -42,12 +42,12 @@ export function connectSocket(userId: string, dispatch: any) {
   });
 
   // ✅ Typing events
-  socket.on(SOCKET_EVENTS.USER_TYPING, ({ senderId }) => {
-    dispatch(SET_START_TYPING_STATUS(senderId));
+  socket.on(SOCKET_EVENTS.USER_TYPING, ({ sender_id }) => {
+    dispatch(SET_START_TYPING_STATUS(sender_id));
   });
 
-  socket.on(SOCKET_EVENTS.USER_STOP_TYPING, ({ senderId }) => {
-    dispatch(SET_END_TYPING_STATUS(senderId));
+  socket.on(SOCKET_EVENTS.USER_STOP_TYPING, ({ sender_id }) => {
+    dispatch(SET_END_TYPING_STATUS(sender_id));
   });
   socket.on(SOCKET_EVENTS.EDIT_MESSAGE, (msg) => {
     dispatch(UPDATE_EDITED_MESSAGE(msg));

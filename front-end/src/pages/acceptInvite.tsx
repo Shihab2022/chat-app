@@ -52,7 +52,7 @@ export default function AcceptInvite() {
       const response = await acceptInviteApi(params);
       if (response?.data?.accessToken) {
         const { accessToken: token, data, mess } = response?.data;
-        dispatch(SET_RECEIVER_ID(data?.senderId));
+        dispatch(SET_RECEIVER_ID(data?.sender_id));
         const formattedMessage = groupMessagesByDate(mess);
         dispatch(SET_CONVERSATION(formattedMessage));
         localStorage.setItem(ACCESS_TOKEN_KEY, token);

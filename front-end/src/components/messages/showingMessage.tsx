@@ -10,30 +10,29 @@ import ShowingEmoji from "./showingEmoji";
 import { ImgViewer } from "../imgViewer";
 
 const ShowingMessage = ({ mess, messageEndRef }: any) => {
-  const { text, senderId, created_at, isDeleted, replyId } = mess;
+  const { text, sender_id, created_at, isDeleted, replyId } = mess;
   const [isHovered, setIsHovered] = useState(false);
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth,
   );
   const { messages = {} } = useSelector((state: RootState) => state?.message);
   const { id: myId } = loginUser;
-  const userInfo = allUsers.find((user: any) => user.id === senderId);
-  const isOwn = mess.senderId === myId;
+  const userInfo = allUsers.find((user: any) => user.id === sender_id);
+  const isOwn = mess.sender_id === myId;
   const time = formatTimes(created_at);
-
   const repliedMessage = replyId
     ? Object.values(messages)
         .flat()
         .find((m: any) => m.id === replyId)
     : undefined;
   const replyUser = repliedMessage
-    ? allUsers.find((user: any) => user.id === repliedMessage.senderId)
+    ? allUsers.find((user: any) => user.id === repliedMessage.sender_id)
     : undefined;
   return (
     <>
       <Stack
         direction="row"
-        justifyContent={`${mess.senderId === myId ? "flex-end" : "flex-start"}`}
+        justifyContent={`${mess.sender_id === myId ? "flex-end" : "flex-start"}`}
         alignItems="center"
         spacing={2}
         sx={{ marginY: "10px" }}
@@ -42,14 +41,14 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
         onMouseLeave={() => setIsHovered(false)}
       >
         <Stack
-          direction={`${mess.senderId === myId ? "row-reverse" : "row"}`}
+          direction={`${mess.sender_id === myId ? "row-reverse" : "row"}`}
           justifyContent="flex-start"
           alignItems="center"
           spacing={2}
           sx={{ width: "100%" }}
         >
           <Stack
-            direction={`${mess.senderId === myId ? "row-reverse" : "row"}`}
+            direction={`${mess.sender_id === myId ? "row-reverse" : "row"}`}
             justifyContent="flex-start"
             alignItems="center"
             spacing={2}
@@ -131,7 +130,7 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
                       {isDeleted ? (
                         <Typography sx={{ color: "#e07575ff" }} variant="body1">
                           {` ${
-                            mess.senderId === myId ? "You" : userInfo?.name
+                            mess.sender_id === myId ? "You" : userInfo?.name
                           } deleted this message`}
                         </Typography>
                       ) : (

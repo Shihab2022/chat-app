@@ -35,7 +35,7 @@ export default function SearchField({ myId }: { myId: string }) {
 
   const updateSideBarLastMessage = (msg: any) => {
     const updatedLastMessage = allUsers?.map((user: any) => {
-      if (user?.id === msg?.receiverId || user?.id === msg?.senderId) {
+      if (user?.id === msg?.receiverId || user?.id === msg?.sender_id) {
         return { ...user, lastMessage: msg };
       } else {
         return user;
@@ -46,7 +46,7 @@ export default function SearchField({ myId }: { myId: string }) {
   };
   const handleClick = async () => {
     const messageData = {
-      senderId: myId,
+      sender_id: myId,
       receiverId: receiverId,
       text: message,
     };
@@ -93,7 +93,7 @@ export default function SearchField({ myId }: { myId: string }) {
     try {
       if (message?.length === 0) return;
       const messageData = {
-        senderId: myId,
+        sender_id: myId,
         receiverId: receiverId,
         text: message,
         replyId: repliedMessage?.id,

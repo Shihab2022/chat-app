@@ -119,7 +119,7 @@ export default function MoreActions({
           horizontal: "left",
         }}
       >
-        {(mess?.senderId === myId
+        {(mess?.sender_id === myId
           ? moreActionsConfigMyActions
           : moreActionsConfig
         ).map((c) => (

@@ -27,7 +27,7 @@ export type TConversation = {
 
 export interface ChatMessage {
   id: string;
-  senderId: string;
+  sender_id: string;
   receiverId: string;
   text: string;
   created_at: string;
@@ -38,7 +38,7 @@ export type GroupedMessages = {
 };
 export type TMessage = {
   id: string; // comes as string in JSON
-  senderId: string;
+  sender_id: string;
   receiverId: string;
   text?: string;
   image?: string;

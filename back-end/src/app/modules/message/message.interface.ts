@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 
 export type TMessages = {
-  senderId?: string | Types.ObjectId;
+  sender_id?: string | Types.ObjectId;
   receiverId?: string | Types.ObjectId;
   content?: string;
   timestamp?: string;
