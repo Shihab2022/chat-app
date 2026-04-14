@@ -48,7 +48,7 @@ export const formateMessageAndUpdate = (
   newMessage: any,
   allMessage: Record<string, TMessage[]>,
 ) => {
-  const formattedDate = formatDate(newMessage.createdAt);
+  const formattedDate = formatDate(newMessage.created_at);
   const messagesForUpdate = get(allMessage, formattedDate, []);
   const newMessages = messagesForUpdate.map((item: TMessage) =>
     item.id === newMessage.id ? newMessage : item,
@@ -61,8 +61,8 @@ export const formateMessageAndUpdate = (
 export const formattedSideBarData = (allUsers: any) => {
   if (!allUsers || allUsers.length === 0) return [];
   const sortedData = [...allUsers]?.sort((a: any, b: any) => {
-    const dateA = new Date(a.lastMessage.createdAt).getTime();
-    const dateB = new Date(b.lastMessage.createdAt).getTime();
+    const dateA = new Date(a.lastMessage.created_at).getTime();
+    const dateB = new Date(b.lastMessage.created_at).getTime();
     return dateB - dateA;
   });
 

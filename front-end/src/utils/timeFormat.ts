@@ -10,7 +10,7 @@ export const formatDate = (isoString: Date): string => {
 
   const msPerDay = 24 * 60 * 60 * 1000;
   const diffInDays = Math.round(
-    (todayOnly.getTime() - dOnly.getTime()) / msPerDay
+    (todayOnly.getTime() - dOnly.getTime()) / msPerDay,
   );
 
   if (diffInDays === 0) return "Today";
@@ -37,7 +37,7 @@ export const formatTimes: any = (isoString: any) => {
 
 export function groupMessagesByDate(messages: any) {
   return messages.reduce((groups: any, msg: any) => {
-    const dateObj = new Date(msg.createdAt);
+    const dateObj = new Date(msg.created_at);
     const formattedDate = formatDate(dateObj);
     if (!groups[formattedDate]) {
       groups[formattedDate] = [];
@@ -49,7 +49,7 @@ export function groupMessagesByDate(messages: any) {
 }
 
 export function addMessageToGroups(groups: any, msg: any) {
-  const dateObj = new Date(msg.createdAt);
+  const dateObj = new Date(msg.created_at);
 
   const formattedDate = formatDate(dateObj);
   if (!groups[formattedDate]) {
@@ -62,7 +62,7 @@ export function addMessageToGroups(groups: any, msg: any) {
   return groups;
 }
 export function formatFirstMessage(msg: any) {
-  const dateObj = new Date(msg.createdAt);
+  const dateObj = new Date(msg.created_at);
   const formattedDate = formatDate(dateObj);
 
   return {

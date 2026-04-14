@@ -10,7 +10,7 @@ import ShowingEmoji from "./showingEmoji";
 import { ImgViewer } from "../imgViewer";
 
 const ShowingMessage = ({ mess, messageEndRef }: any) => {
-  const { text, senderId, createdAt, isDeleted, replyId } = mess;
+  const { text, senderId, created_at, isDeleted, replyId } = mess;
   const [isHovered, setIsHovered] = useState(false);
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth,
@@ -19,7 +19,7 @@ const ShowingMessage = ({ mess, messageEndRef }: any) => {
   const { id: myId } = loginUser;
   const userInfo = allUsers.find((user: any) => user.id === senderId);
   const isOwn = mess.senderId === myId;
-  const time = formatTimes(createdAt);
+  const time = formatTimes(created_at);
 
   const repliedMessage = replyId
     ? Object.values(messages)

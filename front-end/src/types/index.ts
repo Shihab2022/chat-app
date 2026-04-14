@@ -30,7 +30,7 @@ export interface ChatMessage {
   senderId: string;
   receiverId: string;
   text: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export type GroupedMessages = {
@@ -42,7 +42,7 @@ export type TMessage = {
   receiverId: string;
   text?: string;
   image?: string;
-  createdAt: string; // usually ISO string from backend
+  created_at: string; // usually ISO string from backend
   updatedAt?: string;
   time?: string;
   seen: boolean;

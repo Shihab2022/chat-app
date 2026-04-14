@@ -137,7 +137,7 @@ const getUsersForSidebar = async (payload: any) => {
     status: row.status,
     isAccountVerified: row.is_account_verified,
     isGoogleLogin: row.is_google_login,
-    createdAt: row.created_at,
+    created_at: row.created_at,
     updatedAt: row.updated_at,
 
     lastMessage: row.message_id
@@ -146,7 +146,7 @@ const getUsersForSidebar = async (payload: any) => {
           senderId: row.sender_id,
           receiverId: row.receiver_id,
           text: row.text,
-          createdAt: row.message_created_at,
+          created_at: row.message_created_at,
         }
       : {},
   }));

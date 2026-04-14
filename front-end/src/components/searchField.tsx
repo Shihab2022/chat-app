@@ -59,7 +59,7 @@ export default function SearchField({ myId }: { myId: string }) {
 
         updateSideBarLastMessage({
           ...messageData,
-          createdAt: new Date().toISOString(),
+          created_at: new Date().toISOString(),
         });
         const formattedMessage = groupMessagesByDate(res?.data);
         dispatch(SET_CONVERSATION(formattedMessage));
@@ -104,7 +104,7 @@ export default function SearchField({ myId }: { myId: string }) {
         stopTypingEvent();
         updateSideBarLastMessage({
           ...messageData,
-          createdAt: new Date().toISOString(),
+          created_at: new Date().toISOString(),
         });
         const formattedMessage = groupMessagesByDate(res?.data);
         dispatch(SET_CONVERSATION(formattedMessage));

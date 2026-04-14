@@ -19,6 +19,7 @@ export default function LeftSiteBarCard({
 }) {
   const { activeUsers = [] } = useSelector((state: RootState) => state?.auth);
   const { name, img, id, email, isTyping = false, lastMessage = {} } = user;
+  console.log({ user });
   return (
     <Card
       elevation={0}
@@ -34,7 +35,7 @@ export default function LeftSiteBarCard({
       }}
       onClick={() => onClick(user)}
     >
-      {activeUsers?.includes(id) ? (
+      {activeUsers?.includes(id.toString()) ? (
         <Stack direction="row" spacing={2}>
           <StyledBadge
             overlap="circular"

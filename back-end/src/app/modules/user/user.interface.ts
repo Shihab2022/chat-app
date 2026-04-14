@@ -10,8 +10,7 @@ export type TUser = {
   status?: string;
   role?: string;
   id?: string;
-  id?: string;
-  createdAt?: Date;
+  created_at?: Date;
   updatedAt?: Date;
   isAccountVerified?: boolean;
   verifiedCode?: number | null;
