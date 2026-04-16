@@ -174,8 +174,8 @@ const acceptInvite = async (payload: {
 
   // 🔹 Insert user
   const insertUserQuery = `
-    INSERT INTO users (name, email, password, status)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO users (name, email, password, status,is_account_verified)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING id, name, email, role
   `;
 
@@ -184,6 +184,7 @@ const acceptInvite = async (payload: {
     email,
     hashedPassword,
     userStatus?.ACTIVE,
+    true,
   ]);
   const updateStatusQuery = `UPDATE friendships
     SET invite_status = $3 WHERE sender_id = $1 AND receiver_email = $2;`;
@@ -236,7 +237,7 @@ const acceptInvite = async (payload: {
   return {
     data: newData,
     accessToken,
-    mess,
+    mess: [mess],
   };
 };
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
