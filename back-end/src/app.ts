@@ -20,7 +20,8 @@ app.use(notFound);
 
 async function startServer() {
   //  Run migrations first
-  // await runMigrations();
+
+  await runMigrations();
 
   server.listen(config.port, () => {
     console.log(`Server is running on http://localhost:${config.port}`);
