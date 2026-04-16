@@ -1,5 +1,6 @@
 import {
   emailSenderMessages,
+  FriendshipStatus,
   passwordMinLength,
   userServiceMessages,
   userStatus,
@@ -183,6 +184,14 @@ const acceptInvite = async (payload: {
     email,
     hashedPassword,
     userStatus?.ACTIVE,
+  ]);
+  const updateStatusQuery = `UPDATE friendships
+    SET invite_status = $3 WHERE sender_id = $1 AND receiver_email = $2;`;
+
+  await pool.query(updateStatusQuery, [
+    userId,
+    email,
+    FriendshipStatus.ACCEPTED,
   ]);
 
   const registerUser = userResult.rows[0];
@@ -543,12 +552,17 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     email,
     message,
   };
-
+  const insertQuery = `INSERT INTO friendships (sender_id, receiver_email, message,invite_token)
+VALUES ($1, $2, $3, $4)`;
   const accessToken = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.jwt_access_expire_in as string,
+    config.invite_expire_in as string,
   );
+  const inviteUrl =
+    `${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string;
+  await pool.query(insertQuery, [id, email, message, inviteUrl]);
+
   const notifyMsg = {
     to: [email],
     from: emailSenderMessages.FROM_JOIN_EMAIL,
@@ -556,7 +570,7 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     text: emailSenderMessages.INVITE_JOIN_MESSAGE,
     html: InviteTemplate(
       userIInfo?.name as string,
-      `${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string,
+      inviteUrl as string,
       config?.front_end_base_url as string,
     ),
     attachments,
