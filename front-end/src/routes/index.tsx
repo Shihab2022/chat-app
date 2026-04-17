@@ -13,6 +13,7 @@ import AcceptInvite from "../pages/acceptInvite";
 import UpdatePassword from "../pages/updatePassword";
 import ConfirmAccount from "../pages/confirmAccount";
 import ResendEmail from "../pages/reSendConfirm";
+import ManageUser from "../pages/manageUser";
 
 export default function Router() {
   return useRoutes([
@@ -40,6 +41,16 @@ export default function Router() {
       element: (
         <ProtectedRoute>
           <InviteUser />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/manageUser",
+      element: (
+        <ProtectedRoute>
+          <NavBar>
+            <ManageUser />
+          </NavBar>
         </ProtectedRoute>
       ),
     },

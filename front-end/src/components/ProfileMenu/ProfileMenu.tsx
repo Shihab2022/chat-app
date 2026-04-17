@@ -19,7 +19,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { RootState } from "../../redux/store";
-import { randomTwoDigit } from "../../utils/common";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { disconnectSocket } from "../../utils/socketService";
 import { checkAuthRes } from "../../utils/checkAuth";
 import { ACCESS_TOKEN_KEY, CURRENT_PATH_KEY } from "../../constants/common";
@@ -92,8 +92,11 @@ const ProfileMenu = ({ HeaderComp }: any) => {
       case "changePassword":
         navigate("/forgetPassword");
         break;
-      case "manageUser":
+      case "inviteUser":
         navigate("/inviteUser");
+        break;
+      case "manageUser":
+        navigate("/manageUser");
         break;
       case "logout":
         handleLogout();
@@ -250,8 +253,13 @@ const ProfileMenu = ({ HeaderComp }: any) => {
           )}
 
           <ProfileMenuItem
-            onClick={() => handleMenu("manageUser")}
+            onClick={() => handleMenu("inviteUser")}
             label="Invite User"
+            icon={<PersonAddIcon sx={profileMenuStyle} />}
+          />
+          <ProfileMenuItem
+            onClick={() => handleMenu("manageUser")}
+            label="Manage Users"
             icon={<ManageAccountsOutlinedIcon sx={profileMenuStyle} />}
           />
           <ProfileMenuItem
