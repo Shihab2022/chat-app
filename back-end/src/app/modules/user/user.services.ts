@@ -572,17 +572,6 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
       (sender_id = $3 AND receiver_email = $4);`,
     [id, email, newUsers?.id, existingUsers?.email],
   );
-  const checkFriendShipsExitsData = checkFriendShipsExits?.rows[0];
-  // if(checkFriendShipsExitsData){
-  //   throw new AppError(httpStatus.BAD_REQUEST, 'You have already sent an invite to this email or you are already friends');
-  // }
-  console.log({ newUsers, existingUsers, checkFriendShipsExitsData });
-  if (newUserCheck.rows.length === 0) {
-    throw new AppError(
-      httpStatus.NOT_FOUND,
-      userServiceMessages.USER_NOT_FOUND,
-    );
-  }
   if (checkFriendShipsExits.rows.length === 0) {
     const insertQuery = `INSERT INTO friendships (sender_id, receiver_email, message,invite_token)
   VALUES ($1, $2, $3, $4)`;
@@ -592,7 +581,9 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
       config.invite_expire_in as string,
     );
     const inviteUrl =
-      `${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string;
+      newUserCheck.rows.length === 0
+        ? (`${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string)
+        : (`${config?.front_end_base_url}/chat` as string);
     await pool.query(insertQuery, [id, email, message, inviteUrl]);
 
     const notifyMsg = {
