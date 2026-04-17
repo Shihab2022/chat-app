@@ -553,31 +553,69 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     email,
     message,
   };
-  const insertQuery = `INSERT INTO friendships (sender_id, receiver_email, message,invite_token)
-VALUES ($1, $2, $3, $4)`;
-  const accessToken = createToken(
-    jwtPayload,
-    config.jwt_access_secret as string,
-    config.invite_expire_in as string,
+  const newUserCheck = await pool.query(
+    `SELECT * FROM users WHERE email = $1`,
+    [email],
   );
-  const inviteUrl =
-    `${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string;
-  await pool.query(insertQuery, [id, email, message, inviteUrl]);
+  const existingUserCheck = await pool.query(
+    `SELECT * FROM users WHERE id = $1`,
+    [id],
+  );
+  const newUsers = newUserCheck.rows[0];
+  const existingUsers = existingUserCheck.rows[0];
+  const checkFriendShipsExits = await pool.query(
+    `SELECT *
+  FROM friendships
+  WHERE
+      (sender_id = $1 AND receiver_email = $2)
+      OR
+      (sender_id = $3 AND receiver_email = $4);`,
+    [id, email, newUsers?.id, existingUsers?.email],
+  );
+  const checkFriendShipsExitsData = checkFriendShipsExits?.rows[0];
+  // if(checkFriendShipsExitsData){
+  //   throw new AppError(httpStatus.BAD_REQUEST, 'You have already sent an invite to this email or you are already friends');
+  // }
+  console.log({ newUsers, existingUsers, checkFriendShipsExitsData });
+  if (newUserCheck.rows.length === 0) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      userServiceMessages.USER_NOT_FOUND,
+    );
+  }
+  if (checkFriendShipsExits.rows.length === 0) {
+    const insertQuery = `INSERT INTO friendships (sender_id, receiver_email, message,invite_token)
+  VALUES ($1, $2, $3, $4)`;
+    const accessToken = createToken(
+      jwtPayload,
+      config.jwt_access_secret as string,
+      config.invite_expire_in as string,
+    );
+    const inviteUrl =
+      `${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string;
+    await pool.query(insertQuery, [id, email, message, inviteUrl]);
 
-  const notifyMsg = {
-    to: [email],
-    from: emailSenderMessages.FROM_JOIN_EMAIL,
-    subject: emailSenderMessages.INVITE_JOIN_SUBJECT,
-    text: emailSenderMessages.INVITE_JOIN_MESSAGE,
-    html: InviteTemplate(
-      userIInfo?.name as string,
-      inviteUrl as string,
-      config?.front_end_base_url as string,
-    ),
-    attachments,
-  };
+    const notifyMsg = {
+      to: [email],
+      from: emailSenderMessages.FROM_JOIN_EMAIL,
+      subject: emailSenderMessages.INVITE_JOIN_SUBJECT,
+      text: emailSenderMessages.INVITE_JOIN_MESSAGE,
+      html: InviteTemplate(
+        userIInfo?.name as string,
+        inviteUrl as string,
+        config?.front_end_base_url as string,
+      ),
+      attachments,
+    };
 
-  await transporter.sendMail(notifyMsg);
+    await transporter.sendMail(notifyMsg);
+  } else {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      userServiceMessages.USER_ALREADY_EXISTS_IN_YOUR_FRIENDS,
+    );
+  }
+
   return payload;
 };
 const updateUserInfo = async (

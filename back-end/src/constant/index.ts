@@ -36,7 +36,10 @@ export const userServiceMessages = {
   INVALID_TOKEN: 'Invalid token',
   EMAIL_IS_REQUIRED: 'Email is required !!',
   EMAIL_IS_EXISTS: 'Email already exists !!',
-
+  USER_ALREADY_EXISTS_IN_YOUR_FRIENDS:
+    'User already exists in your friends list !!',
+  USER_ALREADY_SENT_FRIEND_REQUEST:
+    'You have already sent a friend request to this user !!',
   PASSWORD_LENGTH_ERROR: `Password must be at least ${passwordMinLength} characters long.`,
 };
 
