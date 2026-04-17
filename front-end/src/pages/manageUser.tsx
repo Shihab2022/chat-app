@@ -1,5 +1,9 @@
 import { Typography } from "@mui/material";
 import ChattyTable from "../components/table";
+import { getFriends } from "../services/auth";
+import { useEffect } from "react";
+import { RootState } from "../redux/store";
+import { useSelector } from "react-redux";
 interface User {
   name: string;
   age: number;
@@ -23,6 +27,16 @@ const rows: User[] = [
 ];
 
 const ManageUser = () => {
+  const { loginUser } = useSelector((state: RootState) => state?.auth);
+  const { id: myId } = loginUser;
+  const getFriendsData = async () => {
+    const res = await getFriends({ id: myId });
+    console.log(res);
+  };
+
+  useEffect(() => {
+    getFriendsData();
+  }, []);
   return (
     <>
       <Typography variant="h4" sx={{ fontWeight: "bold" }}>

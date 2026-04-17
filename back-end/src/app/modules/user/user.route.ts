@@ -15,6 +15,7 @@ router.post('/forget-password', UserController.forgetPassword);
 router.post('/update-password', UserController.updatePassword);
 router.post('/check', UserController.checkAuth);
 router.post('/invite', auth(userRole?.USER), UserController.inviteUser);
+router.get('/friends', auth(userRole?.USER), UserController.getFriends);
 router.post(
   '/update-info',
   auth(userRole?.USER),

@@ -57,6 +57,7 @@ export const userControllerMessages = {
   UPDATED_USER: 'Updated successfully !!!',
   GOOGLE_LOGIN: 'Google login successfully !!!',
   GOOGLE_REGISTER: 'Google register successfully !!!',
+  GET_FRIENDS: 'Friends retrieved successfully !!!',
 };
 export const authorizationError = {
   UN_AUTHORIZED: 'You are not authorized',

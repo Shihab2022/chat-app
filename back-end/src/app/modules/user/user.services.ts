@@ -755,6 +755,15 @@ const googleRegister = async (payload: {
 
   return token;
 };
+
+const getFriends = async (payload: Partial<TUser>) => {
+  const { id ,email} = payload;
+  const checkFriendShipsExits = await pool.query(
+    `SELECT * FROM friendships WHERE sender_id = $1 OR receiver_email = $2`,
+    [id, email],
+  );
+  return checkFriendShipsExits.rows[0];
+};
 export const UserServices = {
   createUserIntoDB,
   confirmUser,
@@ -768,4 +777,5 @@ export const UserServices = {
   updateUserInfo,
   googleLogin,
   googleRegister,
+  getFriends,
 };
