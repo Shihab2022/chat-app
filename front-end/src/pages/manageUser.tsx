@@ -1,37 +1,39 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Typography } from "@mui/material";
 import ChattyTable from "../components/table";
 import { getFriends } from "../services/auth";
-import { useEffect } from "react";
-import { RootState } from "../redux/store";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { formatDate } from "../utils/timeFormat";
 interface User {
-  name: string;
-  age: number;
-  city: string;
+  receiver_email: string;
+  invite_status: string;
+  is_blocked: boolean;
+  created_at: string;
 }
 
 const columns: {
   id: keyof User;
   label: string;
   align?: "left" | "right" | "center";
+  format?: any;
 }[] = [
-  { id: "name", label: "Name" },
-  { id: "age", label: "Age", align: "right" },
-  { id: "city", label: "City" },
+  { id: "receiver_email", label: "Receiver Email" },
+  { id: "invite_status", label: "Invite Status", align: "right" },
+  { id: "is_blocked", label: "Blocked" },
+  {
+    id: "created_at",
+    label: "Created At",
+    format: (value: any) => formatDate(value),
+  },
 ] as const;
 
-const rows: User[] = [
-  { name: "Shihab", age: 25, city: "Dhaka" },
-  { name: "Rahim", age: 30, city: "Rajshahi" },
-  { name: "Karim", age: 28, city: "Chittagong" },
-];
-
 const ManageUser = () => {
-  const { loginUser } = useSelector((state: RootState) => state?.auth);
-  const { id: myId } = loginUser;
+  const [friends, userFriends] = useState([]);
   const getFriendsData = async () => {
-    const res = await getFriends({ id: myId });
-    console.log(res);
+    const res = await getFriends({});
+    if (res?.success) {
+      userFriends(res?.data);
+    }
   };
 
   useEffect(() => {
@@ -41,7 +43,7 @@ const ManageUser = () => {
     <>
       <Typography variant="h4" sx={{ fontWeight: "bold" }}>
         Manage Users
-        <ChattyTable rows={rows} columns={columns} />
+        <ChattyTable rows={friends} columns={columns} />
       </Typography>
     </>
   );

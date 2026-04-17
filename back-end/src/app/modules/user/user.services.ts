@@ -583,7 +583,7 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     const inviteUrl =
       newUserCheck.rows.length === 0
         ? (`${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string)
-        : (`${config?.front_end_base_url}/chat` as string);
+        : (`${config?.front_end_base_url}/manageUser` as string);
     await pool.query(insertQuery, [id, email, message, inviteUrl]);
 
     const notifyMsg = {
@@ -757,12 +757,12 @@ const googleRegister = async (payload: {
 };
 
 const getFriends = async (payload: Partial<TUser>) => {
-  const { id ,email} = payload;
+  const { id, email } = payload;
   const checkFriendShipsExits = await pool.query(
     `SELECT * FROM friendships WHERE sender_id = $1 OR receiver_email = $2`,
     [id, email],
   );
-  return checkFriendShipsExits.rows[0];
+  return checkFriendShipsExits.rows;
 };
 export const UserServices = {
   createUserIntoDB,
