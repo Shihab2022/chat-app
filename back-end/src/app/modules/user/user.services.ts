@@ -764,6 +764,15 @@ const getFriends = async (payload: Partial<TUser>) => {
   );
   return checkFriendShipsExits.rows;
 };
+
+const blockUser = async (
+  payload: { friendId: number },
+  userInfo: Partial<TUser>,
+) => {
+  const { friendId } = payload;
+  const { id } = userInfo;
+};
+
 export const UserServices = {
   createUserIntoDB,
   confirmUser,
@@ -778,4 +787,5 @@ export const UserServices = {
   googleLogin,
   googleRegister,
   getFriends,
+  blockUser,
 };
