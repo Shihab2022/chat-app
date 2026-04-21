@@ -9,7 +9,7 @@ create api for block user , delete user (when delete or block user showing a pop
 when user block in any friends for that case close the bottom text field and showing proper message as like whats app
 get all the friends data and showing on the left side bar
 complete the mange user UI
-emoji is not working perfectly , fix that
+emoji is not working perfectly , fix that(for fix this we need another table that name is message reactions or we have to update the query , make sure that in message receiver and sender both can add , change and remove his won emoji )
 after login user redirect on the chat page
 implement image upload feature also
 add search option on the left side bar
