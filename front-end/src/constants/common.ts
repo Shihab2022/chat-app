@@ -1,3 +1,8 @@
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import BlockIcon from "@mui/icons-material/Block";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 export const SUCCESS = "success";
 export const WARNING = "warning";
 export const FAILED = "failed";
@@ -28,7 +33,7 @@ export const httpMethod = {
 };
 
 export const DRAWER_WIDTH = 340;
-export const RIGHT_DRAWER_WIDTH = 380;
+export const RIGHT_DRAWER_WIDTH = 350;
 export const NAV_BAR_HEIGHT = "70PX";
 
 export const ACCESS_TOKEN_KEY = "accessToken";
@@ -39,3 +44,30 @@ export const FriendshipStatus = {
   ACCEPTED: "ACCEPTED",
   REJECTED: "REJECTED",
 } as const;
+
+export const rightSideActionInfo = [
+  {
+    title: "Add to favorites",
+    icon: FavoriteBorderIcon,
+    isRed: false,
+    id: "favorite",
+  },
+  {
+    title: "Clear chat",
+    icon: HighlightOffIcon,
+    isRed: true,
+    id: "clearChat",
+  },
+  {
+    title: "Block user",
+    icon: BlockIcon,
+    isRed: true,
+    id: "blockUser",
+  },
+  {
+    title: "Delete chat",
+    icon: DeleteIcon,
+    isRed: true,
+    id: "deleteChat",
+  },
+];
