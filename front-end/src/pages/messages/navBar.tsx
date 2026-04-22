@@ -2,7 +2,7 @@
 import AppBar from "@mui/material/AppBar";
 import Typography from "@mui/material/Typography";
 import { DRAWER_WIDTH, NAV_BAR_HEIGHT } from "../../constants/common";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useMemo } from "react";
 import { TUser } from "../../types";
@@ -11,9 +11,11 @@ import { StyledBadge } from "../../components/StyledBadge";
 import ProfileMenu from "../../components/ProfileMenu/ProfileMenu";
 import { useNavigate } from "react-router-dom";
 import logoImage from "../../assets/logo.png";
+import { SET_RIGHT_SIDEBAR_OPEN_STATUS } from "../../redux/features/chat/conversationSlice";
 const NavBar = (props: any) => {
   const { children, isDrawer = false } = props;
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { receiverId } = useSelector((state: RootState) => state?.message);
   const { allUsers, activeUsers = [] } = useSelector(
     (state: RootState) => state?.auth,
@@ -24,6 +26,8 @@ const NavBar = (props: any) => {
       return user;
     }
   }, [receiverId]);
+
+  const userImage = `data:image/jpeg;base64,${selectedUserInfo?.img}`;
   return (
     <>
       <AppBar
@@ -55,7 +59,9 @@ const NavBar = (props: any) => {
                 alignItems: "center",
                 height: "100%",
                 color: "#000",
+                cursor: "pointer",
               }}
+              onClick={() => dispatch(SET_RIGHT_SIDEBAR_OPEN_STATUS(true))}
             >
               {activeUsers?.includes(selectedUserInfo?.id?.toString()) ? (
                 <Stack direction="row" spacing={2}>
@@ -64,17 +70,51 @@ const NavBar = (props: any) => {
                     anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                     variant="dot"
                   >
-                    <Avatar
-                      alt={selectedUserInfo?.name}
-                      src={selectedUserInfo?.img}
-                    />
+                    {selectedUserInfo?.img ? (
+                      <Avatar
+                        src={
+                          selectedUserInfo?.img
+                            ? selectedUserInfo?.img
+                            : userImage
+                        }
+                      />
+                    ) : (
+                      <Avatar
+                        sx={{
+                          background: "#7c4dff",
+                          color: "white",
+                          width: 40,
+                          height: 40,
+                        }}
+                      >
+                        {selectedUserInfo?.name?.slice(0, 2).toUpperCase()}
+                      </Avatar>
+                    )}
                   </StyledBadge>
                 </Stack>
               ) : (
-                <Avatar
-                  alt={selectedUserInfo?.name}
-                  src={selectedUserInfo?.img}
-                />
+                <>
+                  {selectedUserInfo?.img ? (
+                    <Avatar
+                      src={
+                        selectedUserInfo?.img
+                          ? selectedUserInfo?.img
+                          : userImage
+                      }
+                    />
+                  ) : (
+                    <Avatar
+                      sx={{
+                        background: "#7c4dff",
+                        color: "white",
+                        width: 40,
+                        height: 40,
+                      }}
+                    >
+                      {selectedUserInfo?.name?.slice(0, 2).toUpperCase()}
+                    </Avatar>
+                  )}
+                </>
               )}
 
               <Typography component="div" variant="h6">

@@ -30,6 +30,9 @@ function ChatContainer() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
+  const { isRightSidebarOpen } = useSelector(
+    (state: RootState) => state?.message,
+  );
   const navigate = useNavigate();
   const { id: myId } = loginUser;
 
@@ -119,7 +122,9 @@ function ChatContainer() {
             flexGrow: 1,
             p: 3,
             width: {
-              sm: `calc(100% - ${DRAWER_WIDTH + RIGHT_DRAWER_WIDTH}px)`,
+              sm: isRightSidebarOpen
+                ? `calc(100% - ${DRAWER_WIDTH + RIGHT_DRAWER_WIDTH}px)`
+                : `calc(100% - ${DRAWER_WIDTH}px)`,
             },
           }}
         >
@@ -131,7 +136,9 @@ function ChatContainer() {
               position: "fixed",
               bottom: 5,
               width: {
-                sm: `calc(100% - ${DRAWER_WIDTH + RIGHT_DRAWER_WIDTH + 40}px)`,
+                sm: isRightSidebarOpen
+                  ? `calc(100% - ${DRAWER_WIDTH + RIGHT_DRAWER_WIDTH + 40}px)`
+                  : `calc(100% - ${DRAWER_WIDTH + 40}px)`,
               },
             }}
           >
@@ -139,20 +146,22 @@ function ChatContainer() {
           </Box>
         </Box>
 
-        <Box
-          sx={{
-            width: RIGHT_DRAWER_WIDTH,
-            display: { xs: "none", md: "block" },
-            borderLeft: "1px solid #e0e0e0",
-            p: 2,
-            bgcolor: "#fafafa",
-            height: "100vh",
-            position: "sticky",
-            top: 0,
-          }}
-        >
-          <RightSidebar />
-        </Box>
+        {isRightSidebarOpen && (
+          <Box
+            sx={{
+              width: RIGHT_DRAWER_WIDTH,
+              display: { xs: "none", md: "block" },
+              borderLeft: "1px solid #e0e0e0",
+              p: 2,
+              bgcolor: "#fafafa",
+              height: "100vh",
+              position: "sticky",
+              top: 0,
+            }}
+          >
+            <RightSidebar />
+          </Box>
+        )}
       </Box>
 
       <Loader loading={isLoading} title="Chat Loading..." />

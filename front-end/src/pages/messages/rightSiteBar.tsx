@@ -1,12 +1,22 @@
 import { Avatar, Box, Divider, Stack, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { RootState } from "../../redux/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { rightSideActionInfo } from "../../constants/common";
+import { TUser } from "../../types";
+import { useMemo } from "react";
+import { SET_RIGHT_SIDEBAR_OPEN_STATUS } from "../../redux/features/chat/conversationSlice";
 export const RightSidebar = () => {
-  const userInfo = useSelector((state: RootState) => state?.auth?.loginUser);
-  const userImage = `data:image/jpeg;base64,${userInfo.profileImage}`;
-  console.log({ userInfo });
+  const dispatch = useDispatch();
+  const { receiverId } = useSelector((state: RootState) => state?.message);
+  const { allUsers } = useSelector((state: RootState) => state?.auth);
+  const selectedUserInfo = useMemo(() => {
+    if (allUsers?.length > 0 && receiverId) {
+      const user = allUsers.find((u: TUser) => u?.id === receiverId);
+      return user;
+    }
+  }, [receiverId]);
+  const userImage = `data:image/jpeg;base64,${selectedUserInfo?.profileImage}`;
   return (
     <Box>
       <Stack
@@ -19,7 +29,10 @@ export const RightSidebar = () => {
         }}
       >
         <Typography variant="body1">Contact Information</Typography>
-        <CloseIcon />
+        <CloseIcon
+          sx={{ cursor: "pointer" }}
+          onClick={() => dispatch(SET_RIGHT_SIDEBAR_OPEN_STATUS(false))}
+        />
       </Stack>
 
       <Stack
@@ -34,8 +47,10 @@ export const RightSidebar = () => {
             marginBottom: "5px",
           }}
         >
-          {userInfo.img ? (
-            <Avatar src={userInfo.img ? userInfo.img : userImage} />
+          {selectedUserInfo?.img ? (
+            <Avatar
+              src={selectedUserInfo?.img ? selectedUserInfo?.img : userImage}
+            />
           ) : (
             <Avatar
               sx={{
@@ -45,7 +60,7 @@ export const RightSidebar = () => {
                 height: 70,
               }}
             >
-              {userInfo?.name?.slice(0, 1).toUpperCase()}
+              {selectedUserInfo?.name?.slice(0, 1).toUpperCase()}
             </Avatar>
           )}
         </Box>
@@ -58,7 +73,7 @@ export const RightSidebar = () => {
           marginTop: "30px",
         }}
       >
-        {userInfo?.name}
+        {selectedUserInfo?.name}
       </Typography>
       <Typography
         sx={{
@@ -70,10 +85,10 @@ export const RightSidebar = () => {
           marginTop: "20px",
         }}
       >
-        {userInfo?.email}
+        {selectedUserInfo?.email}
       </Typography>
       <Typography sx={{ mt: 5 }}>About</Typography>
-      <Typography>{userInfo?.bio}</Typography>
+      <Typography>{selectedUserInfo?.bio}</Typography>
       <Divider sx={{ my: 2 }} />
 
       {rightSideActionInfo.map((action) => (

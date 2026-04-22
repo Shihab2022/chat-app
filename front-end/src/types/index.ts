@@ -66,4 +66,5 @@ export type TConversationState = {
   selectedReactions?: Reaction[];
   editedMessage?: any;
   repliedMessage?: any;
+  isRightSidebarOpen: boolean;
 };

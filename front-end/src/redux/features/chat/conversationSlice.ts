@@ -18,6 +18,7 @@ const initialState: TConversationState = {
   selectedReactions: [],
   editedMessage: {},
   repliedMessage: {},
+  isRightSidebarOpen: false,
 };
 const conversationSlice = createSlice({
   name: "message",
@@ -98,6 +99,9 @@ const conversationSlice = createSlice({
     SET_REPLIED_MESSAGE: (state, action) => {
       state.repliedMessage = action.payload;
     },
+    SET_RIGHT_SIDEBAR_OPEN_STATUS: (state, action) => {
+      state.isRightSidebarOpen = action.payload;
+    },
   },
 });
 
@@ -117,5 +121,6 @@ export const {
   UPDATE_EDITED_MESSAGE,
   DELETE_MESSAGE,
   SET_REPLIED_MESSAGE,
+  SET_RIGHT_SIDEBAR_OPEN_STATUS,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;
