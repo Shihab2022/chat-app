@@ -28,6 +28,7 @@ export const httpMethod = {
 };
 
 export const DRAWER_WIDTH = 340;
+export const RIGHT_DRAWER_WIDTH = 380;
 export const NAV_BAR_HEIGHT = "70PX";
 
 export const ACCESS_TOKEN_KEY = "accessToken";

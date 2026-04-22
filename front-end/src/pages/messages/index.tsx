@@ -15,10 +15,17 @@ import { SET_RECEIVER_ID } from "../../redux/features/chat/conversationSlice";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 import LeftSiteBar from "./leftSiteBar";
 import { RootState } from "../../redux/store";
-import { CONFIRM_MESSAGE, DRAWER_WIDTH, WARNING } from "../../constants/common";
+import {
+  CONFIRM_MESSAGE,
+  DRAWER_WIDTH,
+  RIGHT_DRAWER_WIDTH,
+  WARNING,
+} from "../../constants/common";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "../../utils/toast";
 import Loader from "../../components/loader";
+import { RightSidebar } from "./rightSiteBar";
+
 function ChatContainer() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -111,7 +118,9 @@ function ChatContainer() {
           sx={{
             flexGrow: 1,
             p: 3,
-            width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
+            width: {
+              sm: `calc(100% - ${DRAWER_WIDTH + RIGHT_DRAWER_WIDTH}px)`,
+            },
           }}
         >
           <Box sx={{ marginBottom: "50px" }}>
@@ -121,11 +130,28 @@ function ChatContainer() {
             sx={{
               position: "fixed",
               bottom: 5,
-              width: { sm: `calc(100% - ${DRAWER_WIDTH + 40}px)` },
+              width: {
+                sm: `calc(100% - ${DRAWER_WIDTH + RIGHT_DRAWER_WIDTH + 40}px)`,
+              },
             }}
           >
             <SearchField myId={myId} />
           </Box>
+        </Box>
+
+        <Box
+          sx={{
+            width: RIGHT_DRAWER_WIDTH,
+            display: { xs: "none", md: "block" },
+            borderLeft: "1px solid #e0e0e0",
+            p: 2,
+            bgcolor: "#fafafa",
+            height: "100vh",
+            position: "sticky",
+            top: 0,
+          }}
+        >
+          <RightSidebar />
         </Box>
       </Box>
 
