@@ -26,9 +26,10 @@ export const RightSidebar = () => {
           justifyContent: "space-between",
           alignItems: "center",
           marginTop: "10px",
+          marginBottom: "20px",
         }}
       >
-        <Typography variant="body1">Contact Information</Typography>
+        <Typography variant="h5">Contact Information</Typography>
         <CloseIcon
           sx={{ cursor: "pointer" }}
           onClick={() => dispatch(SET_RIGHT_SIDEBAR_OPEN_STATUS(false))}
@@ -60,7 +61,7 @@ export const RightSidebar = () => {
                 height: 70,
               }}
             >
-              {selectedUserInfo?.name?.slice(0, 1).toUpperCase()}
+              {selectedUserInfo?.name?.slice(0, 2).toUpperCase()}
             </Avatar>
           )}
         </Box>
@@ -88,18 +89,31 @@ export const RightSidebar = () => {
         {selectedUserInfo?.email}
       </Typography>
       <Typography sx={{ mt: 5 }}>About</Typography>
-      <Typography>{selectedUserInfo?.bio}</Typography>
+      <Typography variant="h6">{selectedUserInfo?.bio}</Typography>
       <Divider sx={{ my: 2 }} />
 
       {rightSideActionInfo.map((action) => (
         <Stack
           key={action.id}
           direction="row"
-          spacing={2}
-          sx={{ cursor: "pointer" }}
+          spacing={1}
+          sx={{
+            cursor: "pointer",
+            color: action.isRed ? "red" : "black",
+
+            paddingX: "15px",
+            paddingY: "7px",
+            borderRadius: "4px",
+            alignItems: "center",
+            "&:hover": {
+              background: action.isRed
+                ? "rgba(245, 39, 39, 0.1)"
+                : "rgba(0, 0, 0, 0.1)",
+            },
+          }}
         >
-          <action.icon />
-          <Typography variant="body2">{action.title}</Typography>
+          <action.icon sx={{ fontSize: "1.7rem" }} />
+          <Typography variant="h6">{action.title}</Typography>
         </Stack>
       ))}
     </Box>
