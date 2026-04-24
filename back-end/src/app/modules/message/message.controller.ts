@@ -146,6 +146,42 @@ const replyMessage = async (
     next(error);
   }
 };
+const clearMessage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.clearMessage(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Reply message successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const deleteAllMessages = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.deleteAllMessages(req.body);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Reply message successfully !!!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const MessageController = {
   sendMessage,
@@ -157,4 +193,6 @@ export const MessageController = {
   deleteMessage,
   ForwardMessage,
   replyMessage,
+  clearMessage,
+  deleteAllMessages,
 };

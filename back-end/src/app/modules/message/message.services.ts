@@ -290,6 +290,17 @@ const replyMessage = async (payload: TMessages) => {
 
   return messages;
 };
+
+const clearMessage = async (payload: TMessages) => {
+  const { sender_id, receiverId, text, replyId } = payload;
+
+  return 'messages';
+};
+const deleteAllMessages = async (payload: TMessages) => {
+  const { sender_id, receiverId, text, replyId } = payload;
+
+  return 'messages';
+};
 export const MessageServices = {
   sendMessageIntoDB,
   getMessageFromDB,
@@ -300,4 +311,6 @@ export const MessageServices = {
   deleteMessage,
   ForwardMessage,
   replyMessage,
+  clearMessage,
+  deleteAllMessages,
 };

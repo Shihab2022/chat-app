@@ -16,5 +16,11 @@ router.patch('/', auth(userRole?.USER), MessageController.editMessage);
 router.delete('/', auth(userRole?.USER), MessageController.deleteMessage);
 router.post('/forward', auth(userRole?.USER), MessageController.ForwardMessage);
 router.post('/reply', auth(userRole?.USER), MessageController.replyMessage);
+router.post('/clear', auth(userRole?.USER), MessageController.clearMessage);
+router.delete(
+  '/delete',
+  auth(userRole?.USER),
+  MessageController.deleteAllMessages,
+);
 
 export const MessageRoutes = router;
