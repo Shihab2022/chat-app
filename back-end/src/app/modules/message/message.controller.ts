@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import sendResponse from '../../../utils/sentResponce';
 import httpStatus from 'http-Status';
 import { MessageServices } from './message.services';
+import { messageServiceMessages } from '../../../constant';
 
 const sendMessage = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -10,7 +11,7 @@ const sendMessage = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Message send successfully !!!',
+      message: messageServiceMessages.MESSAGE_SEND,
       data: result,
     });
   } catch (error) {
@@ -25,7 +26,7 @@ const getMessage = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Message get successfully !!!',
+      message: messageServiceMessages.MESSAGE_GET,
       data: result,
     });
   } catch (error) {
@@ -43,7 +44,7 @@ const getUsersForSidebar = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Users  get successfully !!!',
+      message: messageServiceMessages.USER_GET,
       data: result,
     });
   } catch (error) {
@@ -57,7 +58,7 @@ const addEmoji = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Add emoji  successfully !!!',
+      message: messageServiceMessages.ADD_EMOJI,
       data: result,
     });
   } catch (error) {
@@ -71,7 +72,7 @@ const removeEmoji = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Remove emoji  successfully !!!',
+      message: messageServiceMessages.REMOVE_EMOJI,
       data: result,
     });
   } catch (error) {
@@ -85,7 +86,7 @@ const editMessage = async (req: Request, res: Response, next: NextFunction) => {
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Remove emoji  successfully !!!',
+      message: messageServiceMessages.MESSAGE_EDIT,
       data: result,
     });
   } catch (error) {
@@ -103,7 +104,7 @@ const deleteMessage = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Remove emoji  successfully !!!',
+      message: messageServiceMessages.DELETE_MESSAGE,
       data: result,
     });
   } catch (error) {
@@ -121,7 +122,7 @@ const ForwardMessage = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Forward message successfully !!!',
+      message: messageServiceMessages.FORWARD_MESSAGE,
       data: result,
     });
   } catch (error) {
@@ -139,7 +140,7 @@ const replyMessage = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Reply message successfully !!!',
+      message: messageServiceMessages.REPLY_MESSAGE,
       data: result,
     });
   } catch (error) {
@@ -157,7 +158,7 @@ const clearMessage = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Reply message successfully !!!',
+      message: messageServiceMessages.CLEAR_MESSAGE,
       data: result,
     });
   } catch (error) {
@@ -175,7 +176,7 @@ const deleteAllMessages = async (
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Reply message successfully !!!',
+      message: messageServiceMessages.DELETE_MESSAGES,
       data: result,
     });
   } catch (error) {

@@ -58,6 +58,22 @@ export const userControllerMessages = {
   GOOGLE_LOGIN: 'Google login successfully !!!',
   GOOGLE_REGISTER: 'Google register successfully !!!',
   GET_FRIENDS: 'Friends retrieved successfully !!!',
+  BLOCK_USER: 'You have blocked this user !!',
+};
+
+export const messageServiceMessages = {
+  MESSAGE_SEND: 'Message send successfully !!!',
+  MESSAGE_GET: 'Message get successfully !!!',
+  MESSAGE_EDIT: 'Message edit successfully !!!',
+  USER_GET: 'Users  get successfully !!!',
+  ADD_EMOJI: 'Add emoji  successfully !!!',
+  REMOVE_EMOJI: 'Remove emoji  successfully !!!',
+  CHANGE_EMOJI: 'Change emoji  successfully !!!',
+  DELETE_MESSAGE: 'Message deleted  successfully !!!',
+  FORWARD_MESSAGE: 'Forward message successfully !!!',
+  REPLY_MESSAGE: 'Reply message successfully !!!',
+  CLEAR_MESSAGE: 'Clear message successfully !!!',
+  DELETE_MESSAGES: 'Delete all messages successfully !!!',
 };
 export const authorizationError = {
   UN_AUTHORIZED: 'You are not authorized',
