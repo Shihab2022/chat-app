@@ -771,11 +771,32 @@ const blockUser = async (
 ) => {
   const { friendId } = payload;
   const { id } = userInfo;
-  const updateQuery = `UPDATE friendships
-SET invite_status = $3 WHERE 
-(sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1);`;
-  await pool.query(updateQuery, [id, friendId, FriendshipStatus.REJECTED]);
-  console.log('Blocking user with ID:', friendId, 'by user with ID:', id);
+
+  const loginUser = await pool.query(`SELECT * FROM users WHERE id = $1`, [id]);
+  const friend = await pool.query(`SELECT * FROM users WHERE id = $1`, [id]);
+  const loginUserINfo = loginUser.rows[0];
+  const friendInfo = friend.rows[0];
+  const checkFriendShipsExits = await pool.query(
+    `SELECT *
+  FROM friendships
+  WHERE
+      (sender_id = $1 AND receiver_email = $2)
+      OR
+      (sender_id = $3 AND receiver_email = $4);`,
+    [
+      friendInfo?.id,
+      loginUserINfo?.email,
+      loginUserINfo?.id,
+      friendInfo?.email,
+    ],
+  );
+  const friendsInfo = checkFriendShipsExits.rows[0];
+  console.log({ friendsInfo });
+  //   const updateQuery = `UPDATE friendships
+  // SET invite_status = $3 WHERE
+  // (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1);`;
+  //   await pool.query(updateQuery, [id, friendId, FriendshipStatus.REJECTED]);
+  //   console.log('Blocking user with ID:', friendId, 'by user with ID:', id);
 };
 
 export const UserServices = {
