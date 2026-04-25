@@ -2,10 +2,11 @@ import { Avatar, Box, Divider, Stack, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { RootState } from "../../redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import { rightSideActionInfo } from "../../constants/common";
-import { TUser } from "../../types";
+import { rightSideActionInfo, rightSiteIds } from "../../constants/common";
+import { rightSideActionTypes, TUser } from "../../types";
 import { useMemo } from "react";
 import { SET_RIGHT_SIDEBAR_OPEN_STATUS } from "../../redux/features/chat/conversationSlice";
+import { blockUserAPI } from "../../services/auth";
 export const RightSidebar = () => {
   const dispatch = useDispatch();
   const { receiverId } = useSelector((state: RootState) => state?.message);
@@ -17,6 +18,33 @@ export const RightSidebar = () => {
     }
   }, [receiverId]);
   const userImage = `data:image/jpeg;base64,${selectedUserInfo?.profileImage}`;
+  const handleClick = async (info: rightSideActionTypes, userInfo: TUser) => {
+    switch (info.id) {
+      case rightSiteIds.FAVORITE:
+        console.log("favorite clicked", userInfo);
+        // Code to run if expression === value1
+        break;
+      case rightSiteIds.CLEAR_CHAT:
+        console.log("clear chat clicked", userInfo);
+        // Code to run if expression === value2
+        break;
+      case rightSiteIds.BLOCK_USER:
+        {
+          const res = await blockUserAPI({ friendId: userInfo?.id });
+          console.log({ res });
+          console.log("block user clicked", userInfo);
+          // Code to run if expression === value2
+        }
+
+        break;
+      case rightSiteIds.DELETE_CHAT:
+        console.log("delete chat clicked", userInfo);
+        // Code to run if expression === value2
+        break;
+      default:
+      // Code to run if no cases match
+    }
+  };
   return (
     <Box>
       <Stack
@@ -97,6 +125,7 @@ export const RightSidebar = () => {
           key={action.id}
           direction="row"
           spacing={1}
+          onClick={() => handleClick(action, selectedUserInfo)}
           sx={{
             cursor: "pointer",
             color: action.isRed ? "red" : "black",

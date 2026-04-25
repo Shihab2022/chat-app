@@ -68,3 +68,10 @@ export type TConversationState = {
   repliedMessage?: any;
   isRightSidebarOpen: boolean;
 };
+
+export type rightSideActionTypes = {
+  title: string;
+  icon: any;
+  isRed: boolean;
+  id: string;
+};

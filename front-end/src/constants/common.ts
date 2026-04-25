@@ -2,6 +2,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import BlockIcon from "@mui/icons-material/Block";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { rightSideActionTypes } from "../types";
 
 export const SUCCESS = "success";
 export const WARNING = "warning";
@@ -45,29 +46,35 @@ export const FriendshipStatus = {
   REJECTED: "REJECTED",
 } as const;
 
-export const rightSideActionInfo = [
+export const rightSiteIds = {
+  FAVORITE: "favorite",
+  CLEAR_CHAT: "clearChat",
+  BLOCK_USER: "blockUser",
+  DELETE_CHAT: "deleteChat",
+};
+export const rightSideActionInfo: rightSideActionTypes[] = [
   {
     title: "Add to favorites",
     icon: FavoriteBorderIcon,
     isRed: false,
-    id: "favorite",
+    id: rightSiteIds.FAVORITE,
   },
   {
     title: "Clear chat",
     icon: HighlightOffIcon,
     isRed: true,
-    id: "clearChat",
+    id: rightSiteIds.CLEAR_CHAT,
   },
   {
     title: "Block user",
     icon: BlockIcon,
     isRed: true,
-    id: "blockUser",
+    id: rightSiteIds.BLOCK_USER,
   },
   {
     title: "Delete chat",
     icon: DeleteIcon,
     isRed: true,
-    id: "deleteChat",
+    id: rightSiteIds.DELETE_CHAT,
   },
 ];

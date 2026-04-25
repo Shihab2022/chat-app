@@ -771,6 +771,11 @@ const blockUser = async (
 ) => {
   const { friendId } = payload;
   const { id } = userInfo;
+  const updateQuery = `UPDATE friendships
+SET invite_status = $3 WHERE 
+(sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1);`;
+  await pool.query(updateQuery, [id, friendId, FriendshipStatus.REJECTED]);
+  console.log('Blocking user with ID:', friendId, 'by user with ID:', id);
 };
 
 export const UserServices = {
