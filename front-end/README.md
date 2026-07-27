@@ -2,8 +2,8 @@
 
 Some step
 
-when user click on the friends profile then on the right side open the user information profile where user can add block , delete , delete chat those action user can take from there,
-add new field on friends table for deleted_by and blocked_by , send_invite ,nickname,and increase the message text var character max 2000
+where user can add block , delete , delete chat those action user can take from there we have to integrate the api on the front end also,
+
 if some user set his friend nickname , then only user can see this , his friend can not see this , In the front end base on login user id we have to do
 create api for block user , delete user (when delete or block user showing a popup for get permission )
 when user block in any friends for that case close the bottom text field and showing proper message as like whats app
