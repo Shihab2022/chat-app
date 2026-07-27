@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from "react";
-import { Box, SxProps, Theme } from "@mui/material";
+import { Box } from "@mui/material";
 
 interface FadeInWrapperProps {
   children: React.ReactNode;
-  sx?: SxProps<Theme>;
+  sx?: any;
 }
 
 export const FadeInWrapper: React.FC<FadeInWrapperProps> = ({
