@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { httpMethod } from "../constants/common";
-
+import { ReactNode } from "react";
 export type pramsTypes = Record<string, unknown>;
 export type instanceParams = {
   baseURL: string;
@@ -75,3 +75,39 @@ export type rightSideActionTypes = {
   isRed: boolean;
   id: string;
 };
+
+export interface Feature {
+  id: string;
+  icon: ReactNode;
+  title: string;
+  description: string;
+}
+
+export interface Stat {
+  id: string;
+  value: string;
+  label: string;
+}
+
+export interface Step {
+  id: string;
+  stepNumber: number;
+  title: string;
+  description: string;
+  icon: ReactNode;
+}
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  avatarUrl: string;
+  rating: number;
+  content: string;
+}
+
+export interface NavLinkItem {
+  label: string;
+  href: string;
+}
