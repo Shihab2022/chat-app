@@ -6,9 +6,8 @@ import {
   CssBaseline,
   Paper,
   Typography,
-  alpha,
-  useTheme,
 } from "@mui/material";
+import { alpha, useTheme } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import logoImage from "../src/assets/logo.png";

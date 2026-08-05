@@ -18,15 +18,8 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { updatePasswordApi } from "../services/auth";
 import { SENDING_FAILED_MESSAGE } from "../constants/common";
-import {
-  CircularProgress,
-  Link,
-  Paper,
-  Stack,
-  alpha,
-  useTheme,
-} from "@mui/material";
-
+import { CircularProgress, Link, Paper, Stack } from "@mui/material";
+import { alpha, useTheme } from "@mui/material/styles";
 export default function UpdatePassword() {
   const theme = useTheme();
   const navigate = useNavigate();

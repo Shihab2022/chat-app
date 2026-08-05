@@ -11,10 +11,8 @@ import {
   TablePagination,
   Box,
   Typography,
-  alpha,
-  useTheme,
 } from "@mui/material";
-
+import { alpha, useTheme } from "@mui/material/styles";
 export interface Column<T> {
   id: keyof T;
   label: string;

@@ -11,9 +11,8 @@ import {
   Paper,
   Stack,
   Typography,
-  alpha,
-  useTheme,
 } from "@mui/material";
+import { alpha, useTheme } from "@mui/material/styles";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";

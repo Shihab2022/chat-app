@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Chip, Container, Paper, Typography, alpha } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { Box, Chip, Container, Paper, Typography } from "@mui/material";
+import { alpha, useTheme } from "@mui/material/styles";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import ChattyTable, { Column } from "../components/table";
 import { getFriends } from "../services/auth";

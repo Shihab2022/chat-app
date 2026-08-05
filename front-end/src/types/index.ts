@@ -30,6 +30,11 @@ export interface ChatMessage {
   sender_id: string;
   receiverId: string;
   text: string;
+  seen?: boolean;
+  pending?: boolean;
+  isDeleted?: boolean;
+  replyId?: string;
+  reactions?: Reaction[];
   created_at: string;
 }
 
@@ -47,6 +52,10 @@ export type TMessage = {
   time?: string;
   seen: boolean;
   seenAt?: string;
+  pending?: boolean;
+  isDeleted?: boolean;
+  replyId?: string;
+  reactions?: Reaction[];
 };
 
 export type Reaction = {

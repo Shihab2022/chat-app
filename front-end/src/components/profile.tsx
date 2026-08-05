@@ -11,9 +11,8 @@ import {
   Paper,
   Divider,
   CircularProgress,
-  alpha,
-  useTheme,
 } from "@mui/material";
+import { alpha, useTheme } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { useDispatch, useSelector } from "react-redux";

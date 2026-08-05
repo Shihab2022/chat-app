@@ -24,16 +24,8 @@ import {
 } from "../redux/features/chat/conversationSlice";
 import { groupMessagesByDate } from "../utils/timeFormat";
 import { ACCESS_TOKEN_KEY, SENDING_FAILED_MESSAGE } from "../constants/common";
-import {
-  CircularProgress,
-  Grid,
-  Link,
-  Paper,
-  Stack,
-  alpha,
-  useTheme,
-} from "@mui/material";
-
+import { CircularProgress, Grid, Link, Paper, Stack } from "@mui/material";
+import { alpha, useTheme } from "@mui/material/styles";
 export default function AcceptInvite() {
   const theme = useTheme();
   const navigate = useNavigate();

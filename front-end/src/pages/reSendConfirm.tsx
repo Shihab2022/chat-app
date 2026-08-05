@@ -22,15 +22,8 @@ import {
   SUCCESS,
   WARNING,
 } from "../constants/common";
-import {
-  CircularProgress,
-  Link,
-  Paper,
-  Stack,
-  alpha,
-  useTheme,
-} from "@mui/material";
-
+import { CircularProgress, Link, Paper, Stack } from "@mui/material";
+import { alpha, useTheme } from "@mui/material/styles";
 export default function ResendEmail() {
   const theme = useTheme();
   const navigate = useNavigate();

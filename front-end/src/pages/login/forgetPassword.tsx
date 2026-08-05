@@ -13,16 +13,9 @@ import Loader from "../../components/loader";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { forgotPasswordApi } from "../../services/auth";
 import { useState } from "react";
-import {
-  CircularProgress,
-  Link,
-  Paper,
-  Stack,
-  alpha,
-  useTheme,
-} from "@mui/material";
+import { CircularProgress, Link, Paper, Stack } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
+import { alpha, useTheme } from "@mui/material/styles";
 export default function ForgetPassword() {
   const navigate = useNavigate();
   const theme = useTheme();

@@ -26,15 +26,13 @@ import {
   Paper,
   Stack,
   TextField,
-  alpha,
-  useTheme,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { googleRegisterApi, registerUserApi } from "../../services/auth";
 import logoImage from "../../assets/logo.png";
 import GoogleLoginCom from "./googleLoginCom";
-
+import { alpha, useTheme } from "@mui/material/styles";
 interface SignUpFormInputs {
   userName: string;
   name: string;

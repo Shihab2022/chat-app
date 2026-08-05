@@ -1,169 +1,255 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
+import { Box, Paper, Stack, Typography } from "@mui/material";
+import { alpha, useTheme } from "@mui/material/styles";
+import DoneIcon from "@mui/icons-material/Done";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+
 import { RootState } from "../../redux/store";
+import { TMessage, TUser } from "../../types";
 import { formatTimes } from "../../utils/timeFormat";
-import { useState } from "react";
+// import { emitMessageSeen } from "../../utils/socketService";
 import MessageIcons from "./messageIcons";
 import ShowingEmoji from "./showingEmoji";
 import { ImgViewer } from "../imgViewer";
 
-const ShowingMessage = ({ mess, messageEndRef }: any) => {
-  const { text, sender_id, created_at, isDeleted, replyId } = mess;
+interface ShowingMessageProps {
+  mess: TMessage;
+  messageEndRef: React.RefObject<HTMLDivElement>;
+}
+
+const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
+  const theme = useTheme();
+  const { text, sender_id, created_at, isDeleted, replyId, seen, pending } =
+    mess;
+
   const [isHovered, setIsHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth,
   );
   const { messages = {} } = useSelector((state: RootState) => state?.message);
-  const { id: myId } = loginUser;
-  const userInfo = allUsers.find((user: any) => user.id === sender_id);
-  const isOwn = mess.sender_id === myId;
+
+  const myId = loginUser?.id;
+  const isOwn = sender_id === myId;
   const time = formatTimes(created_at);
+
+  const userInfo = allUsers.find((user: TUser) => user.id === sender_id);
+
+  // Find replied message details
   const repliedMessage = replyId
-    ? Object.values(messages)
+    ? (Object.values(messages) as TMessage[][])
         .flat()
-        .find((m: any) => m.id === replyId)
+        .find((m) => m.id === replyId)
     : undefined;
+
   const replyUser = repliedMessage
-    ? allUsers.find((user: any) => user.id === repliedMessage.sender_id)
+    ? allUsers.find((user: TUser) => user.id === repliedMessage.sender_id)
     : undefined;
+
+  // -------------------------------------------------------------
+  // Automatic Seen Observer: Emits when an unread message is visible
+  // -------------------------------------------------------------
+  useEffect(() => {
+    if (isOwn || seen || !containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            console.log("Message is visible, emitting seen event:", mess.id);
+            // emitMessageSeen(mess.sender_id, mess);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.6 },
+    );
+
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, [isOwn, seen, mess]);
+
+  // Render checkmark / status icon for outgoing messages
+  const renderStatusIcon = () => {
+    if (!isOwn) return null;
+
+    if (pending) {
+      return (
+        <AccessTimeIcon
+          sx={{ fontSize: 13, color: theme.palette.text.disabled }}
+        />
+      );
+    }
+    if (seen) {
+      return (
+        <DoneAllIcon sx={{ fontSize: 15, color: theme.palette.primary.main }} />
+      );
+    }
+    return (
+      <DoneIcon sx={{ fontSize: 15, color: theme.palette.text.disabled }} />
+    );
+  };
+
   return (
-    <>
+    <Stack
+      ref={containerRef}
+      direction="row"
+      justifyContent={isOwn ? "flex-end" : "flex-start"}
+      alignItems="flex-end"
+      spacing={1}
+      sx={{
+        width: "100%",
+        position: "relative",
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div ref={messageEndRef} />
+
+      {/* Avatar for incoming messages */}
+      {!isOwn && (
+        <Box sx={{ mb: 0.5 }}>
+          <ImgViewer
+            img={userInfo?.img}
+            tooltipText={userInfo?.name || "User"}
+          />
+        </Box>
+      )}
+
+      {/* Main Message Block */}
       <Stack
-        direction="row"
-        justifyContent={`${mess.sender_id === myId ? "flex-end" : "flex-start"}`}
+        direction={isOwn ? "row-reverse" : "row"}
         alignItems="center"
-        spacing={2}
-        sx={{ marginY: "10px" }}
-        ref={messageEndRef}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        spacing={1}
+        sx={{ maxWidth: { xs: "85%", sm: "70%" } }}
       >
-        <Stack
-          direction={`${mess.sender_id === myId ? "row-reverse" : "row"}`}
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={2}
-          sx={{ width: "100%" }}
+        <Paper
+          elevation={0}
+          sx={{
+            px: 2,
+            py: 1.25,
+            borderRadius: isOwn ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+            backgroundColor: isDeleted
+              ? alpha(theme.palette.error.main, 0.06)
+              : isOwn
+                ? theme.palette.primary.main
+                : theme.palette.background.paper,
+            color:
+              isOwn && !isDeleted
+                ? theme.palette.primary.contrastText
+                : theme.palette.text.primary,
+            border: isDeleted
+              ? `1px solid ${alpha(theme.palette.error.main, 0.3)}`
+              : `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.04)}`,
+            position: "relative",
+            minWidth: 100,
+          }}
         >
-          <Stack
-            direction={`${mess.sender_id === myId ? "row-reverse" : "row"}`}
-            justifyContent="flex-start"
-            alignItems="center"
-            spacing={2}
-            sx={{ maxWidth: "80%" }}
-          >
-            <ImgViewer img={userInfo?.img} tooltipText={userInfo?.name} />
+          {/* Replied Message Preview */}
+          {replyId && (
             <Box
-              key={mess.id}
               sx={{
-                display: "flex",
-                justifyContent: isOwn ? "flex-start" : "flex-end",
+                borderLeft: `3px solid ${
+                  isOwn
+                    ? theme.palette.common.white
+                    : theme.palette.primary.main
+                }`,
+                pl: 1.5,
+                py: 0.5,
                 mb: 1,
+                borderRadius: 1,
+                backgroundColor: isOwn
+                  ? alpha(theme.palette.common.black, 0.15)
+                  : alpha(theme.palette.action.hover, 0.08),
               }}
             >
-              <Paper
-                elevation={isDeleted ? 0 : 1}
+              <Typography
+                variant="caption"
                 sx={{
-                  paddingX: 1.5,
-                  paddingY: 1,
-                  borderRadius: 2,
-                  backgroundColor: isOwn && !isDeleted ? "#DCF8C6" : "#fff",
-                  position: "relative",
-                  display: "inline-block",
-                  border: isDeleted ? "1px solid #e07575ff" : "none",
-                  maxWidth: "100%", // 👈 keep bubble size realistic like WhatsApp
+                  fontWeight: 700,
+                  display: "block",
+                  color: isOwn
+                    ? theme.palette.common.white
+                    : theme.palette.primary.main,
                 }}
               >
-                <Stack
-                  direction={isOwn ? "row-reverse" : "row"}
-                  spacing={2}
-                  sx={{
-                    justifyContent: "flex-start",
-                    alignItems: "center",
-                    position: "relative",
-                  }}
-                >
-                  <Stack spacing={0.5}>
-                    {/* ✅ Reply Preview Section */}
-                    {replyId && (
-                      <Box
-                        sx={{
-                          borderLeft: "3px solid #4caf50",
-                          pl: 1,
-                          mb: 1,
-                          py: 0.5,
-                          borderRadius: "4px",
-                          backgroundColor: "#f0f0f0",
-                          fontSize: "12px",
-                        }}
-                      >
-                        <Typography
-                          variant="caption"
-                          sx={{ fontWeight: 600, color: "#9aaa9bff" }}
-                        >
-                          {replyUser?.id === myId ? "You" : replyUser?.name}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          noWrap
-                          sx={{ fontSize: "12px", color: "#555" }}
-                        >
-                          {repliedMessage?.text &&
-                          repliedMessage.text.length > 100
-                            ? repliedMessage.text.slice(0, 100) + "..."
-                            : repliedMessage?.text || ""}
-                        </Typography>
-                      </Box>
-                    )}
-
-                    <Stack
-                      direction={isOwn ? "row-reverse" : "row"}
-                      spacing={2}
-                      sx={{
-                        justifyContent: "flex-start",
-                        alignItems: "center",
-                        position: "relative",
-                      }}
-                    >
-                      {isDeleted ? (
-                        <Typography sx={{ color: "#e07575ff" }} variant="body1">
-                          {` ${
-                            mess.sender_id === myId ? "You" : userInfo?.name
-                          } deleted this message`}
-                        </Typography>
-                      ) : (
-                        <Typography variant="body1">{text}</Typography>
-                      )}
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: "block",
-                          textAlign: "right",
-                          mt: 0.5,
-                          opacity: 0.7,
-                          fontSize: "10px",
-                        }}
-                      >
-                        {time || "10:30 PM"}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                </Stack>
-
-                {/* ✅ Emoji Reactions */}
-                {mess?.reactions?.length > 0 && !isDeleted && (
-                  <ShowingEmoji mess={mess} myId={myId} />
-                )}
-              </Paper>
+                {replyUser?.id === myId ? "You" : replyUser?.name || "User"}
+              </Typography>
+              <Typography
+                variant="body2"
+                noWrap
+                sx={{
+                  fontSize: "0.75rem",
+                  opacity: 0.85,
+                }}
+              >
+                {repliedMessage?.text || "Original message"}
+              </Typography>
             </Box>
+          )}
+
+          {/* Text Content */}
+          {isDeleted ? (
+            <Typography
+              variant="body2"
+              sx={{
+                fontStyle: "italic",
+                color: theme.palette.error.main,
+              }}
+            >
+              This message was deleted
+            </Typography>
+          ) : (
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: "0.95rem",
+                lineHeight: 1.4,
+                wordBreak: "break-word",
+              }}
+            >
+              {text}
+            </Typography>
+          )}
+
+          {/* Footer: Time & Read Status */}
+          <Stack
+            direction="row"
+            spacing={0.5}
+            alignItems="center"
+            justifyContent="flex-end"
+            sx={{
+              mt: 0.5,
+              opacity: 0.75,
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: "0.68rem",
+                color: "inherit",
+              }}
+            >
+              {time}
+            </Typography>
+            {!isDeleted && renderStatusIcon()}
           </Stack>
 
-          {isHovered && !isDeleted && <MessageIcons mess={mess} myId={myId} />}
-        </Stack>
+          {/* Reactions Badge */}
+          {mess?.reactions && mess.reactions.length > 0 && !isDeleted && (
+            <ShowingEmoji mess={mess} myId={myId} />
+          )}
+        </Paper>
+
+        {/* Hover Action Icons */}
+        {isHovered && !isDeleted && <MessageIcons mess={mess} myId={myId} />}
       </Stack>
-    </>
+    </Stack>
   );
 };
 

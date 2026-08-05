@@ -4,14 +4,23 @@ export const ImgViewer = ({
   img,
   tooltipText,
 }: {
-  img: any;
+  img?: string;
   tooltipText: string;
 }) => {
   return (
-    <>
-      <Tooltip title={tooltipText}>
-        <Avatar sx={{ width: 30, height: 30 }} src={img} />
-      </Tooltip>
-    </>
+    <Tooltip title={tooltipText}>
+      <Avatar
+        src={img}
+        alt={tooltipText}
+        sx={{
+          width: 32,
+          height: 32,
+          fontWeight: 600,
+          fontSize: "0.85rem",
+        }}
+      >
+        {tooltipText?.slice(0, 1).toUpperCase()}
+      </Avatar>
+    </Tooltip>
   );
 };
