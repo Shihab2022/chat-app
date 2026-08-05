@@ -3,9 +3,12 @@ import Badge from "@mui/material/Badge";
 
 export const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
-    backgroundColor: "#44b700",
-    color: "#44b700",
+    backgroundColor: theme.palette.success.main,
+    color: theme.palette.success.main,
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+    width: 10,
+    height: 10,
+    borderRadius: "50%",
     "&::after": {
       position: "absolute",
       top: 0,

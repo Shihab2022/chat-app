@@ -1,52 +1,45 @@
-import { Box, Typography } from "@mui/material";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import { useTheme } from "@mui/material/styles";
 
 const TypingIndicator = () => {
+  const theme = useTheme();
+  const indicatorColor = theme.palette.success.main;
+
   return (
-    <Box display="flex" alignItems="center" gap={0.5}>
+    <Box display="flex" alignItems="center" gap={0.75} sx={{ py: 0.25 }}>
       <Typography
-        variant="body2"
-        sx={{ color: "#25D366", fontWeight: 600 }} // WhatsApp green
+        variant="caption"
+        sx={{
+          color: indicatorColor,
+          fontWeight: 600,
+          fontSize: "0.75rem",
+          lineHeight: 1,
+        }}
       >
-        Typing
+        typing
       </Typography>
-      <Box display="flex" gap={0.3}>
-        <Box
-          sx={{
-            width: 6,
-            height: 6,
-            bgcolor: "#25D366", // WhatsApp green
-            borderRadius: "50%",
-            animation: "bounce 1.4s infinite",
-          }}
-        />
-        <Box
-          sx={{
-            width: 6,
-            height: 6,
-            bgcolor: "#25D366",
-            borderRadius: "50%",
-            animation: "bounce 1.4s infinite",
-            animationDelay: "0.2s",
-          }}
-        />
-        <Box
-          sx={{
-            width: 6,
-            height: 6,
-            bgcolor: "#25D366",
-            borderRadius: "50%",
-            animation: "bounce 1.4s infinite",
-            animationDelay: "0.4s",
-          }}
-        />
+      <Box display="flex" alignItems="center" gap={0.4}>
+        {[0, 0.2, 0.4].map((delay, index) => (
+          <Box
+            key={index}
+            sx={{
+              width: 5,
+              height: 5,
+              bgcolor: indicatorColor,
+              borderRadius: "50%",
+              animation: "typingBounce 1.4s infinite ease-in-out",
+              animationDelay: `${delay}s`,
+            }}
+          />
+        ))}
       </Box>
 
-      {/* Keyframes for bounce animation */}
       <style>
         {`
-          @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
+          @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
           }
         `}
       </style>

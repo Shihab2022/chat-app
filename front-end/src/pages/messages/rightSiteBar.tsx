@@ -1,150 +1,180 @@
-import { Avatar, Box, Divider, Stack, Typography } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { RootState } from "../../redux/store";
+import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import { alpha, useTheme } from "@mui/material/styles";
+
+import { RootState } from "../../redux/store";
 import { rightSideActionInfo, rightSiteIds } from "../../constants/common";
 import { rightSideActionTypes, TUser } from "../../types";
-import { useMemo } from "react";
 import { SET_RIGHT_SIDEBAR_OPEN_STATUS } from "../../redux/features/chat/conversationSlice";
 import { blockUserAPI } from "../../services/auth";
+
 export const RightSidebar = () => {
+  const theme = useTheme();
   const dispatch = useDispatch();
+
   const { receiverId } = useSelector((state: RootState) => state?.message);
   const { allUsers } = useSelector((state: RootState) => state?.auth);
+
   const selectedUserInfo = useMemo(() => {
     if (allUsers?.length > 0 && receiverId) {
-      const user = allUsers.find((u: TUser) => u?.id === receiverId);
-      return user;
+      return allUsers.find((u: TUser) => u?.id === receiverId);
     }
-  }, [receiverId]);
-  const userImage = `data:image/jpeg;base64,${selectedUserInfo?.profileImage}`;
-  const handleClick = async (info: rightSideActionTypes, userInfo: TUser) => {
+    return null;
+  }, [receiverId, allUsers]);
+
+  const userImage = selectedUserInfo?.profileImage
+    ? `data:image/jpeg;base64,${selectedUserInfo?.profileImage}`
+    : "";
+
+  const handleClick = async (info: rightSideActionTypes, userInfo?: TUser) => {
+    if (!userInfo) return;
+
     switch (info.id) {
       case rightSiteIds.FAVORITE:
         console.log("favorite clicked", userInfo);
-        // Code to run if expression === value1
         break;
       case rightSiteIds.CLEAR_CHAT:
         console.log("clear chat clicked", userInfo);
-        // Code to run if expression === value2
         break;
-      case rightSiteIds.BLOCK_USER:
-        {
-          const res = await blockUserAPI({ friendId: userInfo?.id });
-          console.log({ res });
-          console.log("block user clicked", userInfo);
-          // Code to run if expression === value2
-        }
-
+      case rightSiteIds.BLOCK_USER: {
+        const res = await blockUserAPI({ friendId: userInfo?.id });
+        console.log("block user result:", res);
         break;
+      }
       case rightSiteIds.DELETE_CHAT:
         console.log("delete chat clicked", userInfo);
-        // Code to run if expression === value2
         break;
       default:
-      // Code to run if no cases match
+        break;
     }
   };
+
   return (
-    <Box>
+    <Box sx={{ color: theme.palette.text.primary }}>
+      {/* Header */}
       <Stack
         direction="row"
         spacing={2}
         sx={{
           justifyContent: "space-between",
           alignItems: "center",
-          marginTop: "10px",
-          marginBottom: "20px",
+          mt: 1,
+          mb: 3,
         }}
       >
-        <Typography variant="h5">Contact Information</Typography>
-        <CloseIcon
-          sx={{ cursor: "pointer" }}
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          Contact Info
+        </Typography>
+        <IconButton
+          size="small"
           onClick={() => dispatch(SET_RIGHT_SIDEBAR_OPEN_STATUS(false))}
-        />
+          sx={{ color: theme.palette.text.secondary }}
+        >
+          <CloseIcon />
+        </IconButton>
       </Stack>
 
-      <Stack
-        justifyContent="center"
-        alignItems="center"
-        sx={{ cursor: "context-menu" }}
-      >
-        <Box
+      {/* User Avatar */}
+      <Stack justifyContent="center" alignItems="center" sx={{ mb: 2 }}>
+        <Avatar
+          src={selectedUserInfo?.img || userImage}
           sx={{
-            width: 56,
-            height: 56,
-            marginBottom: "5px",
+            width: 80,
+            height: 80,
+            fontSize: "1.75rem",
+            fontWeight: 600,
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
+            boxShadow: `0 4px 14px ${alpha(theme.palette.common.black, 0.12)}`,
           }}
         >
-          {selectedUserInfo?.img ? (
-            <Avatar
-              src={selectedUserInfo?.img ? selectedUserInfo?.img : userImage}
-            />
-          ) : (
-            <Avatar
-              sx={{
-                background: "#7c4dff",
-                color: "white",
-                width: 70,
-                height: 70,
-              }}
-            >
-              {selectedUserInfo?.name?.slice(0, 2).toUpperCase()}
-            </Avatar>
-          )}
-        </Box>
+          {!selectedUserInfo?.img &&
+            !userImage &&
+            selectedUserInfo?.name?.slice(0, 2).toUpperCase()}
+        </Avatar>
       </Stack>
-      <Typography
-        sx={{
-          color: "black",
-          textAlign: "center",
-          lineHeight: ".4rem",
-          marginTop: "30px",
-        }}
-      >
-        {selectedUserInfo?.name}
-      </Typography>
-      <Typography
-        sx={{
-          fontWeight: "bold",
-          fontSize: ".9rem",
-          color: "black",
-          textAlign: "center",
-          lineHeight: ".4rem",
-          marginTop: "20px",
-        }}
-      >
-        {selectedUserInfo?.email}
-      </Typography>
-      <Typography sx={{ mt: 5 }}>About</Typography>
-      <Typography variant="h6">{selectedUserInfo?.bio}</Typography>
-      <Divider sx={{ my: 2 }} />
 
-      {rightSideActionInfo.map((action) => (
-        <Stack
-          key={action.id}
-          direction="row"
-          spacing={1}
-          onClick={() => handleClick(action, selectedUserInfo)}
+      {/* Name and Email */}
+      <Typography
+        variant="h6"
+        sx={{
+          textAlign: "center",
+          fontWeight: 700,
+          mb: 0.5,
+        }}
+      >
+        {selectedUserInfo?.name || "User"}
+      </Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          color: theme.palette.text.secondary,
+          textAlign: "center",
+          mb: 3,
+        }}
+      >
+        {selectedUserInfo?.email || ""}
+      </Typography>
+
+      {/* About Section */}
+      <Box sx={{ mb: 3 }}>
+        <Typography
+          variant="caption"
           sx={{
-            cursor: "pointer",
-            color: action.isRed ? "red" : "black",
-
-            paddingX: "15px",
-            paddingY: "7px",
-            borderRadius: "4px",
-            alignItems: "center",
-            "&:hover": {
-              background: action.isRed
-                ? "rgba(245, 39, 39, 0.1)"
-                : "rgba(0, 0, 0, 0.1)",
-            },
+            color: theme.palette.text.secondary,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
           }}
         >
-          <action.icon sx={{ fontSize: "1.7rem" }} />
-          <Typography variant="h6">{action.title}</Typography>
-        </Stack>
-      ))}
+          About
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 0.5, fontWeight: 500 }}>
+          {selectedUserInfo?.bio || "No bio available."}
+        </Typography>
+      </Box>
+
+      <Divider sx={{ my: 2, borderColor: theme.palette.divider }} />
+
+      {/* Action Items */}
+      <Stack spacing={0.5}>
+        {rightSideActionInfo.map((action) => (
+          <Stack
+            key={action.id}
+            direction="row"
+            spacing={1.5}
+            onClick={() => handleClick(action, selectedUserInfo)}
+            sx={{
+              cursor: "pointer",
+              color: action.isRed
+                ? theme.palette.error.main
+                : theme.palette.text.primary,
+              px: 2,
+              py: 1.25,
+              borderRadius: 2,
+              alignItems: "center",
+              transition: "background-color 0.2s ease",
+              "&:hover": {
+                backgroundColor: action.isRed
+                  ? alpha(theme.palette.error.main, 0.08)
+                  : alpha(theme.palette.action.hover, 0.08),
+              },
+            }}
+          >
+            <action.icon sx={{ fontSize: "1.3rem" }} />
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              {action.title}
+            </Typography>
+          </Stack>
+        ))}
+      </Stack>
     </Box>
   );
 };

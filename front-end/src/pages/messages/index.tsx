@@ -1,19 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import Drawer from "@mui/material/Drawer";
+import { alpha, useTheme } from "@mui/material/styles";
 import SearchField from "../../components/searchField";
 import Message from "../../components/messages/message";
-import { useEffect, useState } from "react";
+import LeftSiteBar from "./leftSiteBar";
+import { RightSidebar } from "./rightSiteBar";
+import Loader from "../../components/loader";
 import { getUsersForSidebar } from "../../services/message";
 import { toStartCaseStr } from "../../utils/common";
-import { useDispatch, useSelector } from "react-redux";
 import { checkAuthRes } from "../../utils/checkAuth";
 import { SET_RECEIVER_ID } from "../../redux/features/chat/conversationSlice";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
-import LeftSiteBar from "./leftSiteBar";
 import { RootState } from "../../redux/store";
 import {
   CONFIRM_MESSAGE,
@@ -21,25 +23,26 @@ import {
   RIGHT_DRAWER_WIDTH,
   WARNING,
 } from "../../constants/common";
-import { useNavigate } from "react-router-dom";
 import { showToast } from "../../utils/toast";
-import Loader from "../../components/loader";
-import { RightSidebar } from "./rightSiteBar";
+import { TUser } from "../../types";
 
 function ChatContainer() {
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { isRightSidebarOpen } = useSelector(
     (state: RootState) => state?.message,
   );
-  const navigate = useNavigate();
-  const { id: myId } = loginUser;
+  const { id: myId } = loginUser || {};
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-  const dispatch = useDispatch();
 
   const getAllUsers = async () => {
     try {
@@ -47,19 +50,19 @@ function ChatContainer() {
       const res = await getUsersForSidebar(params);
       if (res?.success) {
         const resUsers = res?.data;
-        const conversation = resUsers?.map((d: any) => {
-          const img = d?.img || "";
-          return {
-            ...d,
-            img,
-            name: toStartCaseStr(d?.name),
-          };
-        });
-        dispatch(SET_RECEIVER_ID(conversation[0].id));
-        dispatch(SET_ALL_USERS(conversation));
+        const conversation = resUsers?.map((d: TUser) => ({
+          ...d,
+          img: d?.img || "",
+          name: toStartCaseStr(d?.name),
+        }));
+
+        if (conversation?.length > 0) {
+          dispatch(SET_RECEIVER_ID(conversation[0].id));
+          dispatch(SET_ALL_USERS(conversation));
+        }
       }
     } catch (error) {
-      console.log({ error });
+      console.error("Failed to fetch sidebar users:", error);
     }
   };
 
@@ -67,7 +70,6 @@ function ChatContainer() {
     if (!loginUser?.id) {
       checkAuthRes(dispatch, setIsLoading);
     } else {
-      console.log({ loginUser });
       if (!loginUser?.is_account_verified) {
         navigate("/");
         showToast(WARNING, CONFIRM_MESSAGE);
@@ -76,87 +78,119 @@ function ChatContainer() {
       }
     }
   }, [loginUser]);
+
   return (
     <>
-      <Box sx={{ display: "flex" }}>
+      <Box
+        sx={{
+          display: "flex",
+          minHeight: "100vh",
+          backgroundColor: theme.palette.background.default,
+        }}
+      >
         <CssBaseline />
+
+        {/* Navigation Sidebar Drawer */}
         <Box
           component="nav"
           sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
-          aria-label="mailbox folders"
+          aria-label="chat contacts"
         >
+          {/* Mobile Drawer */}
           <Drawer
             variant="temporary"
             open={mobileOpen}
             onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true,
-            }}
+            ModalProps={{ keepMounted: true }}
             sx={{
               display: { xs: "block", sm: "none" },
               "& .MuiDrawer-paper": {
                 boxSizing: "border-box",
                 width: DRAWER_WIDTH,
+                backgroundColor: theme.palette.background.paper,
+                borderColor: theme.palette.divider,
               },
             }}
           >
             <LeftSiteBar />
           </Drawer>
+
+          {/* Desktop Permanent Drawer */}
           <Drawer
             variant="permanent"
+            open
             sx={{
               display: { xs: "none", sm: "block" },
               "& .MuiDrawer-paper": {
                 boxSizing: "border-box",
                 width: DRAWER_WIDTH,
+                backgroundColor: theme.palette.background.paper,
+                borderColor: theme.palette.divider,
               },
             }}
-            open
           >
             <LeftSiteBar />
           </Drawer>
         </Box>
+
+        {/* Main Chat Content Area */}
         <Box
           component="main"
           sx={{
             flexGrow: 1,
             p: 3,
+            pb: 10,
             width: {
               sm: isRightSidebarOpen
                 ? `calc(100% - ${DRAWER_WIDTH + RIGHT_DRAWER_WIDTH}px)`
                 : `calc(100% - ${DRAWER_WIDTH}px)`,
             },
+            transition: theme.transitions.create(["width", "margin"], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
           }}
         >
-          <Box sx={{ marginBottom: "50px" }}>
+          <Box sx={{ mb: 4 }}>
             <Message />
           </Box>
+
+          {/* Fixed Floating Bottom Message Input */}
           <Box
             sx={{
               position: "fixed",
-              bottom: 5,
+              bottom: 16,
+              zIndex: theme.zIndex.drawer - 1,
               width: {
+                xs: "calc(100% - 32px)",
                 sm: isRightSidebarOpen
-                  ? `calc(100% - ${DRAWER_WIDTH + RIGHT_DRAWER_WIDTH + 40}px)`
-                  : `calc(100% - ${DRAWER_WIDTH + 40}px)`,
+                  ? `calc(100% - ${DRAWER_WIDTH + RIGHT_DRAWER_WIDTH + 48}px)`
+                  : `calc(100% - ${DRAWER_WIDTH + 48}px)`,
               },
+              transition: theme.transitions.create(["width", "left"], {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
             }}
           >
             <SearchField myId={myId} />
           </Box>
         </Box>
 
+        {/* Right Info Sidebar */}
         {isRightSidebarOpen && (
           <Box
             sx={{
               width: RIGHT_DRAWER_WIDTH,
               display: { xs: "none", md: "block" },
-              borderLeft: "1px solid #e0e0e0",
-              p: 2,
-              bgcolor: "#fafafa",
+              borderLeft: `1px solid ${theme.palette.divider}`,
+              p: 2.5,
+              backgroundColor: alpha(theme.palette.background.paper, 0.85),
+              backdropFilter: "blur(8px)",
               height: "100vh",
               position: "sticky",
               top: 0,
+              overflowY: "auto",
             }}
           >
             <RightSidebar />
@@ -168,4 +202,5 @@ function ChatContainer() {
     </>
   );
 }
+
 export default ChatContainer;
