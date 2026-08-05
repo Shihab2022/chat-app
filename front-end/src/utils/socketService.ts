@@ -58,9 +58,9 @@ export function connectSocket(userId: string, dispatch: any) {
   socket.on(SOCKET_EVENTS.FORWARD_MESSAGE, (msg) => {
     dispatch(SET_REAL_TIME_CONVERSATION(msg));
   });
-  // socket.on("message:seen:update", ({ messageId, userId }) => {
-  //   console.log("Message seen update received:", { messageId, userId });
-  // });
+  socket.on(SOCKET_EVENTS.MESSAGE_SEEN_UPDATE, ({ messageId, userId }) => {
+    console.log("Message seen update received:", { messageId, userId });
+  });
   return socket;
 }
 
@@ -83,12 +83,12 @@ export function emitStopTyping(receiverId: string) {
   socket?.emit(SOCKET_EVENTS.STOP_TYPING, { receiverId });
   lastStopTypingId = null;
 }
-// export function emitMessageSeen(receiverId: string, msg: TMessage) {
-//   socket?.emit("message:seen", {
-//     messageId: msg.id,
-//     userId: receiverId,
-//   });
-// }
+export function emitMessageSeen(receiverId: string, msgId: string) {
+  socket?.emit(SOCKET_EVENTS.MESSAGE_SEEN, {
+    messageId: msgId,
+    userId: receiverId,
+  });
+}
 export function getSocket() {
   return socket;
 }

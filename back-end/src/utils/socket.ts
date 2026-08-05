@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 import http from 'http';
 import express from 'express';
 import config from '../app/config';
-import Message from '../app/modules/message/message.model';
+import { pool } from './pg';
 
 const app = express();
 const server = http.createServer(app);
@@ -36,16 +36,21 @@ io.on('connection', (socket) => {
       io.to(receiverSocketId).emit('userStopTyping', { sender_id: userId });
     }
   });
-  // socket.on('message:seen', async ({ messageId, userId }) => {
-  //   // Update the message in the database to mark it as seen
-  //   await Message.findByIdAndUpdate(
-  //     messageId,
-  //     { seen: true, seenAt: new Date() },
-  //     { new: true },
-  //   );
-  //   // broadcast update
-  //   io.emit('message:seen:update', { messageId, userId });
-  // });
+  socket.on('messageSeen', async ({ messageId, userId }) => {
+    // Update the message in the database to mark it as seen
+    const query = `
+UPDATE messages
+SET 
+    seen = true,
+    seen_at = CURRENT_TIMESTAMP,
+    updated_at = CURRENT_TIMESTAMP
+WHERE 
+    id = $1     
+    AND seen = false;
+`;
+    await pool.query(query, [messageId]);
+    io.emit('messageSeenUpdate', { messageId, userId });
+  });
   // io.emit() is used to send events to all the connected clients
   io.emit('getOnlineUsers', Object.keys(userSocketMap));
   socket.on('disconnect', () => {

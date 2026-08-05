@@ -16,4 +16,6 @@ export const SOCKET_EVENTS = {
   FORWARD_MESSAGE: "forwardMessage",
   TYPING: "typing",
   STOP_TYPING: "stopTyping",
+  MESSAGE_SEEN: "messageSeen",
+  MESSAGE_SEEN_UPDATE: "messageSeenUpdate",
 };

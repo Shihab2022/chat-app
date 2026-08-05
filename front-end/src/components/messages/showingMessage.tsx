@@ -13,6 +13,7 @@ import { formatTimes } from "../../utils/timeFormat";
 import MessageIcons from "./messageIcons";
 import ShowingEmoji from "./showingEmoji";
 import { ImgViewer } from "../imgViewer";
+import { emitMessageSeen } from "../../utils/socketService";
 
 interface ShowingMessageProps {
   mess: TMessage;
@@ -59,8 +60,10 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            console.log("Message is visible, emitting seen event:", mess.id);
-            // emitMessageSeen(mess.sender_id, mess);
+            if (mess.sender_id && mess.id && mess.seen === false) {
+              emitMessageSeen(mess.sender_id, mess.id);
+            }
+
             observer.disconnect();
           }
         });
