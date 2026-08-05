@@ -1,5 +1,5 @@
 import { useRoutes } from "react-router-dom";
-// import LandingPage from "../components/homePage";
+import LandingPage from "../components/homePage";
 import ChatContainer from "../pages/messages";
 import ProtectedRoute from "./privateRoute";
 import SignUp from "../pages/login/registerPage";
@@ -14,13 +14,12 @@ import UpdatePassword from "../pages/updatePassword";
 import ConfirmAccount from "../pages/confirmAccount";
 import ResendEmail from "../pages/reSendConfirm";
 import ManageUser from "../pages/manageUser";
-import { HomePage } from "../pages/home";
 
 export default function Router() {
   return useRoutes([
     {
       path: "/",
-      element: <HomePage />,
+      element: <LandingPage />,
     },
     {
       path: "/chat",
