@@ -52,7 +52,7 @@ WHERE
     const result = await pool.query(query, [messageId]);
     io.emit('messageSeenUpdate', {
       messageId,
-      seen_at: result.rows[0].seen_at,
+      seen_at: result?.rows[0]?.seen_at,
     });
   });
   // io.emit() is used to send events to all the connected clients
