@@ -1,100 +1,133 @@
 import React from "react";
-import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-} from "@mui/material";
-import { STEPS_DATA } from "../../config/constants";
+import { Box, Container, Grid, Paper, Typography } from "@mui/material";
+import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
+import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
+import RocketLaunchOutlinedIcon from "@mui/icons-material/RocketLaunchOutlined";
+import { COLORS, glassStyle } from "../../styles";
+import { SectionTitle } from "../../components/SectionTitle";
+
+const steps = [
+  {
+    step: "01",
+    title: "Create Account",
+    description:
+      "Sign up in seconds with Google or email. Quick, secure, and hassle-free.",
+    icon: (
+      <PersonAddOutlinedIcon sx={{ fontSize: 28, color: COLORS.secondary }} />
+    ),
+  },
+  {
+    step: "02",
+    title: "Start Conversation",
+    description:
+      "Invite friends, join public spaces, or initiate private 1-on-1 direct channels.",
+    icon: <ForumOutlinedIcon sx={{ fontSize: 28, color: COLORS.primary }} />,
+  },
+  {
+    step: "03",
+    title: "Enjoy Instant Messaging",
+    description:
+      "Share files, send voice messages, and express yourself in ultra-low latency.",
+    icon: (
+      <RocketLaunchOutlinedIcon
+        sx={{ fontSize: 28, color: COLORS.secondary }}
+      />
+    ),
+  },
+];
 
 export const HowItWorks: React.FC = () => {
   return (
     <Box
-      component="section"
-      aria-label="How It Works"
-      sx={{ py: { xs: 8, md: 12 }, backgroundColor: "#FFFFFF" }}
+      id="how-it-works"
+      sx={{ py: { xs: 8, md: 12 }, position: "relative", zIndex: 1 }}
     >
       <Container maxWidth="lg">
-        <Box sx={{ textAlign: "center", mb: { xs: 6, md: 8 } }}>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
-              fontWeight: 800,
-              color: "#1A1A1A",
-              mb: 2,
-            }}
-          >
-            Get Started in 3 Simple Steps
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{ color: "#6B7280", fontSize: "1.125rem" }}
-          >
-            Joining millions of active users takes less than two minutes.
-          </Typography>
-        </Box>
+        <SectionTitle
+          badge="WORKFLOW"
+          title="Three Steps to Get Started"
+          subtitle="Get set up and chatting with your team or community in less than two minutes."
+        />
 
-        <Grid container spacing={4} sx={{ position: "relative" }}>
-          {STEPS_DATA.map((step) => (
-            <Grid key={step.id} item xs={12} md={4}>
-              <Card
-                elevation={0}
-                sx={{
-                  height: "100%",
-                  borderRadius: "20px",
-                  p: 3,
-                  backgroundColor: "#F5F7FB",
-                  position: "relative",
-                  textAlign: "center",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                {/* Step Number Indicator Badge */}
-                <Box
+        <Box sx={{ position: "relative" }}>
+          <Box
+            sx={{
+              display: { xs: "none", md: "block" },
+              position: "absolute",
+              top: "50%",
+              left: "15%",
+              right: "15%",
+              height: "2px",
+              background: "linear-gradient(90deg, #7C4DFF 0%, #00E5FF 100%)",
+              zIndex: 0,
+              transform: "translateY(-50%)",
+              opacity: 0.4,
+            }}
+          />
+
+          <Grid container spacing={4} sx={{ position: "relative", zIndex: 1 }}>
+            {steps.map((item, index) => (
+              <Grid item xs={12} md={4} key={index}>
+                <Paper
+                  elevation={0}
                   sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: "50%",
-                    backgroundColor: "#1976D2",
-                    color: "#FFFFFF",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 700,
-                    fontSize: "1.25rem",
-                    mb: 2.5,
-                    boxShadow: "0px 6px 16px rgba(25, 118, 210, 0.3)",
+                    ...glassStyle,
+                    p: 4,
+                    textAlign: "center",
+                    height: "100%",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-6px)",
+                      borderColor: "rgba(124, 77, 255, 0.4)",
+                    },
                   }}
                 >
-                  {step.stepNumber}
-                </Box>
-
-                <Box sx={{ color: "#1976D2", mb: 2 }}>{step.icon}</Box>
-
-                <CardContent sx={{ p: 0 }}>
+                  <Box
+                    sx={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: "50%",
+                      background:
+                        "linear-gradient(135deg, #7C4DFF 0%, #00E5FF 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      mx: "auto",
+                      mb: 2.5,
+                      boxShadow: "0 4px 20px rgba(124, 77, 255, 0.4)",
+                    }}
+                  >
+                    {item.icon}
+                  </Box>
+                  <Typography
+                    variant="overline"
+                    sx={{
+                      color: COLORS.secondary,
+                      fontWeight: 800,
+                      letterSpacing: 2,
+                      display: "block",
+                      mb: 1,
+                    }}
+                  >
+                    STEP {item.step}
+                  </Typography>
                   <Typography
                     variant="h6"
-                    component="h3"
-                    sx={{ fontWeight: 700, color: "#1A1A1A", mb: 1.5 }}
+                    sx={{ color: "#FFF", fontWeight: 700, mb: 1.5 }}
                   >
-                    {step.title}
+                    {item.title}
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{ color: "#6B7280", lineHeight: 1.6 }}
+                    sx={{ color: COLORS.textSecondary, lineHeight: 1.6 }}
                   >
-                    {step.description}
+                    {item.description}
                   </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
       </Container>
     </Box>
   );
