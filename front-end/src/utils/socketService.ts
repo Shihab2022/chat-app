@@ -9,6 +9,7 @@ import {
   DELETE_MESSAGE,
   REMOVE_EMOJI,
   SET_EMOJI_WITH_DATA,
+  SET_MESSAGE_SEEN_UPDATE,
   SET_REAL_TIME_CONVERSATION,
   UPDATE_EDITED_MESSAGE,
 } from "../redux/features/chat/conversationSlice";
@@ -58,8 +59,8 @@ export function connectSocket(userId: string, dispatch: any) {
   socket.on(SOCKET_EVENTS.FORWARD_MESSAGE, (msg) => {
     dispatch(SET_REAL_TIME_CONVERSATION(msg));
   });
-  socket.on(SOCKET_EVENTS.MESSAGE_SEEN_UPDATE, ({ messageId, userId }) => {
-    console.log("Message seen update received:", { messageId, userId });
+  socket.on(SOCKET_EVENTS.MESSAGE_SEEN_UPDATE, ({ messageId, seen_at }) => {
+    dispatch(SET_MESSAGE_SEEN_UPDATE({ messageId, seen_at }));
   });
   return socket;
 }

@@ -17,7 +17,7 @@ const GoogleLoginCom = ({ handleClick }: any) => {
             headers: {
               Authorization: `Bearer ${tokenResponse?.access_token}`,
             },
-          }
+          },
         );
         const {
           email,
@@ -33,7 +33,6 @@ const GoogleLoginCom = ({ handleClick }: any) => {
           picture,
           name,
         };
-        console.log("Google User Info:", params);
         await handleClick(params);
       } catch (error) {
         showToast(FAILED, "SOMETHING_WENT_WRONG");

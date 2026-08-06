@@ -46,15 +46,18 @@ SET
     updated_at = CURRENT_TIMESTAMP
 WHERE 
     id = $1     
-    AND seen = false;
+    AND seen = false
+    RETURNING id, seen_at;
 `;
-    await pool.query(query, [messageId]);
-    io.emit('messageSeenUpdate', { messageId, userId });
+    const result = await pool.query(query, [messageId]);
+    io.emit('messageSeenUpdate', {
+      messageId,
+      seen_at: result.rows[0].seen_at,
+    });
   });
   // io.emit() is used to send events to all the connected clients
   io.emit('getOnlineUsers', Object.keys(userSocketMap));
   socket.on('disconnect', () => {
-    console.log('A user disconnected', socket.id);
     delete userSocketMap[userId];
     io.emit('getOnlineUsers', Object.keys(userSocketMap));
   });

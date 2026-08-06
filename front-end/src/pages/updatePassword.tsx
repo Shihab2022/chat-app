@@ -51,7 +51,6 @@ export default function UpdatePassword() {
         ...data,
       };
       const response = await updatePasswordApi(params);
-      console.log({ response });
       if (response?.success) {
         navigate("/login");
         reset();

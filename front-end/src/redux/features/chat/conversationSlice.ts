@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice } from "@reduxjs/toolkit";
 import {
   addMessageToGroups,
@@ -70,14 +71,14 @@ const conversationSlice = createSlice({
     UPDATE_EDITED_MESSAGE: (state, action) => {
       state.messages = formateMessageAndUpdate(
         action.payload,
-        state.messages,
+        state.messages as Record<string, any[]>,
       ) as GroupedMessages;
       state.editedMessage = {};
     },
     DELETE_MESSAGE: (state, action) => {
       state.messages = formateMessageAndUpdate(
         action.payload,
-        state.messages,
+        state.messages as Record<string, any[]>,
       ) as GroupedMessages;
       state.editedMessage = {};
     },
@@ -85,13 +86,13 @@ const conversationSlice = createSlice({
       state.isEmojiAdded = true;
       state.messages = formateMessageAndUpdate(
         action.payload,
-        state.messages,
+        state.messages as Record<string, any[]>,
       ) as GroupedMessages;
     },
     REMOVE_EMOJI: (state, action) => {
       state.messages = formateMessageAndUpdate(
         action.payload,
-        state.messages,
+        state.messages as Record<string, any[]>,
       ) as GroupedMessages;
       state.isEmojiAdded = true;
       state.selectedReactions = action.payload.reactions;
@@ -101,6 +102,17 @@ const conversationSlice = createSlice({
     },
     SET_RIGHT_SIDEBAR_OPEN_STATUS: (state, action) => {
       state.isRightSidebarOpen = action.payload;
+    },
+    SET_MESSAGE_SEEN_UPDATE: (state, action) => {
+      const { messageId, seen_at } = action.payload;
+      for (const dateKey of Object.keys(state.messages)) {
+        const message = state.messages[dateKey].find((m) => m.id === messageId);
+        if (message) {
+          message.seen = true;
+          if (seen_at) message.seen_at = seen_at;
+          break;
+        }
+      }
     },
   },
 });
@@ -122,5 +134,6 @@ export const {
   DELETE_MESSAGE,
   SET_REPLIED_MESSAGE,
   SET_RIGHT_SIDEBAR_OPEN_STATUS,
+  SET_MESSAGE_SEEN_UPDATE,
 } = conversationSlice.actions;
 export default conversationSlice.reducer;

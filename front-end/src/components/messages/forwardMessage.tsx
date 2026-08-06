@@ -52,7 +52,6 @@ const ForwardMessage = ({ mess, forwardMenuOpen, setForwardMenuOpen }: any) => {
         sender_id: loginUser.id,
       };
       const response = await forwardMessageAPI(params);
-      console.log("forward response", response);
       if (response.success) {
         showToast("Message forwarded successfully", "success");
       } else {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack, Typography, Tooltip } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 import DoneIcon from "@mui/icons-material/Done";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
@@ -9,7 +9,6 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { RootState } from "../../redux/store";
 import { TMessage, TUser } from "../../types";
 import { formatTimes } from "../../utils/timeFormat";
-// import { emitMessageSeen } from "../../utils/socketService";
 import MessageIcons from "./messageIcons";
 import ShowingEmoji from "./showingEmoji";
 import { ImgViewer } from "../imgViewer";
@@ -22,8 +21,16 @@ interface ShowingMessageProps {
 
 const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
   const theme = useTheme();
-  const { text, sender_id, created_at, isDeleted, replyId, seen, pending } =
-    mess;
+  const {
+    text,
+    sender_id,
+    created_at,
+    isDeleted,
+    replyId,
+    seen,
+    seen_at,
+    pending,
+  } = mess;
 
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -32,10 +39,10 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
     (state: RootState) => state?.auth,
   );
   const { messages = {} } = useSelector((state: RootState) => state?.message);
-
   const myId = loginUser?.id;
   const isOwn = sender_id === myId;
   const time = formatTimes(created_at);
+  const seenTime = seen_at ? formatTimes(seen_at) : null;
 
   const userInfo = allUsers.find((user: TUser) => user.id === sender_id);
 
@@ -63,7 +70,6 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
             if (mess.sender_id && mess.id && mess.seen === false) {
               emitMessageSeen(mess.sender_id, mess.id);
             }
-
             observer.disconnect();
           }
         });
@@ -82,18 +88,40 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
 
     if (pending) {
       return (
-        <AccessTimeIcon
-          sx={{ fontSize: 13, color: theme.palette.text.disabled }}
-        />
+        <Tooltip title="Sending...">
+          <AccessTimeIcon
+            sx={{ fontSize: 13, color: theme.palette.text.disabled }}
+          />
+        </Tooltip>
       );
     }
+
     if (seen) {
       return (
-        <DoneAllIcon sx={{ fontSize: 15, color: theme.palette.primary.main }} />
+        <Tooltip title={seenTime ? `Read at ${seenTime}` : "Seen"}>
+          <DoneAllIcon
+            sx={{
+              fontSize: 15,
+              color: isOwn
+                ? alpha(theme.palette.common.white, 0.95)
+                : theme.palette.primary.main,
+            }}
+          />
+        </Tooltip>
       );
     }
+
     return (
-      <DoneIcon sx={{ fontSize: 15, color: theme.palette.text.disabled }} />
+      <Tooltip title="Sent">
+        <DoneIcon
+          sx={{
+            fontSize: 15,
+            color: isOwn
+              ? alpha(theme.palette.common.white, 0.6)
+              : theme.palette.text.disabled,
+          }}
+        />
+      </Tooltip>
     );
   };
 
@@ -150,7 +178,7 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
               : `1px solid ${alpha(theme.palette.divider, 0.1)}`,
             boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.04)}`,
             position: "relative",
-            minWidth: 100,
+            minWidth: 110,
           }}
         >
           {/* Replied Message Preview */}
@@ -220,7 +248,7 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
             </Typography>
           )}
 
-          {/* Footer: Time & Read Status */}
+          {/* Footer: Time & Read Status Text Indicator */}
           <Stack
             direction="row"
             spacing={0.5}
@@ -228,7 +256,7 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
             justifyContent="flex-end"
             sx={{
               mt: 0.5,
-              opacity: 0.75,
+              opacity: 0.85,
             }}
           >
             <Typography
@@ -240,6 +268,25 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
             >
               {time}
             </Typography>
+
+            {/* Text Label Indicator for Seen Status */}
+            {isOwn && seen && !isDeleted && (
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: "0.65rem",
+                  fontWeight: 600,
+                  color: isOwn
+                    ? alpha(theme.palette.common.white, 0.9)
+                    : theme.palette.primary.main,
+                  ml: 0.5,
+                }}
+              >
+                • {seenTime ? `Read at ${seenTime}` : "Seen"}
+              </Typography>
+            )}
+
+            {/* Checkmark Icon */}
             {!isDeleted && renderStatusIcon()}
           </Stack>
 

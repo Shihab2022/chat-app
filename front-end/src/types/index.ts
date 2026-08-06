@@ -36,6 +36,7 @@ export interface ChatMessage {
   replyId?: string;
   reactions?: Reaction[];
   created_at: string;
+  seen_at?: string;
 }
 
 export type GroupedMessages = {
@@ -51,7 +52,7 @@ export type TMessage = {
   updatedAt?: string;
   time?: string;
   seen: boolean;
-  seenAt?: string;
+  seen_at?: string;
   pending?: boolean;
   isDeleted?: boolean;
   replyId?: string;
