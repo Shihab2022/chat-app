@@ -104,9 +104,9 @@ const NavBar = ({ children, isDrawer = false }: NavBarProps) => {
             <Stack
               direction="row"
               spacing={1.5}
-              alignItems="center"
               onClick={() => dispatch(SET_RIGHT_SIDEBAR_OPEN_STATUS(true))}
               sx={{
+                alignItems: "center",
                 cursor: "pointer",
                 p: 0.75,
                 borderRadius: 2,
@@ -139,7 +139,7 @@ const NavBar = ({ children, isDrawer = false }: NavBarProps) => {
               </Typography>
             </Stack>
           ) : (
-            <Stack direction="row" alignItems="center" spacing={1.5}>
+            <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
               <Avatar
                 onClick={() => navigate("/")}
                 alt="logo"

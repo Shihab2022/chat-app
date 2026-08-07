@@ -176,25 +176,33 @@ export default function ProfileMenu() {
           vertical: "top",
           horizontal: "right",
         }}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            minWidth: 260,
-            mt: 1.5,
-            p: 1,
-            borderRadius: 3,
-            backgroundColor: alpha(theme.palette.background.paper, 0.95),
-            backdropFilter: "blur(12px)",
-            border: `1px solid ${theme.palette.divider}`,
-            boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.12)}`,
+        slotProps={{
+          paper: {
+            elevation: 0,
+            sx: {
+              minWidth: 260,
+              mt: 1.5,
+              p: 1,
+              borderRadius: 3,
+              backgroundColor: alpha(theme.palette.background.paper, 0.95),
+              backdropFilter: "blur(12px)",
+              border: `1px solid ${theme.palette.divider}`,
+              boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.12)}`,
+            },
           },
         }}
       >
         {/* User Card Header */}
         <Stack
-          alignItems="center"
+          direction="column"
           spacing={1}
-          sx={{ pt: 1, pb: 2, px: 2, textAlign: "center" }}
+          sx={{
+            pt: 1,
+            pb: 2,
+            px: 2,
+            textAlign: "center",
+            alignItems: "center",
+          }}
         >
           {userAvatarSrc ? (
             <Avatar

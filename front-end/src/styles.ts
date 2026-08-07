@@ -37,3 +37,30 @@ export const patternBackgroundStyle = {
     )
   `,
 };
+
+export const chatPatternBackgroundStyle = {
+  backgroundColor: "#0B0F19",
+  backgroundImage: `
+    radial-gradient(
+      circle at 15% 20%, 
+      rgba(124, 77, 255, 0.22) 0%, 
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 85% 80%, 
+      rgba(0, 229, 255, 0.18) 0%, 
+      transparent 45%
+    ),
+    linear-gradient(
+      rgba(255, 255, 255, 0.03) 1px, 
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg, 
+      rgba(255, 255, 255, 0.03) 1px, 
+      transparent 1px
+    )
+  `,
+  backgroundSize: "100% 100%, 100% 100%, 32px 32px, 32px 32px",
+  backgroundPosition: "0 0, 0 0, -1px -1px, -1px -1px",
+};
