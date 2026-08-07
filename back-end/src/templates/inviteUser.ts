@@ -1,4 +1,8 @@
-export const InviteTemplate = (firstname, url, baseUrl) => `
+export const InviteTemplate = (
+  firstname: string,
+  url: string,
+  baseUrl: string,
+) => `
 <!doctype html>
 <html lang="en-US">
 

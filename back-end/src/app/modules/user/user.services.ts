@@ -85,7 +85,7 @@ const createUserIntoDB = async (payload: TUser) => {
   const token = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.jwt_access_expire_in as string,
+    config.jwt_access_expire_in as number | undefined,
   );
 
   // 🔹 Email
@@ -97,7 +97,7 @@ const createUserIntoDB = async (payload: TUser) => {
     html: ConfirmAccountTemplate(
       createdUser.name,
       `${config?.front_end_base_url}/confirm?token=${token}`,
-      config?.front_end_base_url,
+      config?.front_end_base_url as string,
     ),
     attachments,
   };
@@ -228,7 +228,7 @@ const acceptInvite = async (payload: {
   const accessToken = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.jwt_access_expire_in as string,
+    config.jwt_access_expire_in as number | undefined,
   );
 
   // 🔹 Remove password (not selected anyway, but safe)
@@ -276,7 +276,7 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const accessToken = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.jwt_access_expire_in as string,
+    config.jwt_access_expire_in as number | undefined,
   );
   const { password, ...newData } = user;
   return { data: newData, accessToken };
@@ -301,7 +301,7 @@ const forgetPassword = async (payload: Partial<TUser>) => {
   const token = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.forget_pass_expire_in as string,
+    config.forget_pass_expire_in as number | undefined,
   );
   const pin = Math.floor(100000 + Math.random() * 900000);
   user.verifiedCode = pin;
@@ -315,7 +315,7 @@ const forgetPassword = async (payload: Partial<TUser>) => {
       user?.name as string,
       `${config?.front_end_base_url}/update-password?token=${token}` as string,
       config?.front_end_base_url as string,
-      pin,
+      String(pin),
     ),
     attachments,
   };
@@ -485,7 +485,7 @@ const sendEmail = async (payload: { email: string }) => {
   const token = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.jwt_access_expire_in as string,
+    config.jwt_access_expire_in as number | undefined,
   );
   const notifyMsg = {
     to: [email],
@@ -578,7 +578,7 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     const accessToken = createToken(
       jwtPayload,
       config.jwt_access_secret as string,
-      config.invite_expire_in as string,
+      config.invite_expire_in as number | undefined,
     );
     const inviteUrl =
       newUserCheck.rows.length === 0
@@ -678,7 +678,7 @@ const googleLogin = async (payload: {
     const accessToken = createToken(
       jwtPayload,
       config.jwt_access_secret as string,
-      config.jwt_access_expire_in as string,
+      config.jwt_access_expire_in as number | undefined,
     );
     const { password, ...newData } = user;
     return { data: newData, accessToken };
@@ -750,7 +750,7 @@ const googleRegister = async (payload: {
   const token = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.jwt_access_expire_in as string,
+    config.jwt_access_expire_in as number | undefined,
   );
 
   return token;

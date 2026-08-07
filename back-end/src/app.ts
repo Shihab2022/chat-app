@@ -7,7 +7,6 @@ import { notFound, testingRoute } from './constant/route';
 import { corsAllowOrigin } from './constant';
 import { app, server } from './utils/socket';
 import config from './app/config';
-import { connectDB } from './utils/db';
 import { runMigrations } from './utils/migrate';
 
 app.use(json());

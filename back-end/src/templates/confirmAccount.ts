@@ -1,4 +1,8 @@
-export const ConfirmAccountTemplate = (firstname, url, baseUrl) => `
+export const ConfirmAccountTemplate = (
+  firstname: string,
+  url: string,
+  baseUrl: string,
+) => `
 <!doctype html>
 <html lang="en-US">
 

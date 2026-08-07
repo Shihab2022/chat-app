@@ -1,11 +1,11 @@
-import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
+import jwt, { JwtPayload, Secret, SignOptions } from 'jsonwebtoken';
 import config from '../app/config';
 import { Response } from 'express';
 
 export const createToken = (
   jwtPayload: any,
   secret: string,
-  expiresIn: string,
+  expiresIn: SignOptions['expiresIn'],
 ) => {
   return jwt.sign(jwtPayload, secret || (config.jwt_access_secret as string), {
     expiresIn,

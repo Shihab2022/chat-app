@@ -1,4 +1,9 @@
-export const ForgotPasswordTemplate = (firstname, url, baseUrl, pin) => `
+export const ForgotPasswordTemplate = (
+  firstname: string,
+  url: string,
+  baseUrl: string,
+  pin: string,
+) => `
 <!doctype html>
 <html lang="en-US">
 
