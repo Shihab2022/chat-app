@@ -24,7 +24,6 @@ import {
   InputAdornment,
   Link,
   Paper,
-  Stack,
   TextField,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -187,23 +186,25 @@ export default function SignIn() {
               })}
               error={!!errors.password}
               helperText={errors.password?.message}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={handleTogglePassword}
-                      edge="end"
-                      aria-label="toggle password visibility"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleTogglePassword}
+                        edge="end"
+                        aria-label="toggle password visibility"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
 
             <Grid container sx={{ mt: 1, mb: 2 }}>
-              <Grid item xs sx={{ textAlign: "right" }}>
+              <Grid sx={{ textAlign: "right" }}>
                 <Link
                   component={RouterLink}
                   to="/forgetPassword"
@@ -261,12 +262,15 @@ export default function SignIn() {
             </Box>
 
             {/* Sign Up Redirect */}
-            <Stack
-              direction="row"
-              spacing={0.5}
-              justifyContent="center"
-              alignItems="center"
-              sx={{ mt: 3 }}
+            <Box
+              sx={{
+                mt: 3,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 0.5,
+              }}
             >
               <Typography variant="body2" color="text.secondary">
                 Don't have an account?
@@ -284,7 +288,7 @@ export default function SignIn() {
               >
                 Sign Up
               </Link>
-            </Stack>
+            </Box>
           </Box>
         </Paper>
       </Container>

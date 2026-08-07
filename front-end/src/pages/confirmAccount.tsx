@@ -9,7 +9,6 @@ import {
   Container,
   CssBaseline,
   Paper,
-  Stack,
   Typography,
 } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
@@ -128,17 +127,33 @@ export default function ConfirmAccount() {
 
           {/* Loading State */}
           {loading && (
-            <Stack alignItems="center" spacing={2} sx={{ my: 4 }}>
+            <Box
+              sx={{
+                my: 4,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
               <CircularProgress size={40} />
               <Typography variant="body2" color="text.secondary">
                 Verifying your account details...
               </Typography>
-            </Stack>
+            </Box>
           )}
 
           {/* Success State */}
           {!loading && success && (
-            <Stack alignItems="center" spacing={2} sx={{ my: 2 }}>
+            <Box
+              sx={{
+                my: 2,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
               <CheckCircleIcon color="success" sx={{ fontSize: 56 }} />
               <Typography
                 variant="body1"
@@ -153,15 +168,20 @@ export default function ConfirmAccount() {
               >
                 Redirecting you to the sign-in page...
               </Typography>
-            </Stack>
+            </Box>
           )}
 
           {/* Error State */}
           {!loading && !success && (
-            <Stack
-              alignItems="center"
-              spacing={2}
-              sx={{ my: 2, width: "100%" }}
+            <Box
+              sx={{
+                my: 2,
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 2,
+              }}
             >
               <ErrorIcon color="error" sx={{ fontSize: 56 }} />
               <Typography
@@ -196,16 +216,19 @@ export default function ConfirmAccount() {
               >
                 Retry Confirmation
               </Button>
-            </Stack>
+            </Box>
           )}
 
           {/* Fallback Nav Link */}
-          <Stack
-            direction="row"
-            spacing={0.5}
-            justifyContent="center"
-            alignItems="center"
-            sx={{ mt: 3 }}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 0.5,
+              mt: 3,
+            }}
           >
             <Button
               component={RouterLink}
@@ -220,7 +243,7 @@ export default function ConfirmAccount() {
             >
               Back to Sign In
             </Button>
-          </Stack>
+          </Box>
         </Paper>
       </Container>
     </Box>

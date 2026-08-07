@@ -24,7 +24,7 @@ import {
 } from "../redux/features/chat/conversationSlice";
 import { groupMessagesByDate } from "../utils/timeFormat";
 import { ACCESS_TOKEN_KEY, SENDING_FAILED_MESSAGE } from "../constants/common";
-import { CircularProgress, Grid, Link, Paper, Stack } from "@mui/material";
+import { CircularProgress, Grid, Link, Paper } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 export default function AcceptInvite() {
   const theme = useTheme();
@@ -140,7 +140,7 @@ export default function AcceptInvite() {
           >
             <Grid container spacing={2}>
               {/* First Name Field */}
-              <Grid item xs={12} sm={6}>
+              <Grid sx={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   id="firstname"
@@ -158,7 +158,7 @@ export default function AcceptInvite() {
               </Grid>
 
               {/* Last Name Field */}
-              <Grid item xs={12} sm={6}>
+              <Grid sx={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   id="lastname"
@@ -176,7 +176,7 @@ export default function AcceptInvite() {
               </Grid>
 
               {/* Password Field */}
-              <Grid item xs={12}>
+              <Grid sx={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   label="Password"
@@ -195,18 +195,20 @@ export default function AcceptInvite() {
                       ? errors.password.message
                       : ""
                   }
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={toggleShowPassword}
-                          edge="end"
-                          aria-label="toggle password visibility"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={toggleShowPassword}
+                            edge="end"
+                            aria-label="toggle password visibility"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
                   }}
                 />
               </Grid>
@@ -246,12 +248,15 @@ export default function AcceptInvite() {
             </Button>
 
             {/* Back to Login Link */}
-            <Stack
-              direction="row"
-              spacing={0.5}
-              justifyContent="center"
-              alignItems="center"
-              sx={{ mt: 2 }}
+            <Box
+              sx={{
+                mt: 2,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 0.5,
+              }}
             >
               <Link
                 component={RouterLink}
@@ -269,7 +274,7 @@ export default function AcceptInvite() {
               >
                 <ArrowBackIcon fontSize="small" /> Back to Sign In
               </Link>
-            </Stack>
+            </Box>
           </Box>
         </Paper>
       </Container>

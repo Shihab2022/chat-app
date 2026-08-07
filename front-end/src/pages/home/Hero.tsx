@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Container,
-  Grid,
   Typography,
   Button,
   Paper,
@@ -12,6 +11,7 @@ import {
   TextField,
   InputAdornment,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { keyframes } from "@emotion/react";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import SendIcon from "@mui/icons-material/Send";
@@ -52,9 +52,9 @@ export const HeroSection: React.FC = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Grid container spacing={6} alignItems="center">
+        <Grid container spacing={6} sx={{ alignItems: "center" }}>
           {/* Left Column */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Box sx={{ maxWidth: "560px" }}>
               <Box
                 sx={{
@@ -174,7 +174,7 @@ export const HeroSection: React.FC = () => {
                   { value: "2M+", label: "Messages Daily" },
                   { value: "99.99%", label: "Uptime" },
                 ].map((stat, idx) => (
-                  <Grid item xs={4} key={idx}>
+                  <Grid size={{ xs: 4 }} key={idx}>
                     <Typography
                       variant="h4"
                       sx={{
@@ -198,7 +198,7 @@ export const HeroSection: React.FC = () => {
           </Grid>
 
           {/* Right Parallax Fake Chat UI */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Box
               sx={{
                 transform: `perspective(1000px) rotateY(${mousePos.x * -0.5}deg) rotateX(${
@@ -395,52 +395,86 @@ export const HeroSection: React.FC = () => {
                   </Box>
                 </Box>
 
-                {/* Input Area */}
                 <TextField
                   fullWidth
+                  // value={message}
+                  // onChange={(e) => setMessage(e.target.value)}
+                  // onKeyDown={handleKeyPress}
                   placeholder="Type a message..."
                   variant="outlined"
                   size="small"
-                  InputProps={{
-                    sx: {
-                      borderRadius: "12px",
-                      backgroundColor: "rgba(15, 23, 42, 0.6)",
-                      color: "#FFF",
-                      fontSize: "0.9rem",
-                      "& fieldset": {
-                        borderColor: "rgba(255, 255, 255, 0.1)",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: "rgba(255, 255, 255, 0.2)",
-                      },
+                  sx={{
+                    "& .MuiInputBase-input::placeholder": {
+                      color: "rgba(255, 255, 255, 0.5)",
+                      opacity: 1,
                     },
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          size="small"
-                          sx={{ color: COLORS.textSecondary }}
-                        >
-                          <AttachFileIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          sx={{ color: COLORS.textSecondary }}
-                        >
-                          <SentimentSatisfiedAltIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          sx={{
-                            color: "#FFF",
-                            backgroundColor: COLORS.primary,
-                            "&:hover": { backgroundColor: COLORS.primaryDark },
-                            ml: 0.5,
-                          }}
-                        >
-                          <SendIcon fontSize="small" />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                  }}
+                  slotProps={{
+                    input: {
+                      sx: {
+                        borderRadius: "12px",
+                        backgroundColor: "rgba(15, 23, 42, 0.6)",
+                        color: "#FFF",
+                        fontSize: "0.9rem",
+                        "& fieldset": {
+                          borderColor: "rgba(255, 255, 255, 0.1)",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "rgba(255, 255, 255, 0.2)",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: COLORS?.primary || "#3b82f6",
+                        },
+                      },
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            size="small"
+                            // onClick={() => fileInputRef.current?.click()}
+                            sx={{
+                              color:
+                                COLORS?.textSecondary ||
+                                "rgba(255, 255, 255, 0.7)",
+                            }}
+                          >
+                            <AttachFileIcon fontSize="small" />
+                          </IconButton>
+
+                          <IconButton
+                            size="small"
+                            // onClick={onEmojiClick}
+                            sx={{
+                              color:
+                                COLORS?.textSecondary ||
+                                "rgba(255, 255, 255, 0.7)",
+                            }}
+                          >
+                            <SentimentSatisfiedAltIcon fontSize="small" />
+                          </IconButton>
+
+                          <IconButton
+                            size="small"
+                            // onClick={handleSend}
+                            // disabled={!message.trim()}
+                            sx={{
+                              color: "#FFF",
+                              backgroundColor: COLORS?.primary || "#3b82f6",
+                              "&:hover": {
+                                backgroundColor:
+                                  COLORS?.primaryDark || "#2563eb",
+                              },
+                              "&.Mui-disabled": {
+                                backgroundColor: "rgba(255, 255, 255, 0.12)",
+                                color: "rgba(255, 255, 255, 0.3)",
+                              },
+                              ml: 0.5,
+                            }}
+                          >
+                            <SendIcon fontSize="small" />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
                   }}
                 />
               </Paper>

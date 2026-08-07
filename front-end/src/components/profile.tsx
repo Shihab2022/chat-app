@@ -69,7 +69,7 @@ export default function Profile() {
       <Container maxWidth="md">
         <Grid container spacing={4}>
           {/* Profile Overview Card */}
-          <Grid item xs={12} md={4}>
+          <Grid sx={{ xs: 12, md: 4 }}>
             <Paper
               elevation={0}
               sx={{
@@ -123,7 +123,7 @@ export default function Profile() {
           </Grid>
 
           {/* Edit Profile Form Card */}
-          <Grid item xs={12} md={8}>
+          <Grid sx={{ xs: 12, md: 8 }}>
             <Paper
               elevation={0}
               sx={{

@@ -1,12 +1,6 @@
 import React from "react";
-import {
-  Box,
-  Container,
-  Grid,
-  Typography,
-  IconButton,
-  Divider,
-} from "@mui/material";
+import { Box, Container, Typography, IconButton, Divider } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import ForumIcon from "@mui/icons-material/Forum";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import TwitterIcon from "@mui/icons-material/Twitter";
@@ -18,18 +12,30 @@ export const Footer: React.FC = () => {
     <Box
       component="footer"
       sx={{
-        pt: 8,
+        pt: { xs: 6, md: 8 },
         pb: 4,
         borderTop: "1px solid rgba(255, 255, 255, 0.08)",
         position: "relative",
         zIndex: 1,
+        background:
+          "linear-gradient(180deg, transparent 0%, rgba(10, 15, 30, 0.6) 100%)",
       }}
     >
       <Container maxWidth="lg">
-        <Grid container spacing={4} sx={{ mb: 6 }}>
-          <Grid item xs={12} md={4}>
+        <Grid
+          container
+          spacing={3}
+          sx={{
+            mb: 5,
+            justifyContent: { xs: "center", md: "space-between" },
+            textAlign: { xs: "center", md: "left" },
+            alignItems: { xs: "center", md: "flex-start" },
+          }}
+        >
+          {/* Left Side: Brand Info */}
+          <Grid sx={{ xs: 12, md: 7 }}>
             <Box
-              sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}
+              sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}
             >
               <Box
                 sx={{
@@ -41,154 +47,128 @@ export const Footer: React.FC = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  boxShadow: "0 4px 15px rgba(124, 77, 255, 0.3)",
                 }}
               >
                 <ForumIcon sx={{ color: "#FFFFFF", fontSize: 20 }} />
               </Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: "#FFF" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 800, color: "#FFF", letterSpacing: 0.5 }}
+              >
                 Chatty
               </Typography>
             </Box>
+
             <Typography
               variant="body2"
-              sx={{ color: COLORS.textSecondary, lineHeight: 1.6, pr: 2 }}
+              sx={{
+                color: COLORS.textSecondary || "rgba(255, 255, 255, 0.6)",
+                lineHeight: 1.6,
+                maxWidth: "460px",
+              }}
             >
               The modern real-time communication platform designed for
               individuals and fast-growing teams worldwide.
             </Typography>
           </Grid>
 
-          <Grid item xs={6} sm={3} md={2}>
+          {/* Right Side: Social Links (Right-aligned on desktop) */}
+          <Grid
+            sx={{
+              xs: 12,
+              md: 5,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: { xs: "flex-start", md: "flex-end" },
+            }}
+          >
             <Typography
               variant="subtitle2"
-              sx={{ color: "#FFF", fontWeight: 700, mb: 2 }}
+              sx={{
+                color: "#FFF",
+                fontWeight: 700,
+                mb: 1.5,
+                textAlign: { xs: "left", md: "right" },
+              }}
             >
-              Product
+              Connect With Us
             </Typography>
-            {["Features", "Integrations", "Enterprise", "Changelog"].map(
-              (link) => (
-                <Typography
-                  key={link}
-                  variant="body2"
+
+            <Box sx={{ display: "flex", gap: 1.5 }}>
+              {[
+                { icon: <TwitterIcon fontSize="small" />, link: "#" },
+                { icon: <GitHubIcon fontSize="small" />, link: "#" },
+                { icon: <LinkedInIcon fontSize="small" />, link: "#" },
+              ].map((item, i) => (
+                <IconButton
+                  key={i}
+                  size="small"
                   component="a"
-                  href="#"
+                  href={item.link}
                   sx={{
-                    display: "block",
-                    color: COLORS.textSecondary,
-                    textDecoration: "none",
-                    mb: 1,
-                    "&:hover": { color: COLORS.secondary },
+                    color: "rgba(255, 255, 255, 0.7)",
+                    backgroundColor: "rgba(255, 255, 255, 0.04)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    p: 1.2,
+                    borderRadius: "12px",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      color: "#FFF",
+                      backgroundColor: "rgba(124, 77, 255, 0.2)",
+                      borderColor: "#7C4DFF",
+                      transform: "translateY(-2px)",
+                    },
                   }}
                 >
-                  {link}
-                </Typography>
-              ),
-            )}
-          </Grid>
-
-          <Grid item xs={6} sm={3} md={2}>
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "#FFF", fontWeight: 700, mb: 2 }}
-            >
-              Company
-            </Typography>
-            {["About Us", "Careers", "Blog", "Contact"].map((link) => (
-              <Typography
-                key={link}
-                variant="body2"
-                component="a"
-                href="#"
-                sx={{
-                  display: "block",
-                  color: COLORS.textSecondary,
-                  textDecoration: "none",
-                  mb: 1,
-                  "&:hover": { color: COLORS.secondary },
-                }}
-              >
-                {link}
-              </Typography>
-            ))}
-          </Grid>
-
-          <Grid item xs={6} sm={3} md={2}>
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "#FFF", fontWeight: 700, mb: 2 }}
-            >
-              Legal
-            </Typography>
-            {["Privacy Policy", "Terms of Service", "Security", "Cookies"].map(
-              (link) => (
-                <Typography
-                  key={link}
-                  variant="body2"
-                  component="a"
-                  href="#"
-                  sx={{
-                    display: "block",
-                    color: COLORS.textSecondary,
-                    textDecoration: "none",
-                    mb: 1,
-                    "&:hover": { color: COLORS.secondary },
-                  }}
-                >
-                  {link}
-                </Typography>
-              ),
-            )}
-          </Grid>
-
-          <Grid item xs={6} sm={3} md={2}>
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "#FFF", fontWeight: 700, mb: 2 }}
-            >
-              Socials
-            </Typography>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <IconButton
-                size="small"
-                sx={{
-                  color: COLORS.textSecondary,
-                  "&:hover": { color: "#FFF" },
-                }}
-              >
-                <TwitterIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                sx={{
-                  color: COLORS.textSecondary,
-                  "&:hover": { color: "#FFF" },
-                }}
-              >
-                <GitHubIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                sx={{
-                  color: COLORS.textSecondary,
-                  "&:hover": { color: "#FFF" },
-                }}
-              >
-                <LinkedInIcon fontSize="small" />
-              </IconButton>
+                  {item.icon}
+                </IconButton>
+              ))}
             </Box>
           </Grid>
         </Grid>
 
         <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.08)", mb: 3 }} />
 
-        <Typography
-          variant="caption"
-          align="center"
-          display="block"
-          sx={{ color: COLORS.textSecondary }}
+        {/* Bottom Bar */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 2,
+          }}
         >
-          © {new Date().getFullYear()} Chatty Inc. All rights reserved.
-        </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              color: COLORS.textSecondary || "rgba(255, 255, 255, 0.5)",
+              fontWeight: 500,
+            }}
+          >
+            © {new Date().getFullYear()} Chatty Inc. All rights reserved.
+          </Typography>
+
+          <Box sx={{ display: "flex", gap: 3 }}>
+            {["Privacy Policy", "Terms of Service", "Cookie Settings"].map(
+              (link) => (
+                <Typography
+                  key={link}
+                  variant="caption"
+                  sx={{
+                    color: "rgba(255, 255, 255, 0.5)",
+                    cursor: "pointer",
+                    transition: "color 0.2s ease",
+                    "&:hover": { color: "#00E5FF" },
+                  }}
+                >
+                  {link}
+                </Typography>
+              ),
+            )}
+          </Box>
+        </Box>
       </Container>
     </Box>
   );

@@ -158,7 +158,7 @@ export default function SignUp() {
             sx={{ width: "100%" }}
           >
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid sx={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   label="First Name"
@@ -170,7 +170,7 @@ export default function SignUp() {
                   helperText={errors.userName?.message}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid sx={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
                   label="Last Name"
@@ -182,7 +182,7 @@ export default function SignUp() {
                   helperText={errors.name?.message}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid sx={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   label="Email Address"
@@ -199,7 +199,7 @@ export default function SignUp() {
                   helperText={errors.email?.message}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid sx={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   label="Password"
@@ -215,18 +215,20 @@ export default function SignUp() {
                   })}
                   error={!!errors.password}
                   helperText={errors.password?.message}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={toggleShowPassword}
-                          edge="end"
-                          aria-label="toggle password visibility"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={toggleShowPassword}
+                            edge="end"
+                            aria-label="toggle password visibility"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
                   }}
                 />
               </Grid>
@@ -285,9 +287,7 @@ export default function SignUp() {
             <Stack
               direction="row"
               spacing={0.5}
-              justifyContent="center"
-              alignItems="center"
-              sx={{ mt: 3 }}
+              sx={{ mt: 3, justifyContent: "center", alignItems: "center" }}
             >
               <Typography variant="body2" color="text.secondary">
                 Already have an account?
