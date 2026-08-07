@@ -2,8 +2,10 @@ import React from "react";
 import { Box, Container, Paper, Typography, Button } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { COLORS, glassStyle } from "../../styles";
+import { useNavigate } from "react-router-dom";
 
 export const CTA: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <Box sx={{ py: { xs: 8, md: 12 }, position: "relative", zIndex: 1 }}>
       <Container maxWidth="md">
@@ -50,6 +52,7 @@ export const CTA: React.FC = () => {
           <Button
             variant="contained"
             size="large"
+            onClick={() => navigate("/SignUp")}
             endIcon={<ArrowForwardIcon />}
             sx={{
               px: 5,

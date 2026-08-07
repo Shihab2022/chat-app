@@ -17,6 +17,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import ForumIcon from "@mui/icons-material/Forum";
 import { COLORS } from "../styles";
+import { useNavigate } from "react-router-dom";
 
 const navItems = [
   { label: "Features", href: "#features" },
@@ -29,6 +30,7 @@ export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width:900px)");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -134,6 +136,7 @@ export const Navbar: React.FC = () => {
           {!isMobile && (
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Button
+                onClick={() => navigate("/login")}
                 variant="outlined"
                 sx={{
                   borderRadius: "12px",
@@ -150,6 +153,7 @@ export const Navbar: React.FC = () => {
                 Login
               </Button>
               <Button
+                onClick={() => navigate("/SignUp")}
                 variant="contained"
                 sx={{
                   borderRadius: "12px",
@@ -189,14 +193,16 @@ export const Navbar: React.FC = () => {
         anchor="right"
         open={mobileOpen}
         onClose={handleDrawerToggle}
-        PaperProps={{
-          sx: {
-            width: "280px",
-            backgroundColor: "rgba(15, 23, 42, 0.95)",
-            backdropFilter: "blur(20px)",
-            borderLeft: "1px solid rgba(255, 255, 255, 0.08)",
-            pt: 8,
-            px: 3,
+        slotProps={{
+          paper: {
+            sx: {
+              width: "280px",
+              backgroundColor: "rgba(15, 23, 42, 0.95)",
+              backdropFilter: "blur(20px)",
+              borderLeft: "1px solid rgba(255, 255, 255, 0.08)",
+              pt: 8,
+              px: 3,
+            },
           },
         }}
       >
@@ -211,13 +217,16 @@ export const Navbar: React.FC = () => {
             >
               <ListItemText
                 primary={item.label}
-                primaryTypographyProps={{ fontWeight: 600, fontSize: "1.1rem" }}
+                slotProps={{
+                  primary: { sx: { fontWeight: 600, fontSize: "1.1rem" } },
+                }}
               />
             </ListItem>
           ))}
         </List>
         <Box sx={{ mt: 4, display: "flex", flexDirection: "column", gap: 2 }}>
           <Button
+            onClick={() => navigate("/login")}
             fullWidth
             variant="outlined"
             sx={{ py: 1.2, borderRadius: "12px", color: "#FFF" }}
@@ -225,6 +234,7 @@ export const Navbar: React.FC = () => {
             Login
           </Button>
           <Button
+            onClick={() => navigate("/SignUp")}
             fullWidth
             variant="contained"
             sx={{

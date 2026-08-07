@@ -19,6 +19,7 @@ import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { glassStyle, COLORS } from "../../styles";
+import { useNavigate } from "react-router-dom";
 
 const pulse = keyframes`
   0% { box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.7); }
@@ -33,7 +34,7 @@ const bounce = keyframes`
 
 export const HeroSection: React.FC = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
+  const navigate = useNavigate();
   const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const x = (clientX / window.innerWidth - 0.5) * 20;
@@ -124,6 +125,7 @@ export const HeroSection: React.FC = () => {
                 <Button
                   variant="contained"
                   size="large"
+                  onClick={() => navigate("/login")}
                   endIcon={<ArrowForwardIcon />}
                   sx={{
                     px: 4,
@@ -143,7 +145,7 @@ export const HeroSection: React.FC = () => {
                 >
                   Start Chatting
                 </Button>
-                <Button
+                {/* <Button
                   variant="outlined"
                   size="large"
                   sx={{
@@ -164,7 +166,7 @@ export const HeroSection: React.FC = () => {
                   }}
                 >
                   Learn More
-                </Button>
+                </Button> */}
               </Box>
 
               {/* Stats Bar */}
