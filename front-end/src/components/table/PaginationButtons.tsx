@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, TablePagination } from "@mui/material";
 const PaginationButtons = (props: any) => {
   const { count, page, setPage, pageSize = 10, setPageSize } = props;

@@ -13,8 +13,8 @@ import {
   Typography,
 } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { confirmAccountApi } from "../services/auth";
@@ -139,7 +139,7 @@ export default function ConfirmAccount() {
           {/* Success State */}
           {!loading && success && (
             <Stack alignItems="center" spacing={2} sx={{ my: 2 }}>
-              <CheckCircleOutlineIcon color="success" sx={{ fontSize: 56 }} />
+              <CheckCircleIcon color="success" sx={{ fontSize: 56 }} />
               <Typography
                 variant="body1"
                 sx={{ fontWeight: 600, textAlign: "center" }}
@@ -163,7 +163,7 @@ export default function ConfirmAccount() {
               spacing={2}
               sx={{ my: 2, width: "100%" }}
             >
-              <ErrorOutlineIcon color="error" sx={{ fontSize: 56 }} />
+              <ErrorIcon color="error" sx={{ fontSize: 56 }} />
               <Typography
                 variant="body2"
                 color="error"

@@ -1,4 +1,4 @@
-import Box from "@mui/material/Box/Box";
+import Box from "@mui/material/Box";
 import { Navbar } from "../../components/Navbar";
 import { CTA } from "./CTA";
 import { Features } from "./Features";

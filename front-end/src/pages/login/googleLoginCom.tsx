@@ -3,9 +3,9 @@ import axios from "axios";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FAILED } from "../../constants/common";
 import googleImage from "../../assets/google.png";
-import Box from "@mui/material/Box/Box";
-import Button from "@mui/material/Button/Button";
-import Typography from "@mui/material/Typography/Typography";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import { showToast } from "../../utils/toast";
 const GoogleLoginCom = ({ handleClick }: any) => {
   const handleGoogleLogin = useGoogleLogin({
