@@ -65,7 +65,7 @@ const ForwardMessage = ({ mess, forwardMenuOpen, setForwardMenuOpen }: any) => {
     <>
       <Dialog
         open={forwardMenuOpen}
-        TransitionComponent={Transition}
+        slots={{ transition: Transition }}
         keepMounted
         onClose={() => setForwardMenuOpen(false)}
         aria-describedby="alert-dialog-slide-description"

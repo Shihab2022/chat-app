@@ -129,12 +129,12 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
     <Stack
       ref={containerRef}
       direction="row"
-      justifyContent={isOwn ? "flex-end" : "flex-start"}
-      alignItems="flex-end"
       spacing={1}
       sx={{
         width: "100%",
         position: "relative",
+        justifyContent: isOwn ? "flex-end" : "flex-start",
+        alignItems: "flex-end",
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -154,9 +154,8 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
       {/* Main Message Block */}
       <Stack
         direction={isOwn ? "row-reverse" : "row"}
-        alignItems="center"
         spacing={1}
-        sx={{ maxWidth: { xs: "85%", sm: "70%" } }}
+        sx={{ maxWidth: { xs: "85%", sm: "70%", alignItems: "center" } }}
       >
         <Paper
           elevation={0}
@@ -252,11 +251,11 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
           <Stack
             direction="row"
             spacing={0.5}
-            alignItems="center"
-            justifyContent="flex-end"
             sx={{
               mt: 0.5,
               opacity: 0.85,
+              alignItems: "center",
+              justifyContent: "flex-end",
             }}
           >
             <Typography

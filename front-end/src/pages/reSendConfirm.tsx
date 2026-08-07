@@ -111,9 +111,8 @@ export default function ResendEmail() {
           {isEmailSent ? (
             /* Success State */
             <Stack
-              alignItems="center"
               spacing={2}
-              sx={{ width: "100%", mt: 1 }}
+              sx={{ width: "100%", mt: 1, alignContent: "center" }}
             >
               <Avatar
                 sx={{
@@ -234,9 +233,7 @@ export default function ResendEmail() {
           <Stack
             direction="row"
             spacing={0.5}
-            justifyContent="center"
-            alignItems="center"
-            sx={{ mt: 3 }}
+            sx={{ mt: 3, alignItems: "center", justifyContent: "center" }}
           >
             <Link
               component={RouterLink}

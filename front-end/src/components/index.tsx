@@ -77,8 +77,7 @@ export default function LeftSiteBarCard({
       <Box sx={{ minWidth: 0, flex: 1 }}>
         <Stack
           direction="row"
-          justifyContent="space-between"
-          alignItems="baseline"
+          sx={{justifyContent: "space-between", alignItems: "baseline"}}
         >
           <Typography
             variant="subtitle2"
@@ -97,7 +96,6 @@ export default function LeftSiteBarCard({
         <Typography
           variant="caption"
           noWrap
-          display="block"
           sx={{
             color: theme.palette.text.secondary,
             fontSize: "0.75rem",

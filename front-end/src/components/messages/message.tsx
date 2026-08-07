@@ -44,7 +44,10 @@ const Message = () => {
       {Object.keys(messages).map((date) => (
         <Box key={date} sx={{ width: "100%" }}>
           {/* Date Header Pill */}
-          <Stack direction="row" justifyContent="center" sx={{ my: 2 }}>
+          <Stack
+            direction="row"
+            sx={{ my: 2, justifyContent: "center", alignItems: "center" }}
+          >
             <Paper
               elevation={0}
               sx={{
@@ -87,8 +90,7 @@ const Message = () => {
         <Stack
           direction="row"
           spacing={1.5}
-          alignItems="flex-end"
-          sx={{ mt: 1, ml: 1 }}
+          sx={{ mt: 1, ml: 1, alignItems: "flex-end" }}
         >
           <ImgViewer img={senderUser?.img} tooltipText={senderUser?.name} />
           <Paper

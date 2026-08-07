@@ -52,7 +52,7 @@ const ShowingEmoji = ({ mess, myId }: { mess: TMessage; myId: string }) => {
           "&:hover": { transform: "scale(1.1)" },
         }}
       >
-        <Stack direction="row" spacing={0.5} alignItems="center">
+        <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
           {uniqueEmojis.map((emoji, idx) => (
             <span key={idx} style={{ fontSize: "0.85rem", lineHeight: 1 }}>
               {emoji}

@@ -82,7 +82,7 @@ export const RightSidebar = () => {
       </Stack>
 
       {/* User Avatar */}
-      <Stack justifyContent="center" alignItems="center" sx={{ mb: 2 }}>
+      <Stack sx={{ mb: 2, justifyContent: "center", alignItems: "center" }}>
         <Avatar
           src={selectedUserInfo?.img || userImage}
           sx={{

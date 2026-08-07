@@ -157,7 +157,7 @@ export default function SignUp() {
             onSubmit={handleSubmit(onSubmit)}
             sx={{ width: "100%" }}
           >
-            <Grid container spacing={2}>
+            <Grid container spacing={4}>
               <Grid sx={{ xs: 12, sm: 6 }}>
                 <TextField
                   fullWidth
@@ -182,56 +182,56 @@ export default function SignUp() {
                   helperText={errors.name?.message}
                 />
               </Grid>
-              <Grid sx={{ xs: 12 }}>
-                <TextField
-                  fullWidth
-                  label="Email Address"
-                  id="email"
-                  autoComplete="email"
-                  {...register("email", {
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: "Invalid email format",
-                    },
-                  })}
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                />
-              </Grid>
-              <Grid sx={{ xs: 12 }}>
-                <TextField
-                  fullWidth
-                  label="Password"
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
-                  {...register("password", {
-                    required: "Password is required",
-                    minLength: {
-                      value: 6,
-                      message: "Password must be at least 6 characters",
-                    },
-                  })}
-                  error={!!errors.password}
-                  helperText={errors.password?.message}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={toggleShowPassword}
-                            edge="end"
-                            aria-label="toggle password visibility"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
-              </Grid>
+              {/* <Grid sx={{ xs: 12, sm: 6 }}> */}
+              <TextField
+                fullWidth
+                label="Email Address"
+                id="email"
+                autoComplete="email"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email format",
+                  },
+                })}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+              />
+              {/* </Grid>
+                <Grid sx={{ xs: 12, sm: 6 }}> */}
+              <TextField
+                fullWidth
+                label="Password"
+                id="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                })}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={toggleShowPassword}
+                          edge="end"
+                          aria-label="toggle password visibility"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+              {/* </Grid> */}
             </Grid>
 
             <Button
@@ -287,7 +287,7 @@ export default function SignUp() {
             <Stack
               direction="row"
               spacing={0.5}
-              sx={{ mt: 3, justifyContent: "center", alignItems: "center" }}
+              sx={{ mt: 3, alignItems: "center", justifyContent: "center" }}
             >
               <Typography variant="body2" color="text.secondary">
                 Already have an account?

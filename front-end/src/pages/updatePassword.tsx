@@ -168,18 +168,20 @@ export default function UpdatePassword() {
                   ? errors.password.message
                   : ""
               }
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={toggleShowPassword}
-                      edge="end"
-                      aria-label="toggle password visibility"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={toggleShowPassword}
+                        edge="end"
+                        aria-label="toggle password visibility"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
 
@@ -201,18 +203,20 @@ export default function UpdatePassword() {
                   ? errors.confirmPassword.message
                   : ""
               }
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={toggleConfirmShowPassword}
-                      edge="end"
-                      aria-label="toggle confirm password visibility"
-                    >
-                      {confirmShowPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={toggleConfirmShowPassword}
+                        edge="end"
+                        aria-label="toggle confirm password visibility"
+                      >
+                        {confirmShowPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
 
@@ -253,9 +257,8 @@ export default function UpdatePassword() {
             <Stack
               direction="row"
               spacing={0.5}
-              justifyContent="center"
-              alignItems="center"
-              sx={{ mt: 2 }}
+  
+              sx={{ mt: 2 ,alignItems: "center", justifyContent: "center"}}
             >
               <Link
                 component={RouterLink}

@@ -99,14 +99,16 @@ export default function MoreActions({
         anchorEl={moreAnchorEl}
         open={moreActionOpen}
         onClose={handleClose}
-        PaperProps={{
-          sx: {
-            minWidth: "150px",
-            borderRadius: "5px",
-            zIndex: 20,
-            backgroundColor: "white",
-            paddingY: "10px",
-            border: "1px solid rgba(0, 0, 0, 0.1)",
+        slotProps={{
+          paper: {
+            sx: {
+              minWidth: "150px",
+              borderRadius: "5px",
+              zIndex: 20,
+              backgroundColor: "white",
+              paddingY: "10px",
+              border: "1px solid rgba(0, 0, 0, 0.1)",
+            },
           },
         }}
         anchorOrigin={{

@@ -109,19 +109,24 @@ const MessageIcons = ({ mess, myId }: MessageIconsProps) => {
         anchorEl={iconAnchorEl}
         open={isIconMenuOpen}
         onClose={() => setIconAnchorEl(null)}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            borderRadius: 8,
-            p: 0.5,
-            backgroundColor: alpha(theme.palette.background.paper, 0.95),
-            backdropFilter: "blur(12px)",
-            border: `1px solid ${theme.palette.divider}`,
-            boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.12)}`,
+        slotProps={{
+          paper: {
+            elevation: 0,
+            sx: {
+              borderRadius: 8,
+              p: 0.5,
+              backgroundColor: alpha(theme.palette.background.paper, 0.95),
+              backdropFilter: "blur(12px)",
+              border: `1px solid ${theme.palette.divider}`,
+              boxShadow: `0 4px 20px ${alpha(
+                theme.palette.common.black,
+                0.12,
+              )}`,
+            },
           },
         }}
       >
-        <Stack direction="row" spacing={0.5} alignItems="center">
+        <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
           {QUICK_EMOJIS.map((emoji) => (
             <IconButton
               key={emoji}

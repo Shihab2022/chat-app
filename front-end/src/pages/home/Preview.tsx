@@ -30,8 +30,6 @@ import { COLORS } from "../../styles";
 export const Preview: React.FC = () => {
   const [deviceTab, setDeviceTab] = useState<number>(0);
   const [activeChannel, setActiveChannel] = useState<string>("General Team");
-
-  // Dynamic layout dimensions based on selected tab
   const getContainerWidth = () => {
     switch (deviceTab) {
       case 1:
@@ -101,9 +99,9 @@ export const Preview: React.FC = () => {
                 }}
               />
               <Tab
-                icon={<TabletMacIcon sx={{ fontSize: 18 }} />}
+                icon={<PhoneIphoneIcon sx={{ fontSize: 18 }} />}
                 iconPosition="start"
-                label="Tablet"
+                label="Mobile"
                 sx={{
                   color: "rgba(255,255,255,0.6)",
                   "&.Mui-selected": { color: "#FFF" },
@@ -115,9 +113,9 @@ export const Preview: React.FC = () => {
                 }}
               />
               <Tab
-                icon={<PhoneIphoneIcon sx={{ fontSize: 18 }} />}
+                icon={<TabletMacIcon sx={{ fontSize: 18 }} />}
                 iconPosition="start"
-                label="Mobile"
+                label="Tablet"
                 sx={{
                   color: "rgba(255,255,255,0.6)",
                   "&.Mui-selected": { color: "#FFF" },

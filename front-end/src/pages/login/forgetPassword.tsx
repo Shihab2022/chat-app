@@ -157,9 +157,7 @@ export default function ForgetPassword() {
             <Stack
               direction="row"
               spacing={0.5}
-              justifyContent="center"
-              alignItems="center"
-              sx={{ mt: 2 }}
+              sx={{ mt: 2, alignItems: "center", justifyContent: "center" }}
             >
               <Link
                 component={RouterLink}

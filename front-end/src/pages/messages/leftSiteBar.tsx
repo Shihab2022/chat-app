@@ -74,11 +74,11 @@ const LeftSiteBar = () => {
           <Stack
             direction="row"
             spacing={1.5}
-            alignItems="center"
             sx={{
               width: "100%",
               px: 2.5,
               py: 2,
+              alignItems: "center",
             }}
           >
             <Avatar
