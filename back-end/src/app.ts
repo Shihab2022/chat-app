@@ -17,17 +17,19 @@ app.use('/', rootRouter);
 app.use(globalErrorHandler);
 app.use(notFound);
 
-async function startServer() {
-  //  Run migrations first
-
-  await runMigrations();
-
-  server.listen(config.port, () => {
-    console.log(`Server is running on http://localhost:${config.port}`);
-  });
+if (process.env.NODE_ENV !== 'production') {
+  async function startServer() {
+    try {
+      await runMigrations();
+      server.listen(config.port, () => {
+        console.log(`Server is running on http://localhost:${config.port}`);
+      });
+    } catch (error) {
+      console.error('Failed to start local server:', error);
+    }
+  }
+  startServer();
 }
-
-startServer();
 
 // server.listen(config.port, () => {
 //   console.log(`App listening on port ${config.port}`);
