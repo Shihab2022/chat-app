@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-// import httpStatus from "http-status";
+// import httpStatus from 'http-status';
 import { appName } from '.';
 export const testingRoute = async (req: Request, res: Response) => {
   const query = 'Select * from users';

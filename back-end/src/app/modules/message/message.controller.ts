@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import sendResponse from '../../../utils/sentResponce';
-import httpStatus from 'http-Status';
+import httpStatus from 'http-status'; // Correct lowercase
 import { MessageServices } from './message.services';
 import { messageServiceMessages } from '../../../constant';
 

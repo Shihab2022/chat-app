@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import sendResponse from '../../../utils/sentResponce';
-import httpStatus from 'http-Status';
+import httpStatus from 'http-status'; // Correct lowercase
 import { UserServices } from './user.services';
 import { setTokenOnCookie } from '../../../utils/auth';
 import { userControllerMessages } from '../../../constant';

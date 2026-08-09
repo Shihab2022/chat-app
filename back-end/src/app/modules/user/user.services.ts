@@ -10,7 +10,7 @@ import config from '../../config';
 import AppError from '../../error/appError';
 import { TInviteUser, TUser } from './user.interface';
 import bcrypt from 'bcrypt';
-import httpStatus from 'http-Status';
+import httpStatus from 'http-status';
 import transporter from '../../../utils/nodemailer';
 import { InviteTemplate } from '../../../templates/inviteUser';
 import path from 'path';

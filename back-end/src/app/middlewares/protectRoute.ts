@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Secret } from 'jsonwebtoken';
 import { jwtVerify } from '../../utils/auth';
 import config from '../config';
-import httpStatus from 'http-Status';
+import httpStatus from 'http-status';
 import AppError from '../error/appError';
 import { authorizationError, userServiceMessages } from '../../constant';
 import { pool } from '../../utils/pg';

@@ -9,7 +9,7 @@ import handleCastError from '../error/CastError';
 import handleValidationError from '../error/ValidationError';
 import handleDuplicateError from '../error/DuplicateError';
 import AppError from '../error/appError';
-import httpStatus from 'http-Status';
+import httpStatus from 'http-status';
 // import { ZodError, ZodIssue } from 'zod';
 // import config from '../config';
 // import handleZodError from '../errors/ZodError';
