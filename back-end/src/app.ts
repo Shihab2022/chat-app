@@ -35,4 +35,4 @@ if (process.env.NODE_ENV !== 'production') {
 //   console.log(`App listening on port ${config.port}`);
 //   connectDB();
 // });
-// export default app;
+export default app;

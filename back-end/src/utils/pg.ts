@@ -7,8 +7,7 @@ export const pool = new Pool({
   database: config.pg_info.pg_db_url,
   password: config.pg_info.pg_db_pass,
   port: config.pg_info.pg_db_port,
-  ssl:
-    process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: false }
-      : false,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
