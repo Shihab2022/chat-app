@@ -7,7 +7,7 @@ const TypingIndicator = () => {
   const indicatorColor = theme.palette.success.main;
 
   return (
-    <Box display="flex" alignItems="center" gap={0.75} sx={{ py: 0.25 }}>
+    <Box sx={{ py: 0.25, display: "flex", alignItems: "center", gap: 0.75 }}>
       <Typography
         variant="caption"
         sx={{
@@ -19,7 +19,7 @@ const TypingIndicator = () => {
       >
         typing
       </Typography>
-      <Box display="flex" alignItems="center" gap={0.4}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.4 }}>
         {[0, 0.2, 0.4].map((delay, index) => (
           <Box
             key={index}

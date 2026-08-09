@@ -9,6 +9,7 @@ export type TActivitiesSlice = {
   onlineUsers: string[];
   socket: null;
 };
+
 const initialState: TActivitiesSlice = {
   authUser: null,
   isSigningUp: false,
@@ -18,19 +19,14 @@ const initialState: TActivitiesSlice = {
   onlineUsers: [],
   socket: null,
 };
+
 const activitiesSlice = createSlice({
   name: "activities",
   initialState,
   reducers: {
-    SET_ACTIVITIES: (state, action) => {
-      state = action.payload;
+    SET_ACTIVITIES: (_state, action) => {
+      return action.payload;
     },
-    // setUser: (state, action) => {
-    //   state.email = action.payload.email;
-    //   state.name = action.payload.name;
-    //   state.userName = action.payload.userName;
-    //   state.id = action.payload.id;
-    // },
   },
 });
 
