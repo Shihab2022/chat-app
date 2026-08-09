@@ -15,6 +15,8 @@ const HomePage = () => {
       sx={{
         ...patternBackgroundStyle,
         minHeight: "100vh",
+        width: "100%",
+        maxWidth: "100%",
         color: "#F8FAFC",
         overflowX: "hidden",
         position: "relative",
