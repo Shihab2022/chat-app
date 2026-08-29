@@ -266,6 +266,18 @@ const addGroupMember = async (
     next(error);
   }
 };
+const listPendingGroupInvitations = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.listPendingGroupInvitations(req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Pending group invitations retrieved', data: result });
+  } catch (error) { next(error); }
+};
+const acceptGroupInvitation = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.acceptGroupInvitation({ ...req.params }, req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Group invitation accepted', data: result });
+  } catch (error) { next(error); }
+};
 
 const groupDetails = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
   try {
@@ -367,6 +379,8 @@ export const MessageController = {
   createGroup,
   listGroups,
   addGroupMember,
+  listPendingGroupInvitations,
+  acceptGroupInvitation,
   groupDetails,
   groupMembers,
   updateGroup,

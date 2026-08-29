@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
-import { createGroupAPI, addGroupMemberAPI } from "../../services/message";
+import { createGroupAPI } from "../../services/message";
 import { TUser } from "../../types";
 import { showToast } from "../../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../../constants/common";
@@ -43,6 +43,7 @@ export default function CreateGroupDialog({
   const [description, setDescription] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState("");
+  const [inviteEmails, setInviteEmails] = useState("");
   const [saving, setSaving] = useState(false);
 
   const visibleUsers = useMemo(() => {
@@ -61,17 +62,20 @@ export default function CreateGroupDialog({
     setDescription("");
     setSelectedIds([]);
     setSearch("");
+    setInviteEmails("");
     onClose();
   };
 
   const handleCreate = async () => {
-    if (!name.trim() || selectedIds.length === 0) return;
+    if (!name.trim() || (selectedIds.length === 0 && !inviteEmails.trim())) return;
     setSaving(true);
 
     try {
       const response = await createGroupAPI({
         name: name.trim(),
         description: description.trim(),
+        emails: [...selectedIds.map((id) => users.find((user) => String(user.id) === id)?.email), ...inviteEmails.split(",")]
+          .filter(Boolean).map((email) => String(email).trim()),
       });
 
       const groupId = response?.data?.id;
@@ -88,37 +92,13 @@ export default function CreateGroupDialog({
         members: response.data?.members || [],
       } as TUser;
 
-      const memberResults = await Promise.all(
-        selectedIds.map((userId) =>
-          addGroupMemberAPI(groupId, { userIdToAdd: Number(userId) }),
-        ),
-      );
-
-      if (memberResults.every((memberResponse) => memberResponse?.success)) {
-        const memberMap = users.reduce<Record<string, TUser>>((acc, user) => {
-          acc[String(user.id)] = user;
-          return acc;
-        }, {});
-
-        createdGroup.members = [
-          ...(createdGroup.members || []),
-          ...selectedIds.map((userId) => ({
-            id: userId,
-            name: memberMap[userId]?.name || "User",
-            email: memberMap[userId]?.email || "",
-            role: "member",
-          })),
-        ];
-
-        setName("");
-        setDescription("");
-        setSelectedIds([]);
-        setSearch("");
-        onCreated(createdGroup);
-        onClose();
-      } else {
-        showToast(FAILED, COMMON_ERROR_MESSAGE);
-      }
+      setName("");
+      setDescription("");
+      setSelectedIds([]);
+      setSearch("");
+      setInviteEmails("");
+      onCreated(createdGroup);
+      onClose();
     } catch (error) {
       console.error("Group creation failed:", error);
       showToast(FAILED, COMMON_ERROR_MESSAGE);
@@ -139,6 +119,14 @@ export default function CreateGroupDialog({
           label="Group name"
           value={name}
           onChange={(event) => setName(event.target.value)}
+          margin="dense"
+        />
+        <TextField
+          fullWidth
+          label="Invite by email"
+          helperText="Separate multiple email addresses with commas. Invitations must be accepted before people join."
+          value={inviteEmails}
+          onChange={(event) => setInviteEmails(event.target.value)}
           margin="dense"
         />
         <TextField
@@ -231,7 +219,7 @@ export default function CreateGroupDialog({
         <Button
           variant="contained"
           onClick={handleCreate}
-          disabled={saving || !name.trim() || selectedIds.length === 0}
+          disabled={saving || !name.trim() || (selectedIds.length === 0 && !inviteEmails.trim())}
         >
           {saving ? "Creating..." : "Create group"}
         </Button>

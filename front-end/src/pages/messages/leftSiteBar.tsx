@@ -28,8 +28,13 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import IconButton from "@mui/material/IconButton";
 import InputBase from "@mui/material/InputBase";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
 import CreateGroupDialog from "./createGroupDialog";
-import { getGroupMessagesAPI, getGroupsAPI } from "../../services/message";
+import { acceptGroupInvitationAPI, getGroupMessagesAPI, getGroupsAPI, getPendingGroupInvitationsAPI } from "../../services/message";
 import { getAllRegisteredUsersAPI } from "../../services/auth";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 
@@ -45,6 +50,8 @@ const LeftSiteBar = () => {
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [registeredUsers, setRegisteredUsers] = useState<TUser[]>([]);
+  const [pendingGroupInvites, setPendingGroupInvites] = useState<any[]>([]);
+  const [groupInvitesOpen, setGroupInvitesOpen] = useState(false);
 
   // Load every registered user (friends AND non-friends) so the group
   // creation popup can invite users who are not friends yet.
@@ -62,6 +69,22 @@ const LeftSiteBar = () => {
     setMenuAnchor(null);
     await loadRegisteredUsers();
     setGroupDialogOpen(true);
+  };
+  const openGroupInvites = async () => {
+    setMenuAnchor(null);
+    const response = await getPendingGroupInvitationsAPI();
+    setPendingGroupInvites(response?.success ? response.data || [] : []);
+    setGroupInvitesOpen(true);
+  };
+  const acceptGroupInvite = async (invitationId: string | number) => {
+    const response = await acceptGroupInvitationAPI(invitationId);
+    if (!response?.success) return;
+    setPendingGroupInvites((items) => items.filter((item) => String(item.id) !== String(invitationId)));
+    const groupsResponse = await getGroupsAPI();
+    if (groupsResponse?.success) {
+      const groups = (groupsResponse.data || []).map((group: TUser) => ({ ...group, id: String(group.id), isGroup: true, img: "" }));
+      dispatch(SET_ALL_USERS([...allUsers.filter((user: TUser) => !user.isGroup), ...groups]));
+    }
   };
 
   const handleClick = async (user: Partial<TUser>) => {
@@ -219,6 +242,9 @@ const LeftSiteBar = () => {
           <MenuItem onClick={handleOpenCreateGroup}>
             Create group
           </MenuItem>
+          <MenuItem onClick={openGroupInvites}>
+            Group invitations{pendingGroupInvites.length ? ` (${pendingGroupInvites.length})` : ""}
+          </MenuItem>
           <MenuItem
             onClick={() => {
               setMenuAnchor(null);
@@ -255,6 +281,20 @@ const LeftSiteBar = () => {
         onClose={() => setGroupDialogOpen(false)}
         onCreated={handleGroupCreated}
       />
+      <Dialog open={groupInvitesOpen} onClose={() => setGroupInvitesOpen(false)} fullWidth maxWidth="xs">
+        <DialogTitle>Group invitations</DialogTitle>
+        <DialogContent>
+          {pendingGroupInvites.map((invite) => (
+            <Box key={invite.id} sx={{ py: 1.25, borderBottom: `1px solid ${theme.palette.divider}` }}>
+              <Typography sx={{ fontWeight: 700 }}>{invite.name}</Typography>
+              <Typography variant="body2" color="text.secondary">Invited by {invite.invited_by_name}</Typography>
+              <Button size="small" variant="contained" sx={{ mt: 1 }} onClick={() => acceptGroupInvite(invite.id)}>Accept invitation</Button>
+            </Box>
+          ))}
+          {!pendingGroupInvites.length && <Typography color="text.secondary">You have no pending group invitations.</Typography>}
+        </DialogContent>
+        <DialogActions><Button onClick={() => setGroupInvitesOpen(false)}>Close</Button></DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -20,8 +20,10 @@ import {
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
+import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import ChattyTable, { Column } from "../components/table";
-import { getFriends, inviteUserApi } from "../services/auth";
+import { acceptFriendApi, blockUserAPI, getFriends, inviteUserApi, unblockUserAPI } from "../services/auth";
 import { RootState } from "../redux/store";
 import { formatDate } from "../utils/timeFormat";
 import { FriendshipStatus } from "../constants/common";
@@ -42,6 +44,8 @@ export interface User {
   status?: string;
   is_account_verified?: boolean;
   friendship_created_at?: string;
+  friendship_id?: number;
+  request_direction?: "incoming" | "outgoing";
 }
 
 const getStatusChip = (status: string, theme: any) => {
@@ -174,6 +178,25 @@ export default function ManageUser() {
     }
   };
 
+  const handleFriendAction = async (row: User, action: "accept" | "block" | "unblock") => {
+    try {
+      const response = action === "accept"
+        ? await acceptFriendApi({ friendshipId: row.friendship_id, userId: row.id })
+        : action === "block"
+          ? await blockUserAPI({ friendId: row.id })
+          : await unblockUserAPI({ friendId: row.id });
+      if (response?.success) {
+        showToast(SUCCESS, action === "accept" ? "Friend request accepted" : action === "block" ? "User blocked" : "User unblocked");
+        await loadFriends();
+      } else {
+        showToast(FAILED, response?.message || COMMON_ERROR_MESSAGE);
+      }
+    } catch (err) {
+      console.error(`Failed to ${action} friend:`, err);
+      showToast(FAILED, COMMON_ERROR_MESSAGE);
+    }
+  };
+
   const columns: Column<User>[] = [
     {
       id: "receiver_email",
@@ -234,6 +257,26 @@ export default function ManageUser() {
       id: "created_at",
       label: "Registered At",
       format: (value) => (value ? formatDate(value) : "N/A"),
+    },
+    {
+      id: "id",
+      label: "Actions",
+      align: "center",
+      format: (_, row) => {
+        const pendingIncoming = row.invite_status?.toUpperCase() === FriendshipStatus.PENDING && row.request_direction === "incoming";
+        const pendingOutgoing = row.invite_status?.toUpperCase() === FriendshipStatus.PENDING && row.request_direction === "outgoing";
+        return (
+          <Box sx={{ display: "flex", gap: 0.75, justifyContent: "center", flexWrap: "wrap" }}>
+            {pendingIncoming && <Button size="small" variant="contained" onClick={() => handleFriendAction(row, "accept")}>Accept invite</Button>}
+            {pendingOutgoing && <Button size="small" variant="outlined" onClick={() => { setEmail(row.email || row.receiver_email || ""); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Re-send invitation</Button>}
+            {row.invite_status?.toUpperCase() === FriendshipStatus.ACCEPTED && (
+              <Button size="small" color={row.is_blocked ? "success" : "error"} startIcon={row.is_blocked ? <LockOpenOutlinedIcon /> : <BlockOutlinedIcon />} onClick={() => handleFriendAction(row, row.is_blocked ? "unblock" : "block")}>
+                {row.is_blocked ? "Unblock" : "Block"}
+              </Button>
+            )}
+          </Box>
+        );
+      },
     },
   ];
 

@@ -47,24 +47,31 @@ io.on('connection', (socket) => {
       io.to(receiverSocketId).emit('userStopTyping', { sender_id: userId });
     }
   });
-  socket.on('messageSeen', async ({ messageId, userId }) => {
-    // Update the message in the database to mark it as seen
+  socket.on('messageSeen', async ({ messageId }) => {
+    // Only the actual recipient can mark a message as read. The socket user id
+    // is authoritative; never trust a user id supplied by the browser.
     const query = `
 UPDATE messages
 SET 
     seen = true,
     seen_at = CURRENT_TIMESTAMP,
     updated_at = CURRENT_TIMESTAMP
-WHERE 
-    id = $1     
+WHERE
+    id = $1
+    AND receiver_id = $2
     AND seen = false
-    RETURNING id, seen_at;
+    RETURNING id, sender_id, seen_at;
 `;
-    const result = await pool.query(query, [messageId]);
-    io.emit('messageSeenUpdate', {
+    const result = await pool.query(query, [messageId, userId]);
+    const updated = result.rows[0];
+    if (!updated) return;
+    const senderSocketId = getReceiverSocketId(String(updated.sender_id));
+    const event = {
       messageId,
-      seen_at: result?.rows[0]?.seen_at,
-    });
+      seen_at: updated.seen_at,
+    };
+    if (senderSocketId) io.to(senderSocketId).emit('messageSeenUpdate', event);
+    socket.emit('messageSeenUpdate', event);
   });
   // io.emit() is used to send events to all the connected clients
   io.emit('getOnlineUsers', Object.keys(userSocketMap));

@@ -20,6 +20,8 @@ router.delete('/delete', auth(userRole?.USER), MessageController.deleteAllMessag
 router.get('/groups', auth(userRole?.USER), MessageController.listGroups);
 router.post('/groups', auth(userRole?.USER), MessageController.createGroup);
 router.post('/groups/:groupId/members', auth(userRole?.USER), MessageController.addGroupMember);
+router.get('/groups/invitations/pending', auth(userRole?.USER), MessageController.listPendingGroupInvitations);
+router.post('/groups/invitations/:invitationId/accept', auth(userRole?.USER), MessageController.acceptGroupInvitation);
 router.get('/groups/:groupId', auth(userRole?.USER), MessageController.groupDetails);
 router.get('/groups/:groupId/members', auth(userRole?.USER), MessageController.groupMembers);
 router.delete('/groups/:groupId/members/:memberId', auth(userRole?.USER), MessageController.removeGroupMember);

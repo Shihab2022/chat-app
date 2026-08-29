@@ -4,6 +4,8 @@ import { pool } from '../../../utils/pg';
 import AppError from '../../error/appError';
 import httpStatus from 'http-status';
 import { FriendshipStatus } from '../../../constant';
+import transporter from '../../../utils/nodemailer';
+import config from '../../config';
 
 const parseUserId = (value: unknown): number | null => {
   if (value === undefined || value === null || value === '') {
@@ -471,11 +473,9 @@ const clearMessage = async (payload: any, currentUser?: any) => {
 
   await pool.query(
     `
-      DELETE FROM messages
-      WHERE (
-        (sender_id = $1 AND receiver_id = $2)
-        OR (sender_id = $2 AND receiver_id = $1)
-      )
+      UPDATE messages
+      SET is_deleted = true, updated_at = CURRENT_TIMESTAMP
+      WHERE sender_id = $1 AND receiver_id = $2
     `,
     [currentUserId, otherUserId],
   );
@@ -525,9 +525,64 @@ const createGroup = async (payload: any, currentUser?: any) => {
     [group.id, currentUserId],
   );
 
+  const emails = Array.isArray(payload.emails) ? payload.emails : [];
+  const uniqueEmails = [...new Set(emails.map((email: unknown) => String(email).trim().toLowerCase()).filter(Boolean))];
+  for (const email of uniqueEmails) {
+    const user = await pool.query('SELECT id FROM users WHERE email = $1 LIMIT 1', [email]);
+    await pool.query(
+      `INSERT INTO group_invitations (group_id, email, invited_by, user_id)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (group_id, email) DO UPDATE SET status = 'PENDING', user_id = EXCLUDED.user_id, created_at = CURRENT_TIMESTAMP`,
+      [group.id, email, currentUserId, user.rows[0]?.id ?? null],
+    );
+    // The link deliberately opens the signed-in app. Acceptance is always checked
+    // against the recipient's account, not an untrusted email-link token.
+    await transporter.sendMail({
+      to: [email as string], from: 'Chatty', subject: `Invitation to join ${group.name}`,
+      text: `You have been invited to join ${group.name}. Sign in to Chatty to accept the invitation.`,
+      html: `<p>You have been invited to join <strong>${group.name}</strong>.</p><p><a href="${config.front_end_base_url}/chat">Open Chatty and accept</a></p>`,
+    });
+  }
+
   const details = await getGroup(group.id, currentUserId);
   await emitGroupEvent(group.id, 'groupCreated', details);
   return details;
+};
+
+const listPendingGroupInvitations = async (currentUser?: any) => {
+  const userId = parseUserId(currentUser?.id);
+  const email = String(currentUser?.email || '').toLowerCase();
+  if (!userId || !email) throw new AppError(httpStatus.UNAUTHORIZED, 'Authentication is required');
+  const { rows } = await pool.query(
+    `SELECT gi.id, gi.group_id, gi.email, gi.created_at, g.name, g.description,
+            inviter.name AS invited_by_name
+     FROM group_invitations gi
+     JOIN chat_groups g ON g.id = gi.group_id
+     JOIN users inviter ON inviter.id = gi.invited_by
+     WHERE gi.email = $1 AND gi.status = 'PENDING'
+     ORDER BY gi.created_at DESC`, [email],
+  );
+  return rows;
+};
+
+const acceptGroupInvitation = async (payload: any, currentUser?: any) => {
+  const userId = parseUserId(currentUser?.id);
+  const invitationId = parseUserId(payload.invitationId ?? payload.id);
+  const email = String(currentUser?.email || '').toLowerCase();
+  if (!userId || !invitationId || !email) throw new AppError(httpStatus.BAD_REQUEST, 'Invitation is required');
+  const invitation = await pool.query(
+    `UPDATE group_invitations SET status = 'ACCEPTED', user_id = $1, accepted_at = CURRENT_TIMESTAMP
+     WHERE id = $2 AND email = $3 AND status = 'PENDING' RETURNING group_id`, [userId, invitationId, email],
+  );
+  if (!invitation.rows.length) throw new AppError(httpStatus.NOT_FOUND, 'Pending group invitation not found');
+  const groupId = invitation.rows[0].group_id;
+  await pool.query(
+    `INSERT INTO group_members (group_id, user_id, role) VALUES ($1, $2, 'member') ON CONFLICT (group_id, user_id) DO NOTHING`,
+    [groupId, userId],
+  );
+  const group = await getGroup(groupId, userId);
+  await emitGroupEvent(groupId, 'groupMemberChanged', group);
+  return group;
 };
 
 const listGroups = async (payload: any, currentUser?: any) => {
@@ -775,6 +830,8 @@ export const MessageServices = {
   clearMessage,
   deleteAllMessages,
   createGroup,
+  listPendingGroupInvitations,
+  acceptGroupInvitation,
   listGroups,
   addGroupMember,
   getGroup,

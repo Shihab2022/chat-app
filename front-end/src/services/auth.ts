@@ -125,6 +125,15 @@ export const getFriends = async (params: any) => {
   });
   return res;
 };
+export const acceptFriendApi = async (params: any) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/user/friends/accept",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params,
+  });
+};
 
 export const getAllRegisteredUsersAPI = async (params: any) => {
   const res = await apiHandler({

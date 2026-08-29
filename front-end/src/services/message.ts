@@ -132,6 +132,14 @@ export const addGroupMemberAPI = async (groupId: string | number, params: any) =
     params,
   });
 };
+export const getPendingGroupInvitationsAPI = async () => apiHandler({
+  baseURL: import.meta.env.VITE_BASE_API_URL, path: "/message/groups/invitations/pending",
+  axiosMethod: httpMethod.GET, formData: false, params: {},
+});
+export const acceptGroupInvitationAPI = async (invitationId: string | number) => apiHandler({
+  baseURL: import.meta.env.VITE_BASE_API_URL, path: `/message/groups/invitations/${invitationId}/accept`,
+  axiosMethod: httpMethod.POST, formData: false, params: {},
+});
 
 export const getGroupDetailsAPI = async (groupId: string | number, params?: any) => {
   return apiHandler({

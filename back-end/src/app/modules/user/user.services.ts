@@ -622,11 +622,9 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     [id, normalizedEmail, targetUserInfo?.id ?? -1, normalizedEmail],
   );
 
-  if (existingRelation.rows.length > 0) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      userServiceMessages.USER_ALREADY_EXISTS_IN_YOUR_FRIENDS,
-    );
+  const existing = existingRelation.rows[0];
+  if (existing && !(Number(existing.sender_id) === Number(id) && existing.invite_status === FriendshipStatus.PENDING)) {
+    throw new AppError(httpStatus.BAD_REQUEST, userServiceMessages.USER_ALREADY_EXISTS_IN_YOUR_FRIENDS);
   }
 
   const jwtPayload = {
@@ -643,31 +641,25 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
 
   const inviteUrl =
     targetUserInfo
-      ? `${config?.front_end_base_url}/manageUser`
+      ? `${config?.front_end_base_url}/chat`
       : `${config?.front_end_base_url}/accept-invite?token=${accessToken}`;
 
-  // If the invited user already has an account, add them as a friend instantly
-  // (accepted status) so they appear in the friend list / sidebar immediately.
-  // If the user is not registered yet, keep it PENDING until they accept the invite.
-  const inviteStatus = targetUserInfo
-    ? FriendshipStatus.ACCEPTED
-    : FriendshipStatus.PENDING;
-
-  await pool.query(
-    `
-      INSERT INTO friendships (sender_id, receiver_email, receiver_id, message, invite_token, invite_status, is_blocked, is_deleted, accepted_at)
-      VALUES ($1, $2, $3, $4, $5, $6, false, false, $7)
-    `,
-    [
-      id,
-      normalizedEmail,
-      targetUserInfo?.id ?? null,
-      message || '',
-      inviteUrl,
-      inviteStatus,
-      targetUserInfo ? new Date() : null,
-    ],
-  );
+  // Existing users must explicitly accept the request; never auto-accept them.
+  if (existing) {
+    await pool.query(
+      `UPDATE friendships
+       SET receiver_id = COALESCE(receiver_id, $1), message = $2, invite_token = $3,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $4`,
+      [targetUserInfo?.id ?? null, message || '', inviteUrl, existing.id],
+    );
+  } else {
+    await pool.query(
+      `INSERT INTO friendships (sender_id, receiver_email, receiver_id, message, invite_token, invite_status, is_blocked, is_deleted)
+       VALUES ($1, $2, $3, $4, $5, $6, false, false)`,
+      [id, normalizedEmail, targetUserInfo?.id ?? null, message || '', inviteUrl, FriendshipStatus.PENDING],
+    );
+  }
 
   const notifyMsg = {
     to: [normalizedEmail],
@@ -884,6 +876,7 @@ const getFriends = async (payload: Partial<TUser>) => {
         u.updated_at,
         f.id AS friendship_id,
         f.invite_status,
+        CASE WHEN f.sender_id = $1 THEN 'outgoing' ELSE 'incoming' END AS request_direction,
         f.is_blocked,
         f.blocked_by,
         f.created_at AS friendship_created_at

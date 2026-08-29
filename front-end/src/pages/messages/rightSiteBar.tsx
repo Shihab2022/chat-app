@@ -43,7 +43,9 @@ import {
   updateGroupAPI,
   leaveGroupAPI,
   clearChatAPI,
+  getMessage,
 } from "../../services/message";
+import { groupMessagesByDate } from "../../utils/timeFormat";
 import { blockUserAPI, getAllRegisteredUsersAPI } from "../../services/auth";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 import { showToast } from "../../utils/toast";
@@ -58,6 +60,7 @@ export const RightSidebar = () => {
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
+  const [clearChatOpen, setClearChatOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupDescription, setNewGroupDescription] = useState("");
@@ -118,13 +121,7 @@ export const RightSidebar = () => {
         console.log("favorite clicked", userInfo);
         break;
       case rightSiteIds.CLEAR_CHAT: {
-        const res = await clearChatAPI({ friendId: userInfo.id });
-        if (res?.success) {
-          dispatch(SET_CONVERSATION({}));
-          showToast(SUCCESS, "Chat cleared");
-        } else {
-          showToast(FAILED, res?.message || COMMON_ERROR_MESSAGE);
-        }
+        setClearChatOpen(true);
         break;
       }
       case rightSiteIds.BLOCK_USER: {
@@ -695,6 +692,27 @@ export const RightSidebar = () => {
           </Box>
         ))}
       </Box>
+      <Dialog open={clearChatOpen} onClose={() => setClearChatOpen(false)} fullWidth maxWidth="xs">
+        <DialogTitle>Clear your messages?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            This removes only the messages you sent in this chat. Your contact’s messages will remain, and this cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setClearChatOpen(false)}>Cancel</Button>
+          <Button color="error" variant="contained" onClick={async () => {
+            if (!selectedUserInfo?.id) return;
+            const res = await clearChatAPI({ friendId: selectedUserInfo.id });
+            if (res?.success) {
+              const refreshed = await getMessage({ myId: loginUser?.id, userToChatId: selectedUserInfo.id });
+              dispatch(SET_CONVERSATION(refreshed?.success ? groupMessagesByDate(refreshed.data || []) : {}));
+              showToast(SUCCESS, "Your messages were cleared");
+              setClearChatOpen(false);
+            } else showToast(FAILED, res?.message || COMMON_ERROR_MESSAGE);
+          }}>Clear my messages</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
