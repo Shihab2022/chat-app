@@ -1,300 +1,158 @@
-import { useState, useEffect, ReactNode, MouseEvent } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Stack from "@mui/material/Stack";
-import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import { alpha, useTheme } from "@mui/material/styles";
+import {
+  Avatar,
+  Box,
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import {
+  DashboardCustomizeRounded,
+  PersonRounded,
+  LockResetRounded,
+  PersonAddRounded,
+  ManageAccountsRounded,
+  LogoutRounded,
+} from "@mui/icons-material";
+import type { RootState } from "../../redux/store";
 
-import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
-import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
-import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
-import LogoutIcon from "@mui/icons-material/Logout";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-
-import { RootState } from "../../redux/store";
-import { disconnectSocket } from "../../utils/socketService";
-import { checkAuthRes } from "../../utils/checkAuth";
-import { ACCESS_TOKEN_KEY, CURRENT_PATH_KEY } from "../../constants/common";
-
-interface ProfileMenuItemProps {
-  onClick: () => void;
-  label: string;
-  icon: ReactNode;
-  isDanger?: boolean;
+export interface ProfileMenuProps {
+  anchorEl?: any;
+  open?: boolean;
+  onClose?: () => void;
+  onLogout?: () => void;
 }
 
-const ProfileMenuItem = ({
-  onClick,
-  label,
-  icon,
-  isDanger = false,
-}: ProfileMenuItemProps) => {
-  const theme = useTheme();
+interface MenuItemDef {
+  label: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  destructive?: boolean;
+}
 
-  return (
-    <MenuItem
-      onClick={onClick}
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        gap: 1.5,
-        py: 1.25,
-        px: 2,
-        borderRadius: 1.5,
-        mx: 0.5,
-        color: isDanger ? theme.palette.error.main : theme.palette.text.primary,
-        transition: "background-color 0.2s ease",
-        "&:hover": {
-          backgroundColor: isDanger
-            ? alpha(theme.palette.error.main, 0.08)
-            : alpha(theme.palette.action.hover, 0.08),
-        },
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          color: isDanger
-            ? theme.palette.error.main
-            : theme.palette.text.secondary,
-        }}
-      >
-        {icon}
-      </Box>
-      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-        {label}
-      </Typography>
-    </MenuItem>
-  );
-};
-
-export default function ProfileMenu() {
+const ProfileMenu = ({ anchorEl, open, onClose, onLogout }: ProfileMenuProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { loginUser } = useSelector((state: RootState) => state?.auth);
 
-  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-  const [, setIsLoading] = useState(false);
-
-  const userInfo = useSelector((state: RootState) => state?.auth?.loginUser);
-  const myId = userInfo?.id;
-
-  useEffect(() => {
-    if (!userInfo?.id) {
-      checkAuthRes(dispatch, setIsLoading);
-    }
-  }, [dispatch, userInfo?.id]);
-
-  const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
+  const [localAnchor, setLocalAnchor] = useState<null | HTMLElement>(null);
+  const anchor = anchorEl ?? localAnchor;
+  const isOpen = open ?? Boolean(anchor);
+  const handleClose = () => {
+    onClose?.();
+    setLocalAnchor(null);
   };
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(CURRENT_PATH_KEY);
-    disconnectSocket();
-    navigate("/login");
-  };
-
-  const handleMenu = (target: string) => {
-    handleCloseUserMenu();
-    switch (target) {
-      case "dashboard":
-        navigate("/chat");
-        break;
-      case "profile":
-        navigate(`/profile/id=${myId}`);
-        break;
-      case "changePassword":
-        navigate("/forgetPassword");
-        break;
-      case "inviteUser":
-        navigate("/inviteUser");
-        break;
-      case "manageUser":
-        navigate("/manageUser");
-        break;
-      case "logout":
-        handleLogout();
-        break;
-      default:
-        break;
+  const handleLogout = async () => {
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      sessionStorage.clear();
+      dispatch({ type: "auth/logout" });
+      handleClose();
+      onLogout?.();
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
     }
   };
 
-  const userAvatarSrc = userInfo?.img || userInfo?.profileImage || "";
+  const items: MenuItemDef[] = [
+    { label: "Dashboard", icon: <DashboardCustomizeRounded fontSize="small" />, onClick: () => navigate("/") },
+    { label: "Profile", icon: <PersonRounded fontSize="small" />, onClick: () => navigate("/profile") },
+    { label: "Change Password", icon: <LockResetRounded fontSize="small" />, onClick: () => navigate("/change-password") },
+    { label: "Invite User", icon: <PersonAddRounded fontSize="small" />, onClick: () => navigate("/invite-user") },
+    { label: "Manage Users", icon: <ManageAccountsRounded fontSize="small" />, onClick: () => navigate("/manage-users") },
+  ];
 
   return (
-    <Box sx={{ flexGrow: 0 }}>
-      <Tooltip title="Account Settings">
-        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0.5 }}>
-          {userAvatarSrc ? (
-            <Avatar
-              src={userAvatarSrc}
-              alt={userInfo?.name || "User"}
-              sx={{ width: 40, height: 40 }}
-            />
-          ) : (
-            <Avatar
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                color: theme.palette.primary.contrastText,
-                width: 40,
-                height: 40,
-                fontWeight: 600,
-              }}
-            >
-              {userInfo?.name?.slice(0, 1).toUpperCase() || "U"}
-            </Avatar>
-          )}
-        </IconButton>
-      </Tooltip>
-
-      <Menu
-        id="menu-appbar"
-        anchorEl={anchorElUser}
-        open={Boolean(anchorElUser)}
-        onClose={handleCloseUserMenu}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        slotProps={{
-          paper: {
-            elevation: 0,
-            sx: {
-              minWidth: 260,
-              mt: 1.5,
-              p: 1,
-              borderRadius: 3,
-              backgroundColor: alpha(theme.palette.background.paper, 0.95),
-              backdropFilter: "blur(12px)",
-              border: `1px solid ${theme.palette.divider}`,
-              boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.12)}`,
-            },
+    <Menu
+      id="profile-menu"
+      anchorEl={anchor}
+      keepMounted
+      open={isOpen}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
+      slotProps={{
+        list: { "aria-labelledby": "profile-menu-button" },
+        paper: {
+          elevation: 0,
+          sx: {
+            minWidth: 250,
+            borderRadius: 3,
+            py: 1.5,
+            backgroundColor: theme.palette.background.paper,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: `0 20px 40px ${alpha(theme.palette.common.black, 0.22)}`,
           },
-        }}
-      >
-        {/* User Card Header */}
-        <Stack
-          direction="column"
-          spacing={1}
+        },
+      }}
+    >
+      <Box sx={{ px: 2, pb: 1.5 }}>
+        <Avatar
+          src={loginUser?.img ? `data:image/jpeg;base64,${loginUser.img}` : ""}
+          sx={{ width: 52, height: 52, mb: 1.25, border: `2px solid ${theme.palette.divider}` }}
+        >
+          {loginUser?.name?.[0]?.toUpperCase() || ""}
+        </Avatar>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+          {loginUser?.name || "User"}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" noWrap title={loginUser?.email}>
+          {loginUser?.email || ""}
+        </Typography>
+      </Box>
+
+      <Divider sx={{ my: 1 }} />
+
+      {items.map((item) => (
+        <MenuItem
+          key={item.label}
+          onClick={() => { handleClose(); item.onClick(); }}
           sx={{
-            pt: 1,
-            pb: 2,
-            px: 2,
-            textAlign: "center",
-            alignItems: "center",
+            mx: 1.25,
+            borderRadius: 2,
+            pr: 1.5,
+            "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: 2 },
           }}
         >
-          {userAvatarSrc ? (
-            <Avatar
-              src={userAvatarSrc}
-              alt={userInfo?.name}
-              sx={{ width: 56, height: 56 }}
-            />
-          ) : (
-            <Avatar
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                color: theme.palette.primary.contrastText,
-                width: 56,
-                height: 56,
-                fontSize: "1.5rem",
-                fontWeight: 600,
-              }}
-            >
-              {userInfo?.name?.slice(0, 1).toUpperCase() || "U"}
-            </Avatar>
-          )}
+          <ListItemIcon sx={{ minWidth: 36 }}>
+            {item.icon}
+          </ListItemIcon>
+          <ListItemText primary={item.label} slotProps={{ primary: { variant: "body2", color: "inherit" } }} />
+        </MenuItem>
+      ))}
 
-          <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-              {userInfo?.name || "User"}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                color: theme.palette.text.secondary,
-                wordBreak: "break-all",
-              }}
-            >
-              {userInfo?.email || ""}
-            </Typography>
-          </Box>
+      <Divider sx={{ my: 1 }} />
 
-          <Button
-            fullWidth
-            variant="contained"
-            size="small"
-            disableElevation
-            onClick={() => handleMenu("dashboard")}
-            sx={{
-              mt: 1,
-              borderRadius: 2,
-              textTransform: "none",
-              fontWeight: 600,
-            }}
-          >
-            Dashboard
-          </Button>
-        </Stack>
-
-        <Divider sx={{ my: 1, borderColor: theme.palette.divider }} />
-
-        {/* Menu Items */}
-        <ProfileMenuItem
-          onClick={() => handleMenu("profile")}
-          label="Profile"
-          icon={<AccountCircleOutlinedIcon fontSize="small" />}
-        />
-
-        {!userInfo?.google_login && (
-          <ProfileMenuItem
-            onClick={() => handleMenu("changePassword")}
-            label="Change Password"
-            icon={<LockResetOutlinedIcon fontSize="small" />}
-          />
-        )}
-
-        <ProfileMenuItem
-          onClick={() => handleMenu("inviteUser")}
-          label="Invite User"
-          icon={<PersonAddIcon fontSize="small" />}
-        />
-
-        <ProfileMenuItem
-          onClick={() => handleMenu("manageUser")}
-          label="Manage Users"
-          icon={<ManageAccountsOutlinedIcon fontSize="small" />}
-        />
-
-        <Divider sx={{ my: 1, borderColor: theme.palette.divider }} />
-
-        <ProfileMenuItem
-          onClick={() => handleMenu("logout")}
-          label="Log Out"
-          isDanger
-          icon={<LogoutIcon fontSize="small" />}
-        />
-      </Menu>
-    </Box>
+      <MenuItem
+        onClick={() => { handleClose(); handleLogout(); }}
+        sx={{
+          mx: 1.25,
+          mb: 0.5,
+          borderRadius: 2,
+          pr: 1.5,
+          color: theme.palette.error.main,
+          "&:focus-visible": { outline: `2px solid ${theme.palette.error.main}`, outlineOffset: 2 },
+        }}
+      >
+        <ListItemIcon sx={{ minWidth: 36, color: theme.palette.error.main }}>
+          <LogoutRounded fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="Logout" slotProps={{ primary: { variant: "body2", color: "inherit" } }} />
+      </MenuItem>
+    </Menu>
   );
-}
+};
+
+export default ProfileMenu;

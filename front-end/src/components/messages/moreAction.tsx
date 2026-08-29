@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Menu from "@mui/material/Menu";
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, ListItemIcon, Stack, Typography, alpha, useTheme } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import {
@@ -15,25 +15,29 @@ import ForwardMessage from "./forwardMessage";
 const CCard = ({ c, handleClick }: any) => {
   const { icon, title } = c;
   return (
-    <>
-      <Box sx={{ minWidth: "150px" }}>
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{
-            justifyContent: "flex-start",
-            alignItems: "center",
-            paddingY: "10px",
-            paddingX: "15px",
-            cursor: "pointer",
-          }}
-          onClick={() => handleClick(title)}
-        >
-          {icon}
-          <Typography>{title}</Typography>
-        </Stack>
-      </Box>
-    </>
+    <Box sx={{ minWidth: "160px" }}>
+      <Stack
+        direction="row"
+        spacing={1.5}
+        sx={{
+          justifyContent: "flex-start",
+          alignItems: "center",
+          paddingY: "9px",
+          paddingX: "14px",
+          marginX: "6px",
+          borderRadius: 1.5,
+          cursor: "pointer",
+          transition: "background-color 150ms ease",
+          "&:hover": { backgroundColor: "action.hover" },
+        }}
+        onClick={() => handleClick(title)}
+      >
+        <ListItemIcon sx={{ minWidth: 28, color: "inherit" }}>{icon}</ListItemIcon>
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          {title}
+        </Typography>
+      </Stack>
+    </Box>
   );
 };
 export default function MoreActions({
@@ -45,6 +49,7 @@ export default function MoreActions({
   setIconMenuOpen,
   setIconAnchorEl,
 }: any) {
+  const theme = useTheme();
   const { loginUser } = useSelector((state: RootState) => state?.auth);
   const { id: myId } = loginUser;
   const dispatch = useDispatch();
@@ -101,13 +106,16 @@ export default function MoreActions({
         onClose={handleClose}
         slotProps={{
           paper: {
+            elevation: 0,
             sx: {
-              minWidth: "150px",
-              borderRadius: "5px",
+              minWidth: "170px",
+              borderRadius: 3,
               zIndex: 20,
-              backgroundColor: "white",
-              paddingY: "10px",
-              border: "1px solid rgba(0, 0, 0, 0.1)",
+              paddingY: "6px",
+              border: `1px solid ${theme.palette.divider}`,
+              backgroundColor: theme.palette.background.paper,
+              backgroundImage: "none",
+              boxShadow: `0 16px 40px ${alpha(theme.palette.common.black, 0.35)}`,
             },
           },
         }}

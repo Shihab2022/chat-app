@@ -1,73 +1,52 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
-import { forwardRef } from "react";
-import { deleteMessage } from "../../services/message";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { deleteMessage } from "../../services/message";
 import { DELETE_MESSAGE } from "../../redux/features/chat/conversationSlice";
+import { showToast } from "../../utils/toast";
+import { COMMON_ERROR_MESSAGE, FAILED } from "../../constants/common";
+import ConfirmModal from "../ui/ConfirmModal";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 
-const Transition = forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>,
-) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 const DeleteConformations = ({
   mess,
   deleteConformationMenuOpen,
   setDeleteConformationMenuOpen,
 }: any) => {
   const dispatch = useDispatch();
+  const [deleting, setDeleting] = useState(false);
+
   const handleDeleteMessage = async () => {
+    setDeleting(true);
     try {
       const res = await deleteMessage(mess);
       if (res?.success) {
         dispatch(DELETE_MESSAGE(res?.data));
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      showToast(FAILED, COMMON_ERROR_MESSAGE);
+    } finally {
+      setDeleting(false);
+      setDeleteConformationMenuOpen(false);
     }
   };
+
   return (
-    <>
-      <Dialog
-        open={deleteConformationMenuOpen}
-        slots={{ transition: Transition }}
-        keepMounted
-        onClose={() => setDeleteConformationMenuOpen(false)}
-        aria-describedby="alert-dialog-slide-description"
-      >
-        <DialogTitle>Are you sure you want to delete this message?</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-slide-description">
-            {mess?.text}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteConformationMenuOpen(false)}>
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              setDeleteConformationMenuOpen(false);
-              handleDeleteMessage();
-            }}
-            color="error"
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+    <ConfirmModal
+      open={deleteConformationMenuOpen}
+      onClose={() => setDeleteConformationMenuOpen(false)}
+      onConfirm={handleDeleteMessage}
+      title="Delete this message?"
+      description="This message will be permanently removed for everyone in the conversation. This action cannot be undone."
+      confirmText="Delete"
+      cancelText="Cancel"
+      danger
+      loading={deleting}
+      icon={<DeleteOutlineRoundedIcon sx={{ fontSize: 28 }} />}
+    />
   );
 };
 
 export default DeleteConformations;
+

@@ -1,4 +1,4 @@
-/* src/index.css or src/App.css */
+/* src/index.css */
 *,
 *::before,
 *::after {
@@ -18,3 +18,51 @@ body {
   width: 100%;
   overflow-x: hidden;
 }
+
+/* ---------- Reusable animation keyframes ---------- */
+@keyframes chattyFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes chattySlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes chattyScaleIn {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes chattyMsgIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes chattyTypingDot {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+@keyframes chattyPulseRing {
+  0% { transform: scale(0.85); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Shimmer for skeleton loaders */
+@keyframes chattyShimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.chatty-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.11) 37%,
+    rgba(255, 255, 255, 0.05) 63%
+  );
+  background-size: 400px 100%;
+  animation: chattyShimmer 1.4s ease infinite;
+}
+
+.animate-fade-in { animation: chattyFadeIn 180ms ease both; }
+.animate-slide-up { animation: chattySlideUp 220ms ease both; }
+.animate-scale-in { animation: chattyScaleIn 200ms ease both; }
+.animate-msg-in { animation: chattyMsgIn 200ms ease both; }

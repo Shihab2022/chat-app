@@ -50,6 +50,8 @@ import { blockUserAPI, getAllRegisteredUsersAPI } from "../../services/auth";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 import { showToast } from "../../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED, SUCCESS } from "../../constants/common";
+import UserAvatar from "../../components/ui/UserAvatar";
+import OnlineIndicator from "../../components/ui/OnlineIndicator";
 
 export const RightSidebar = () => {
   const theme = useTheme();
@@ -67,7 +69,7 @@ export const RightSidebar = () => {
   const [allRegisteredUsers, setAllRegisteredUsers] = useState<TUser[]>([]);
 
   const { receiverId } = useSelector((state: RootState) => state?.message);
-  const { allUsers, loginUser } = useSelector((state: RootState) => state?.auth);
+  const { allUsers, loginUser, activeUsers } = useSelector((state: RootState) => state?.auth);
 
   // Load every registered user so ANY user (friend or not) can be added to a group.
   useEffect(() => {
@@ -109,6 +111,9 @@ export const RightSidebar = () => {
   }, [groupMembers, loginUser, selectedUserInfo]);
 
   const isAdmin = myRole === "admin";
+  const isOnline = !selectedUserInfo?.isGroup && (activeUsers || []).includes(
+    String(selectedUserInfo?.id ?? ""),
+  );
   const userImage = selectedUserInfo?.profileImage
     ? `data:image/jpeg;base64,${selectedUserInfo?.profileImage}`
     : "";
@@ -342,11 +347,23 @@ export const RightSidebar = () => {
       },
     ];
 
-    return (
-      <Box sx={{ color: theme.palette.text.primary }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1, mb: 3 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Group details
+        return (
+      <Box sx={{ color: theme.palette.text.primary, height: "100%", display: "flex", flexDirection: "column" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            p: 2,
+            pb: 1.5,
+            borderBottom: `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{ color: theme.palette.text.secondary, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}
+          >
+            Group info
           </Typography>
           <IconButton
             size="small"
@@ -357,32 +374,42 @@ export const RightSidebar = () => {
           </IconButton>
         </Box>
 
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
-          <Avatar
-            sx={{
-              width: 82,
-              height: 82,
-              fontSize: "1.7rem",
-              fontWeight: 700,
-              backgroundColor: theme.palette.primary.main,
-              color: theme.palette.primary.contrastText,
-              boxShadow: `0 4px 14px ${alpha(theme.palette.common.black, 0.12)}`,
-            }}
-          >
-            {selectedUserInfo?.name?.slice(0, 2).toUpperCase() || "GR"}
-          </Avatar>
+        <Box sx={{ display: "flex", justifyContent: "center", pt: 2.5, pb: 2 }}>
+          <UserAvatar name={selectedUserInfo?.name || "GR"} size={72} isGroup={true} />
         </Box>
 
-        <Typography variant="h6" sx={{ textAlign: "center", fontWeight: 700, mb: 0.5 }}>
+        <Typography variant="h6" sx={{ textAlign: "center", fontWeight: 700, mb: 0.5, px: 2 }}>
           {selectedUserInfo?.name || "Group"}
         </Typography>
-        <Typography variant="body2" sx={{ color: theme.palette.text.secondary, textAlign: "center", mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{ color: theme.palette.text.secondary, textAlign: "center", mb: 2, px: 2, minHeight: 20 }}
+        >
           {selectedUserInfo?.description || "Group conversation"}
         </Typography>
 
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 3, flexWrap: "wrap" }}>
-          <Chip label={`${groupMembers.length} members`} size="small" color="primary" />
-          <Chip label={isAdmin ? "Admin" : "Member"} size="small" variant="outlined" />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 1.5,
+            mb: 2,
+            flexWrap: "wrap",
+            px: 2,
+          }}
+        >
+          <Chip
+            label={`${groupMembers.length} members`}
+            size="small"
+            color="primary"
+            sx={{ height: 24, fontSize: 12, fontWeight: 600 }}
+          />
+          <Chip
+            label={isAdmin ? "Admin" : "Member"}
+            size="small"
+            variant="outlined"
+            sx={{ height: 24, fontSize: 12, fontWeight: 600 }}
+          />
         </Box>
 
         <Box sx={{ mb: 3 }}>
@@ -392,51 +419,93 @@ export const RightSidebar = () => {
           >
             Members
           </Typography>
-          <List dense sx={{ mt: 1 }}>
-            {groupMembers.map((member: any) => (
-              <ListItem key={String(member.id || member.user_id)} disableGutters sx={{ borderRadius: 2, px: 1, py: 0.6 }}>
-                <ListItemAvatar sx={{ minWidth: 42 }}>
-                  <Avatar sx={{ width: 32, height: 32, fontSize: "0.9rem" }}>
-                    {(member.name || member.email || "U").slice(0, 1).toUpperCase()}
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
-                        {member.name || member.email || "Unknown user"}
-                      </Typography>
-                      {member.role === "admin" && <Chip label="Admin" size="small" color="success" />}
-                    </Box>
-                  }
-                  secondary={member.email || "Member"}
-                />
-              </ListItem>
-            ))}
+                    <List dense sx={{ mt: 1, p: 0 }}>
+            {groupMembers.map((member: any) => {
+              const memberId = String(member.id || member.user_id);
+              const isSelf = memberId === String(loginUser?.id);
+              const role = member.role;
+              return (
+                <ListItem
+                  key={memberId}
+                  disableGutters
+                  sx={{ borderRadius: 2, px: 1.5, py: 0.75 }}
+                >
+                  <ListItemAvatar sx={{ minWidth: 44, mr: 1.5 }}>
+                    <UserAvatar
+                      name={member.name || member.email || "U"}
+                      size={36}
+                      isGroup={false}
+                    />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
+                          {member.name || member.email || "Unknown user"}
+                        </Typography>
+                        {role === "admin" && (
+                          <Chip
+                            label="Admin"
+                            size="small"
+                            color="success"
+                            sx={{ height: 20, fontSize: 11, fontWeight: 700 }}
+                          />
+                        )}
+                        {isSelf && (
+                          <Typography
+                            variant="caption"
+                            sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}
+                          >
+                            (You)
+                          </Typography>
+                        )}
+                      </Box>
+                    }
+                    secondary={member.email || "Member"}
+                  />
+                </ListItem>
+              );
+            })}
           </List>
         </Box>
 
         <Divider sx={{ my: 2 }} />
 
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-          {actionButtons.map((action) => (
-            <Button
-              key={action.label}
-              variant={action.label === "Add member" ? "contained" : "outlined"}
-              startIcon={
-                processing && action.label !== "Leave group" ? (
-                  <CircularProgress size={16} color="inherit" />
-                ) : (
-                  action.icon
-                )
-              }
-              onClick={action.onClick}
-              disabled={action.disabled}
-              sx={{ justifyContent: "flex-start", borderRadius: 2, py: 1, textTransform: "none" }}
-            >
-              {action.label}
-            </Button>
-          ))}
+                <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 0.75,
+            mt: 1,
+          }}
+        >
+          {actionButtons.map((action) => {
+            const isPrimary = action.label === "Add member";
+            return (
+              <Button
+                key={action.label}
+                variant={isPrimary ? "contained" : "outlined"}
+                startIcon={
+                  processing && action.label !== "Leave group" ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : (
+                    action.icon
+                  )
+                }
+                onClick={action.onClick}
+                disabled={action.disabled}
+                sx={{
+                  justifyContent: "flex-start",
+                  borderRadius: 2,
+                  py: 1,
+                  textTransform: "none",
+                  fontWeight: 600,
+                }}
+              >
+                {action.label}
+              </Button>
+            );
+          })}
         </Box>
 
         <Dialog open={memberPickerOpen} onClose={() => setMemberPickerOpen(false)} fullWidth maxWidth="xs">
@@ -605,11 +674,23 @@ export const RightSidebar = () => {
     return renderGroupPanel();
   }
 
-  return (
-    <Box sx={{ color: theme.palette.text.primary }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1, mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          Contact Info
+    return (
+    <Box sx={{ color: theme.palette.text.primary, height: "100%", display: "flex", flexDirection: "column" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          p: 2,
+          pb: 1.5,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Typography
+          variant="subtitle2"
+          sx={{ color: theme.palette.text.secondary, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}
+        >
+          Contact info
         </Typography>
         <IconButton
           size="small"
@@ -620,28 +701,26 @@ export const RightSidebar = () => {
         </IconButton>
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
-        <Avatar
-          src={selectedUserInfo?.img || userImage}
-          sx={{
-            width: 80,
-            height: 80,
-            fontSize: "1.75rem",
-            fontWeight: 600,
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            boxShadow: `0 4px 14px ${alpha(theme.palette.common.black, 0.12)}`,
-          }}
-        >
-          {!selectedUserInfo?.img && !userImage && selectedUserInfo?.name?.slice(0, 2).toUpperCase()}
-        </Avatar>
+      <Box sx={{ display: "flex", justifyContent: "center", pt: 2.5, pb: 2 }}>
+        <UserAvatar
+          img={selectedUserInfo?.img || userImage}
+          name={selectedUserInfo?.name || ""}
+          size={80}
+          isOnline={isOnline}
+        />
       </Box>
 
-      <Typography variant="h6" sx={{ textAlign: "center", fontWeight: 700, mb: 0.5 }}>
+      <Typography variant="h6" sx={{ textAlign: "center", fontWeight: 700, mb: 0.5, px: 2 }}>
         {selectedUserInfo?.name || "User"}
       </Typography>
-      <Typography variant="body2" sx={{ color: theme.palette.text.secondary, textAlign: "center", mb: 3 }}>
-        {selectedUserInfo?.email || ""}
+      <Typography
+        variant="body2"
+        sx={{ color: theme.palette.text.secondary, textAlign: "center", mb: 3, px: 2, minHeight: 24 }}
+      >
+        <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
+          <OnlineIndicator online={isOnline} />
+          {isOnline ? "Online" : "Offline"}
+        </Box>
       </Typography>
 
       <Box sx={{ mb: 3 }}>

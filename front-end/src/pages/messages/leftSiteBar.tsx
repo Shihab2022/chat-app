@@ -1,57 +1,79 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import Avatar from "@mui/material/Avatar";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import { useTheme } from "@mui/material/styles";
 import {
-  SET_CONVERSATION,
-  SET_RECEIVER_ID,
-  SET_REPLIED_MESSAGE,
-} from "../../redux/features/chat/conversationSlice";
-import { getMessage } from "../../services/message";
-import { RootState } from "../../redux/store";
-import { TUser } from "../../types";
-import { groupMessagesByDate } from "../../utils/timeFormat";
-import logoImage from "../../assets/logo.png";
-import { formattedSideBarData } from "../../utils/common";
-import LeftSiteBarCard from "../../components";
-import SearchIcon from "@mui/icons-material/Search";
-import AddIcon from "@mui/icons-material/Add";
-import IconButton from "@mui/material/IconButton";
-import InputBase from "@mui/material/InputBase";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import Button from "@mui/material/Button";
-import CreateGroupDialog from "./createGroupDialog";
-import { acceptGroupInvitationAPI, getGroupMessagesAPI, getGroupsAPI, getPendingGroupInvitationsAPI } from "../../services/message";
-import { getAllRegisteredUsersAPI } from "../../services/auth";
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  List,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import GroupAddRoundedIcon from "@mui/icons-material/GroupAddRounded";
+import MarkEmailUnreadRoundedIcon from "@mui/icons-material/MarkEmailUnreadRounded";
+import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
+import { SET_RECEIVER_ID, SET_RIGHT_SIDEBAR_OPEN_STATUS } from "../../redux/features/chat/conversationSlice";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
+import { RootState } from "../../redux/store";
+import type { TUser } from "../../types";
+import { toStartCaseStr } from "../../utils/common";
+import { getGroupsAPI, getPendingGroupInvitationsAPI, acceptGroupInvitationAPI } from "../../services/message";
+import { getAllRegisteredUsersAPI } from "../../services/auth";
+import CreateGroupDialog from "./createGroupDialog";
+import ProfileMenu from "../../components/ProfileMenu/ProfileMenu";
+import SearchInput from "../../components/ui/SearchInput";
+import UserAvatar from "../../components/ui/UserAvatar";
+import ChatSkeleton from "../../components/ui/ChatSkeleton";
+import type { Conversation } from "../../components/ui/ChatSkeleton";
 
-const LeftSiteBar = () => {
+interface Props {
+  onSelectChat?: () => void;
+  activeConversation?: string;
+}
+
+const SEARCH_USERS_DELAY = 600;
+
+function LeftSiteBar({ onSelectChat, activeConversation }: Props) {
   const theme = useTheme();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loginUser, allUsers = [] } = useSelector((state: RootState) => state?.auth);
 
-  const { loginUser, allUsers } = useSelector((state: RootState) => state?.auth);
-  const { receiverId, messages } = useSelector((state: RootState) => state?.message);
-  const { id: myId } = loginUser || {};
-  const [search, setSearch] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [profileAnchor, setProfileAnchor] = useState<null | HTMLElement>(null);
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [registeredUsers, setRegisteredUsers] = useState<TUser[]>([]);
   const [pendingGroupInvites, setPendingGroupInvites] = useState<any[]>([]);
   const [groupInvitesOpen, setGroupInvitesOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setSearchTerm(searchValue), SEARCH_USERS_DELAY);
+    return () => clearTimeout(handler);
+  }, [searchValue]);
+
+  const friendUsers = (allUsers || []).filter(
+    (user: TUser) => String(user.id) !== String(loginUser?.id) && !user.isGroup,
+  );
 
   // Load every registered user (friends AND non-friends) so the group
   // creation popup can invite users who are not friends yet.
@@ -70,62 +92,29 @@ const LeftSiteBar = () => {
     await loadRegisteredUsers();
     setGroupDialogOpen(true);
   };
+
   const openGroupInvites = async () => {
     setMenuAnchor(null);
     const response = await getPendingGroupInvitationsAPI();
     setPendingGroupInvites(response?.success ? response.data || [] : []);
     setGroupInvitesOpen(true);
   };
+
   const acceptGroupInvite = async (invitationId: string | number) => {
     const response = await acceptGroupInvitationAPI(invitationId);
     if (!response?.success) return;
     setPendingGroupInvites((items) => items.filter((item) => String(item.id) !== String(invitationId)));
     const groupsResponse = await getGroupsAPI();
     if (groupsResponse?.success) {
-      const groups = (groupsResponse.data || []).map((group: TUser) => ({ ...group, id: String(group.id), isGroup: true, img: "" }));
+      const groups = (groupsResponse.data || []).map((group: TUser) => ({
+        ...group,
+        id: String(group.id),
+        isGroup: true,
+        img: "",
+      }));
       dispatch(SET_ALL_USERS([...allUsers.filter((user: TUser) => !user.isGroup), ...groups]));
     }
   };
-
-  const handleClick = async (user: Partial<TUser>) => {
-    try {
-      const params = user.isGroup
-        ? { groupId: user.id }
-        : { myId, userToChatId: user.id };
-      if (user.id) {
-        dispatch(SET_RECEIVER_ID(user.id));
-      }
-      dispatch(SET_REPLIED_MESSAGE({}));
-      const res = user.isGroup
-        ? await getGroupMessagesAPI(params)
-        : await getMessage(params);
-      if (res?.success) {
-        const formattedMessage = groupMessagesByDate(res?.data);
-        dispatch(SET_CONVERSATION(formattedMessage));
-      }
-    } catch (error) {
-      console.error("Error loading chat messages:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (Object.keys(messages).length === 0 && !!receiverId) {
-      handleClick({ id: receiverId });
-    }
-  }, [receiverId]);
-
-  const formattedAllUsers = useMemo(() => {
-    const filtered = (allUsers || []).filter((user: TUser) =>
-      `${user.name || ""} ${user.email || ""}`
-        .toLowerCase()
-        .includes(search.toLowerCase()),
-    );
-    return filtered.length > 0 ? formattedSideBarData(filtered) : [];
-  }, [allUsers, messages, search]);
-
-  const friendUsers = (allUsers || []).filter(
-    (user: TUser) => user.id !== myId && !user.isGroup,
-  );
 
   const handleGroupCreated = async (createdGroup?: TUser) => {
     setGroupDialogOpen(false);
@@ -157,123 +146,227 @@ const LeftSiteBar = () => {
       img: "",
       members: createdGroup.members || [],
     };
-
     dispatch(
       SET_ALL_USERS([
-        nextGroup,
-        ...allUsers.filter((user: TUser) => user.isGroup && String(user.id) !== String(nextGroup.id)),
         ...allUsers.filter((user: TUser) => !user.isGroup),
+        nextGroup,
       ]),
     );
-    dispatch(SET_RECEIVER_ID(String(nextGroup.id)));
+  };
+
+  const conversations: Conversation[] = useMemo(() => {
+    const list = Array.isArray(allUsers) ? allUsers : [];
+    const mapped = list
+      .filter((u: TUser) => String(u.id) !== String(loginUser?.id))
+      .map((u: TUser, index: number) => {
+        const last = u.lastMessage as any;
+        const created = last?.created_at ? new Date(last.created_at) : null;
+        const time = created
+          ? created.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+          : "";
+        return {
+          id: String(u.id),
+          name: toStartCaseStr(u.name || ""),
+          avatar: u?.img || "",
+          isGroup: !!u.isGroup,
+          online: !u.isGroup && !!u.online,
+          lastMessage: last?.content || "",
+          time,
+          unread: 0,
+          muted: false,
+          isActive: String(u.id) === activeConversation,
+          key: `conv-${u.id}-${index}`,
+          raw: u,
+          _lastDate: created ? created.getTime() : 0,
+        } as Conversation & { _lastDate: number };
+      });
+    // most recent conversation first
+    return mapped.sort((a, b) => (b._lastDate || 0) - (a._lastDate || 0));
+  }, [allUsers, activeConversation, loginUser]);
+
+  const filtered = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return conversations;
+    return conversations.filter((c) => c.name.toLowerCase().includes(term));
+  }, [conversations, searchTerm]);
+
+  const handleSelect = (id: string) => {
+    onSelectChat?.();
+    navigate("/chat");
+    dispatch(SET_RECEIVER_ID(id));
+    dispatch(SET_RIGHT_SIDEBAR_OPEN_STATUS(false));
+  };
+
+  const handleProfileOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setProfileAnchor(event.currentTarget);
   };
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <List disablePadding>
-        <ListItem disablePadding>
-          <Stack
-            direction="row"
-            spacing={1.5}
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        backgroundColor: theme.palette.background.paper,
+      }}
+    >
+      {/* Header: logo + avatar */}
+      <Box
+        sx={{
+          p: 2,
+          pb: 1.5,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Avatar
+            variant="rounded"
+            src="/logo.png"
+            sx={{ width: 32, height: 32, bgcolor: "transparent" }}
+          />
+          <Typography variant="h6" component="span" sx={{ fontWeight: 700 }}>
+            Chatty
+          </Typography>
+        </Box>
+        <IconButton onClick={handleProfileOpen} size="small" edge="end" aria-label="profile">
+          <Avatar
+            src={loginUser?.img || ""}
             sx={{
-              width: "100%",
-              px: 2.5,
-              py: 2,
-              alignItems: "center",
+              width: 38,
+              height: 38,
+              border: `2px solid ${theme.palette.divider}`,
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+              fontSize: 15,
             }}
           >
-            <Avatar
-              onClick={() => navigate("/")}
-              alt="logo"
-              src={logoImage}
-              sx={{
-                width: 36,
-                height: 36,
-                cursor: "pointer",
-                transition: "transform 0.2s ease",
-                "&:hover": { transform: "scale(1.05)" },
-              }}
-            />
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 700, color: theme.palette.text.primary }}
-            >
-              Chatty
-            </Typography>
-          </Stack>
-        </ListItem>
-      </List>
+            {loginUser?.name?.[0] || ""}
+          </Avatar>
+        </IconButton>
+      </Box>
 
-      <Divider sx={{ borderColor: theme.palette.divider }} />
-
-      <Stack direction="row" spacing={1} sx={{ px: 1.5, py: 1.25 }}>
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            px: 1.25,
-            borderRadius: 2,
-            backgroundColor: theme.palette.action.hover,
-          }}
-        >
-          <SearchIcon fontSize="small" color="disabled" />
-          <InputBase
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search chats"
-            sx={{ ml: 1, flex: 1, fontSize: 14 }}
+      {/* Search + actions */}
+      <Box sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${theme.palette.divider}`, display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <SearchInput
+            value={searchValue}
+            onChange={setSearchValue}
+            placeholder="Search chats..."
+            ariaLabel="Search conversations"
           />
         </Box>
-        <IconButton
-          color="primary"
-          onClick={(event) => setMenuAnchor(event.currentTarget)}
-          aria-label="chat actions"
-        >
-          <AddIcon />
-        </IconButton>
+        <Tooltip title="New chat, group or invitation" arrow>
+          <IconButton
+            onClick={(event) => setMenuAnchor(event.currentTarget)}
+            aria-label="chat actions"
+            sx={{
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+              "&:hover": { backgroundColor: theme.palette.primary.dark },
+              width: 42,
+              height: 42,
+            }}
+          >
+            <AddRoundedIcon />
+          </IconButton>
+        </Tooltip>
         <Menu
           anchorEl={menuAnchor}
           open={Boolean(menuAnchor)}
           onClose={() => setMenuAnchor(null)}
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
+          slotProps={{
+            paper: {
+              sx: {
+                mt: 1,
+                minWidth: 210,
+                borderRadius: 3,
+                border: `1px solid ${theme.palette.divider}`,
+                boxShadow: "0 16px 40px rgba(0,0,0,0.35)",
+              },
+            },
+          }}
         >
-          <MenuItem onClick={handleOpenCreateGroup}>
+          <MenuItem onClick={handleOpenCreateGroup} sx={{ borderRadius: 1.5, mx: 0.5 }}>
+            <ListItemIcon>
+              <GroupAddRoundedIcon fontSize="small" />
+            </ListItemIcon>
             Create group
           </MenuItem>
-          <MenuItem onClick={openGroupInvites}>
-            Group invitations{pendingGroupInvites.length ? ` (${pendingGroupInvites.length})` : ""}
+          <MenuItem onClick={openGroupInvites} sx={{ borderRadius: 1.5, mx: 0.5 }}>
+            <ListItemIcon>
+              <MarkEmailUnreadRoundedIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Group invitations"
+              slotProps={{
+                primary: {
+                  variant: "body2",
+                  ...(pendingGroupInvites.length ? { color: "primary" } : {}),
+                },
+              }}
+            />
+            {pendingGroupInvites.length > 0 && (
+              <Typography variant="caption" color="primary" sx={{ fontWeight: 700 }}>
+                {pendingGroupInvites.length}
+              </Typography>
+            )}
           </MenuItem>
           <MenuItem
             onClick={() => {
               setMenuAnchor(null);
               navigate("/inviteUser");
             }}
+            sx={{ borderRadius: 1.5, mx: 0.5 }}
           >
+            <ListItemIcon>
+              <PersonAddAltRoundedIcon fontSize="small" />
+            </ListItemIcon>
             Invite user
           </MenuItem>
         </Menu>
-      </Stack>
+      </Box>
 
-      <List sx={{ pt: 1, px: 1, flexGrow: 1, overflowY: "auto" }}>
-        {formattedAllUsers
-          ?.filter((d: TUser) => d?.id !== myId)
-          ?.map((user: TUser) => (
-            <ListItem key={user.id} disablePadding sx={{ mb: 0.5 }}>
-              <LeftSiteBarCard user={user} onClick={handleClick} />
-            </ListItem>
-          ))}
-        {formattedAllUsers.length === 0 && (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ px: 2, py: 4, textAlign: "center" }}
+      {/* List */}
+      <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
+        {!searchValue && filtered.length === 0 ? (
+          <ChatSkeleton count={8} />
+        ) : filtered.length === 0 ? (
+          <Box
+            sx={{
+              p: 3,
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 1.5,
+              opacity: 0.6,
+            }}
           >
-            No chats found. Add friends to start messaging.
-          </Typography>
+            <SearchRoundedIcon sx={{ fontSize: 28 }} />
+            <Typography variant="body2" color="text.secondary">
+              {searchValue ? "No conversations found" : "No conversations yet"}
+            </Typography>
+          </Box>
+        ) : (
+          <List disablePadding>
+            {filtered.map((conv) => (
+              <ConversationItem
+                key={conv.key}
+                conv={conv}
+                theme={theme}
+                onClick={() => handleSelect(conv.id)}
+              />
+            ))}
+          </List>
         )}
-      </List>
+      </Box>
+
       <CreateGroupDialog
         users={registeredUsers}
         friendIds={friendUsers.map((user: TUser) => String(user.id))}
@@ -281,22 +374,141 @@ const LeftSiteBar = () => {
         onClose={() => setGroupDialogOpen(false)}
         onCreated={handleGroupCreated}
       />
-      <Dialog open={groupInvitesOpen} onClose={() => setGroupInvitesOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Group invitations</DialogTitle>
-        <DialogContent>
+
+      <Dialog
+        open={groupInvitesOpen}
+        onClose={() => setGroupInvitesOpen(false)}
+        fullWidth
+        maxWidth="xs"
+        slotProps={{ paper: { sx: { borderRadius: 3, border: `1px solid ${theme.palette.divider}` } } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>Group invitations</DialogTitle>
+        <DialogContent dividers>
           {pendingGroupInvites.map((invite) => (
-            <Box key={invite.id} sx={{ py: 1.25, borderBottom: `1px solid ${theme.palette.divider}` }}>
+            <Box key={invite.id} sx={{ py: 1.5, borderBottom: `1px solid ${theme.palette.divider}` }}>
               <Typography sx={{ fontWeight: 700 }}>{invite.name}</Typography>
-              <Typography variant="body2" color="text.secondary">Invited by {invite.invited_by_name}</Typography>
-              <Button size="small" variant="contained" sx={{ mt: 1 }} onClick={() => acceptGroupInvite(invite.id)}>Accept invitation</Button>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Invited by {invite.invited_by_name}
+              </Typography>
+              <Button size="small" variant="contained" onClick={() => acceptGroupInvite(invite.id)}>
+                Accept invitation
+              </Button>
             </Box>
           ))}
-          {!pendingGroupInvites.length && <Typography color="text.secondary">You have no pending group invitations.</Typography>}
+          {!pendingGroupInvites.length && (
+            <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: "center" }}>
+              You have no pending group invitations.
+            </Typography>
+          )}
         </DialogContent>
-        <DialogActions><Button onClick={() => setGroupInvitesOpen(false)}>Close</Button></DialogActions>
+        <DialogActions>
+          <Button onClick={() => setGroupInvitesOpen(false)}>Close</Button>
+        </DialogActions>
       </Dialog>
+
+      <ProfileMenu
+        anchorEl={profileAnchor}
+        open={Boolean(profileAnchor)}
+        onClose={() => setProfileAnchor(null)}
+      />
     </Box>
   );
-};
+}
+
+function ConversationItem({ conv, theme, onClick }: any) {
+  const displayName = conv.name;
+  const unreadColor = theme.palette.primary.main;
+  const hasUnread = conv.unread > 0;
+
+  return (
+    <ListItemButton
+      onClick={onClick}
+      sx={{
+        alignItems: "flex-start",
+        px: 2,
+        py: 1.25,
+        backgroundColor: conv.isActive ? "action.hover" : "inherit",
+        borderLeft: conv.isActive ? `3px solid ${theme.palette.primary.main}` : "3px solid transparent",
+        "&:hover": { backgroundColor: "action.hover" },
+        transition: "background-color 150ms ease, border-color 150ms ease",
+      }}
+    >
+      <ListItemAvatar sx={{ minWidth: 48, mr: 1.5 }}>
+        <Badge
+          overlap="circular"
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          badgeContent={
+            conv.online ? (
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  backgroundColor: theme.palette.success.main,
+                  border: `2px solid ${theme.palette.background.paper}`,
+                }}
+              />
+            ) : null
+          }
+        >
+          <UserAvatar img={conv.avatar} name={displayName} size={48} isGroup={conv.isGroup} />
+        </Badge>
+      </ListItemAvatar>
+
+      <ListItemText
+        primary={displayName}
+        slotProps={{
+          primary: {
+            sx: { fontWeight: hasUnread ? 600 : 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+          },
+        }}
+        secondary={
+          <Typography
+            component="span"
+            variant="body2"
+            noWrap
+            sx={{
+              color: theme.palette.text.secondary,
+              fontWeight: hasUnread ? 600 : 400,
+              display: "block",
+              maxWidth: "calc(100% - 70px)",
+            }}
+          >
+            {conv.lastMessage || "No messages yet"}
+          </Typography>
+        }
+        sx={{ my: 0, mr: 1 }}
+      />
+
+      <ListItemSecondaryAction
+        sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 60, pl: 1 }}
+      >
+        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+          {conv.time || ""}
+        </Typography>
+        {hasUnread && (
+          <Box
+            sx={{
+              minWidth: 20,
+              height: 20,
+              px: 0.6,
+              mt: 0.5,
+              borderRadius: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: unreadColor,
+              color: theme.palette.primary.contrastText,
+              fontSize: 11,
+              fontWeight: 700,
+            }}
+          >
+            {conv.unread}
+          </Box>
+        )}
+      </ListItemSecondaryAction>
+    </ListItemButton>
+  );
+}
 
 export default LeftSiteBar;

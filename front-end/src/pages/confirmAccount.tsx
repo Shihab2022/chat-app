@@ -1,25 +1,14 @@
-/* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable prefer-const */
-import {
-  Avatar,
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  CssBaseline,
-  Paper,
-  Typography,
-} from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ErrorIcon from "@mui/icons-material/Error";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
+import MarkEmailReadRoundedIcon from "@mui/icons-material/MarkEmailReadRounded";
 import { confirmAccountApi } from "../services/auth";
-import { useEffect, useState, useCallback } from "react";
-import logoImage from "../assets/logo.png";
 import { SENDING_FAILED_MESSAGE } from "../constants/common";
+import AuthLayout from "../components/ui/AuthLayout";
 
 export default function ConfirmAccount() {
   const theme = useTheme();
@@ -43,9 +32,7 @@ export default function ConfirmAccount() {
           navigate("/login");
         }, 2000);
       } else {
-        setErrorMessage(
-          "Confirmation failed. The link may be invalid or expired.",
-        );
+        setErrorMessage("Confirmation failed. The link may be invalid or expired.");
       }
     } catch (error: any) {
       console.error(SENDING_FAILED_MESSAGE, error);
@@ -67,185 +54,74 @@ export default function ConfirmAccount() {
     }
   }, [token, handleConfirm]);
 
+  const toneColor = errorMessage
+    ? theme.palette.error.main
+    : success
+      ? theme.palette.success.main
+      : theme.palette.primary.main;
+
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: `radial-gradient(circle at 50% 0%, ${alpha(
-          theme.palette.primary.main,
-          0.15,
-        )} 0%, ${theme.palette.background.default} 70%)`,
-        py: 4,
-      }}
+    <AuthLayout
+      title={success ? "Account Confirmed" : errorMessage ? "Confirmation Failed" : "Confirming…"}
+      subtitle={
+        success
+          ? "Your account has been verified successfully. Redirecting you to sign in…"
+          : errorMessage
+            ? errorMessage
+            : "Please wait a moment while we verify your account."
+      }
     >
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Paper
-          elevation={0}
+      <Box sx={{ textAlign: "center", py: 2, width: "100%" }}>
+        <Box
           sx={{
-            p: 4,
+            width: 72,
+            height: 72,
+            mx: "auto",
+            mb: 3,
+            borderRadius: "20px",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            borderRadius: 4,
-            border: `1px solid ${theme.palette.divider}`,
-            backdropFilter: "blur(10px)",
-            backgroundColor: alpha(theme.palette.background.paper, 0.8),
-            boxShadow: `0 8px 32px 0 ${alpha(
-              theme.palette.common.black,
-              0.08,
-            )}`,
+            justifyContent: "center",
+            backgroundColor: alpha(toneColor, 0.14),
+            color: toneColor,
+            border: `1px solid ${alpha(toneColor, 0.28)}`,
           }}
         >
-          {/* Logo */}
-          <Avatar
-            onClick={() => navigate("/")}
-            alt="logo"
-            src={logoImage}
-            sx={{
-              width: 64,
-              height: 64,
-              mb: 1.5,
-              cursor: "pointer",
-              transition: "transform 0.2s ease-in-out",
-              "&:hover": {
-                transform: "scale(1.05)",
-              },
-            }}
-          />
+          {loading ? (
+            <CircularProgress size={34} sx={{ color: toneColor }} />
+          ) : success ? (
+            <CheckCircleRoundedIcon sx={{ fontSize: 38 }} />
+          ) : errorMessage ? (
+            <ErrorOutlineRoundedIcon sx={{ fontSize: 38 }} />
+          ) : (
+            <MarkEmailReadRoundedIcon sx={{ fontSize: 38 }} />
+          )}
+        </Box>
 
-          <Typography
-            component="h1"
-            variant="h5"
-            sx={{ fontWeight: 700, letterSpacing: "-0.5px", mb: 1 }}
+        {errorMessage && !loading && (
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={() => navigate("/re-send-confirm")}
+            sx={{ py: 1.2, borderRadius: 10 }}
           >
-            Confirm Your Account
+            Resend confirmation email
+          </Button>
+        )}
+
+        {success && (
+          <Typography variant="body2" color="text.secondary">
+            Taking too long?{" "}
+            <Box
+              component="span"
+              onClick={() => navigate("/login")}
+              sx={{ color: "primary.light", fontWeight: 600, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+            >
+              Sign in now
+            </Box>
           </Typography>
-
-          {/* Loading State */}
-          {loading && (
-            <Box
-              sx={{
-                my: 4,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <CircularProgress size={40} />
-              <Typography variant="body2" color="text.secondary">
-                Verifying your account details...
-              </Typography>
-            </Box>
-          )}
-
-          {/* Success State */}
-          {!loading && success && (
-            <Box
-              sx={{
-                my: 2,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <CheckCircleIcon color="success" sx={{ fontSize: 56 }} />
-              <Typography
-                variant="body1"
-                sx={{ fontWeight: 600, textAlign: "center" }}
-              >
-                Account successfully confirmed!
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ textAlign: "center" }}
-              >
-                Redirecting you to the sign-in page...
-              </Typography>
-            </Box>
-          )}
-
-          {/* Error State */}
-          {!loading && !success && (
-            <Box
-              sx={{
-                my: 2,
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <ErrorIcon color="error" sx={{ fontSize: 56 }} />
-              <Typography
-                variant="body2"
-                color="error"
-                sx={{ textAlign: "center", fontWeight: 500 }}
-              >
-                {errorMessage}
-              </Typography>
-              <Button
-                onClick={handleConfirm}
-                fullWidth
-                variant="contained"
-                sx={{
-                  mt: 2,
-                  py: 1.4,
-                  borderRadius: 2,
-                  fontSize: "1rem",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  boxShadow: `0 4px 12px ${alpha(
-                    theme.palette.primary.main,
-                    0.3,
-                  )}`,
-                  "&:hover": {
-                    boxShadow: `0 6px 16px ${alpha(
-                      theme.palette.primary.main,
-                      0.4,
-                    )}`,
-                  },
-                }}
-              >
-                Retry Confirmation
-              </Button>
-            </Box>
-          )}
-
-          {/* Fallback Nav Link */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 0.5,
-              mt: 3,
-            }}
-          >
-            <Button
-              component={RouterLink}
-              to="/login"
-              variant="text"
-              color="primary"
-              startIcon={<ArrowBackIcon fontSize="small" />}
-              sx={{
-                fontWeight: 600,
-                textTransform: "none",
-              }}
-            >
-              Back to Sign In
-            </Button>
-          </Box>
-        </Paper>
-      </Container>
-    </Box>
+        )}
+      </Box>
+    </AuthLayout>
   );
 }
