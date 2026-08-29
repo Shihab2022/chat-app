@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Divider from "@mui/material/Divider";
@@ -22,6 +22,13 @@ import { groupMessagesByDate } from "../../utils/timeFormat";
 import logoImage from "../../assets/logo.png";
 import { formattedSideBarData } from "../../utils/common";
 import LeftSiteBarCard from "../../components";
+import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
+import IconButton from "@mui/material/IconButton";
+import InputBase from "@mui/material/InputBase";
+import CreateGroupDialog from "./createGroupDialog";
+import { getGroupMessagesAPI, getGroupsAPI } from "../../services/message";
+import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 
 const LeftSiteBar = () => {
   const theme = useTheme();
@@ -35,18 +42,21 @@ const LeftSiteBar = () => {
     (state: RootState) => state?.message,
   );
   const { id: myId } = loginUser || {};
+  const [search, setSearch] = useState("");
+  const [groupDialogOpen, setGroupDialogOpen] = useState(false);
 
   const handleClick = async (user: Partial<TUser>) => {
     try {
-      const params = {
-        myId,
-        userToChatId: user.id,
-      };
+      const params = user.isGroup
+        ? { groupId: user.id }
+        : { myId, userToChatId: user.id };
       if (user.id) {
         dispatch(SET_RECEIVER_ID(user.id));
       }
       dispatch(SET_REPLIED_MESSAGE({}));
-      const res = await getMessage(params);
+      const res = user.isGroup
+        ? await getGroupMessagesAPI(params)
+        : await getMessage(params);
       if (res?.success) {
         const formattedMessage = groupMessagesByDate(res?.data);
         dispatch(SET_CONVERSATION(formattedMessage));
@@ -63,8 +73,36 @@ const LeftSiteBar = () => {
   }, [receiverId]);
 
   const formattedAllUsers = useMemo(() => {
-    return allUsers?.length > 0 ? formattedSideBarData(allUsers) : [];
-  }, [allUsers, messages]);
+    const filtered = (allUsers || []).filter((user: TUser) =>
+      `${user.name || ""} ${user.email || ""}`
+        .toLowerCase()
+        .includes(search.toLowerCase()),
+    );
+    return filtered.length > 0 ? formattedSideBarData(filtered) : [];
+  }, [allUsers, messages, search]);
+
+  const friends = allUsers.filter(
+    (user: TUser) => user.id !== myId && !user.isGroup,
+  );
+
+  const handleGroupCreated = async () => {
+    setGroupDialogOpen(false);
+    const response = await getGroupsAPI();
+    if (response?.success) {
+      const groups = (response.data || []).map((group: TUser) => ({
+        ...group,
+        id: String(group.id),
+        isGroup: true,
+        img: "",
+      }));
+      dispatch(
+        SET_ALL_USERS([
+          ...allUsers.filter((user: TUser) => !user.isGroup),
+          ...groups,
+        ]),
+      );
+    }
+  };
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -105,6 +143,34 @@ const LeftSiteBar = () => {
 
       <Divider sx={{ borderColor: theme.palette.divider }} />
 
+      <Stack direction="row" spacing={1} sx={{ px: 1.5, py: 1.25 }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            px: 1.25,
+            borderRadius: 2,
+            backgroundColor: theme.palette.action.hover,
+          }}
+        >
+          <SearchIcon fontSize="small" color="disabled" />
+          <InputBase
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search chats"
+            sx={{ ml: 1, flex: 1, fontSize: 14 }}
+          />
+        </Box>
+        <IconButton
+          color="primary"
+          onClick={() => setGroupDialogOpen(true)}
+          aria-label="create group"
+        >
+          <AddIcon />
+        </IconButton>
+      </Stack>
+
       {/* User List */}
       <List sx={{ pt: 1, px: 1, flexGrow: 1, overflowY: "auto" }}>
         {formattedAllUsers
@@ -114,7 +180,22 @@ const LeftSiteBar = () => {
               <LeftSiteBarCard user={user} onClick={handleClick} />
             </ListItem>
           ))}
+        {formattedAllUsers.length === 0 && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ px: 2, py: 4, textAlign: "center" }}
+          >
+            No chats found. Add friends to start messaging.
+          </Typography>
+        )}
       </List>
+      <CreateGroupDialog
+        friends={friends}
+        open={groupDialogOpen}
+        onClose={() => setGroupDialogOpen(false)}
+        onCreated={handleGroupCreated}
+      />
     </Box>
   );
 };

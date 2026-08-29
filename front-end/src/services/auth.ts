@@ -146,3 +146,14 @@ export const blockUserAPI = async (params: any) => {
   });
   return res;
 };
+
+export const unblockUserAPI = async (params: any) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/user/unblock",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params,
+  });
+  return res;
+};

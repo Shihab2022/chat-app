@@ -7,6 +7,7 @@ export const SOCKET_EVENTS = {
   DISCONNECT: "disconnect",
   GET_ONLINE_USERS: "getOnlineUsers",
   NEW_MESSAGE: "newMessage",
+  NEW_GROUP_MESSAGE: "newGroupMessage",
   NEW_EMOJI: "newEmoji",
   REMOVE_EMOJI: "removeEmoji",
   USER_TYPING: "userTyping",

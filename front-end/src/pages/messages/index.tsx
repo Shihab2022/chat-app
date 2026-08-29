@@ -19,7 +19,7 @@ import Message from "../../components/messages/message";
 import LeftSiteBar from "./leftSiteBar";
 import { RightSidebar } from "./rightSiteBar";
 import Loader from "../../components/loader";
-import { getUsersForSidebar } from "../../services/message";
+import { getGroupsAPI, getUsersForSidebar } from "../../services/message";
 import { toStartCaseStr } from "../../utils/common";
 import { checkAuthRes } from "../../utils/checkAuth";
 import {
@@ -73,17 +73,29 @@ function ChatContainer() {
   const getAllUsers = async () => {
     try {
       const params = { id: myId };
-      const res = await getUsersForSidebar(params);
-      if (res?.success) {
-        const resUsers = res?.data;
-        const conversation = resUsers?.map((d: TUser) => ({
+      const [usersResponse, groupsResponse] = await Promise.all([
+        getUsersForSidebar(params),
+        getGroupsAPI(),
+      ]);
+      if (usersResponse?.success) {
+        const users = (usersResponse?.data || []).map((d: TUser) => ({
           ...d,
           img: d?.img || "",
           name: toStartCaseStr(d?.name),
         }));
+        const groups = (groupsResponse?.success ? groupsResponse.data : []).map(
+          (group: TUser) => ({
+            ...group,
+            id: String(group.id),
+            name: group.name,
+            isGroup: true,
+            img: "",
+          }),
+        );
+        const conversation = [...users, ...groups];
 
         if (conversation?.length > 0) {
-          dispatch(SET_RECEIVER_ID(conversation[0].id));
+          dispatch(SET_RECEIVER_ID(String(conversation[0].id)));
           dispatch(SET_ALL_USERS(conversation));
         }
       }

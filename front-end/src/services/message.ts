@@ -92,3 +92,63 @@ export const replyMessageAPI = async (params: any) => {
   });
   return res;
 };
+
+export const clearChatAPI = async (params: any) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/clear",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params,
+  });
+};
+
+export const getGroupsAPI = async () => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/groups",
+    axiosMethod: httpMethod.GET,
+    formData: false,
+    params: {},
+  });
+};
+
+export const createGroupAPI = async (params: any) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/groups",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params,
+  });
+};
+
+export const addGroupMemberAPI = async (groupId: string | number, params: any) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: `/message/groups/${groupId}/members`,
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params,
+  });
+};
+
+export const getGroupMessagesAPI = async (params: any) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/group/get",
+    axiosMethod: httpMethod.GET,
+    formData: false,
+    params,
+  });
+};
+
+export const sendGroupMessageAPI = async (params: any) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/group/send",
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params,
+  });
+};

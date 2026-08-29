@@ -30,7 +30,11 @@ const conversationSlice = createSlice({
       state.isEmojiAdded = false;
     },
     SET_REAL_TIME_CONVERSATION: (state, action) => {
-      if (action?.payload?.sender_id === state.receiverId) {
+      const isCurrentDirectChat =
+        action?.payload?.sender_id === state.receiverId;
+      const isCurrentGroupChat =
+        String(action?.payload?.group_id || "") === String(state.receiverId);
+      if (isCurrentDirectChat || isCurrentGroupChat) {
         if (Object.keys(state.messages).length > 0) {
           const addedMessage = addMessageToGroups(
             state.messages,

@@ -1,9 +1,10 @@
-import {
+﻿import {
   emailSenderMessages,
   FriendshipStatus,
   passwordMinLength,
   userServiceMessages,
   userStatus,
+  authorizationError,
 } from '../../../constant';
 import { createToken, jwtVerify } from '../../../utils/auth';
 import config from '../../config';
@@ -42,7 +43,7 @@ const createUserIntoDB = async (payload: TUser) => {
     );
   }
 
-  // 🔹 Check existing user
+  // ðŸ”¹ Check existing user
   const existingUser = await pool.query(
     `SELECT id FROM users WHERE email = $1`,
     [email],
@@ -54,7 +55,7 @@ const createUserIntoDB = async (payload: TUser) => {
     );
   }
 
-  // 🔥 Hash password (replacement of mongoose pre-save)
+  // ðŸ”¥ Hash password (replacement of mongoose pre-save)
   const hashedPassword = await bcrypt.hash(
     password,
     Number(config.bcrypt_salt_rounds),
@@ -62,7 +63,7 @@ const createUserIntoDB = async (payload: TUser) => {
 
   const fullName = `${userName} ${name}`;
 
-  // 🔹 Insert user
+  // ðŸ”¹ Insert user
   const insertQuery = `
     INSERT INTO users (name, email, password, status)
     VALUES ($1, $2, $3, $4)
@@ -77,7 +78,7 @@ const createUserIntoDB = async (payload: TUser) => {
   ]);
 
   const createdUser = result.rows[0];
-  // 🔹 JWT
+  // ðŸ”¹ JWT
   const jwtPayload = {
     userId: createdUser.id,
   };
@@ -88,7 +89,7 @@ const createUserIntoDB = async (payload: TUser) => {
     config.jwt_access_expire_in as number | undefined,
   );
 
-  // 🔹 Email
+  // ðŸ”¹ Email
   const notifyMsg = {
     to: [email],
     from: emailSenderMessages.FROM_JOIN_EMAIL,
@@ -114,7 +115,6 @@ const acceptInvite = async (payload: {
 }) => {
   const { token, firstname, lastname, password } = payload;
 
-  // 🔹 Token check
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -122,7 +122,6 @@ const acceptInvite = async (payload: {
     );
   }
 
-  // 🔹 Verify token
   let decoded;
   try {
     decoded = jwtVerify(token, config.jwt_access_secret as Secret);
@@ -136,7 +135,6 @@ const acceptInvite = async (payload: {
     message: string;
   };
 
-  // 🔹 Validation
   if (!firstname || !email || !password) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -151,10 +149,10 @@ const acceptInvite = async (payload: {
     );
   }
 
-  // 🔹 Check existing user
+  const normalizedEmail = String(email).trim().toLowerCase();
   const existingUser = await pool.query(
     `SELECT id FROM users WHERE email = $1`,
-    [email],
+    [normalizedEmail],
   );
 
   if (existingUser.rows.length > 0) {
@@ -164,7 +162,16 @@ const acceptInvite = async (payload: {
     );
   }
 
-  // 🔥 Hash password
+  const inviterQuery = await pool.query(
+    `SELECT id, name, email FROM users WHERE id = $1 LIMIT 1`,
+    [userId],
+  );
+  const inviter = inviterQuery.rows[0];
+
+  if (!inviter) {
+    throw new AppError(httpStatus.NOT_FOUND, userServiceMessages.USER_NOT_FOUND);
+  }
+
   const hashedPassword = await bcrypt.hash(
     password,
     Number(config.bcrypt_salt_rounds),
@@ -172,27 +179,18 @@ const acceptInvite = async (payload: {
 
   const fullName = `${firstname} ${lastname}`;
 
-  // 🔹 Insert user
   const insertUserQuery = `
-    INSERT INTO users (name, email, password, status,is_account_verified)
+    INSERT INTO users (name, email, password, status, is_account_verified)
     VALUES ($1, $2, $3, $4, $5)
     RETURNING id, name, email, role
   `;
 
   const userResult = await pool.query(insertUserQuery, [
     fullName,
-    email,
+    normalizedEmail,
     hashedPassword,
     userStatus?.ACTIVE,
     true,
-  ]);
-  const updateStatusQuery = `UPDATE friendships
-    SET invite_status = $3 WHERE sender_id = $1 AND receiver_email = $2;`;
-
-  await pool.query(updateStatusQuery, [
-    userId,
-    email,
-    FriendshipStatus.ACCEPTED,
   ]);
 
   const registerUser = userResult.rows[0];
@@ -204,7 +202,55 @@ const acceptInvite = async (payload: {
     );
   }
 
-  // 🔹 Insert message (replacement of MessageServices)
+  await pool.query(
+    `
+      UPDATE friendships
+      SET invite_status = $1,
+          receiver_id = $2,
+          receiver_email = $3,
+          is_blocked = false,
+          blocked_by = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE sender_id = $4 AND receiver_email = $3
+      RETURNING *
+    `,
+    [
+      FriendshipStatus.ACCEPTED,
+      registerUser.id,
+      normalizedEmail,
+      userId,
+    ],
+  );
+
+  const reverseInviteToken = createToken(
+    { userId: registerUser.id, email: inviter.email, message },
+    config.jwt_access_secret as string,
+    config.invite_expire_in as number | undefined,
+  );
+
+  await pool.query(
+    `
+      INSERT INTO friendships (sender_id, receiver_id, receiver_email, invite_status, message, invite_token, is_blocked, is_deleted)
+      VALUES ($1, $2, $3, $4, $5, $6, false, false)
+      ON CONFLICT (receiver_email) DO UPDATE
+      SET sender_id = EXCLUDED.sender_id,
+          receiver_id = EXCLUDED.receiver_id,
+          invite_status = EXCLUDED.invite_status,
+          message = EXCLUDED.message,
+          is_blocked = false,
+          blocked_by = NULL,
+          updated_at = CURRENT_TIMESTAMP
+    `,
+    [
+      registerUser.id,
+      userId,
+      inviter.email,
+      FriendshipStatus.ACCEPTED,
+      message || 'Accepted friend request',
+      reverseInviteToken,
+    ],
+  );
+
   const messageQuery = `
     INSERT INTO messages (text, sender_id, receiver_id)
     VALUES ($1, $2, $3)
@@ -219,7 +265,6 @@ const acceptInvite = async (payload: {
 
   const mess = messageResult.rows[0];
 
-  // 🔹 JWT
   const jwtPayload = {
     userId: registerUser.id,
     role: registerUser.role,
@@ -231,11 +276,8 @@ const acceptInvite = async (payload: {
     config.jwt_access_expire_in as number | undefined,
   );
 
-  // 🔹 Remove password (not selected anyway, but safe)
-  const newData = registerUser;
-
   return {
-    data: newData,
+    data: registerUser,
     accessToken,
     mess: [mess],
   };
@@ -330,7 +372,7 @@ const updatePassword = async (payload: {
 }) => {
   const { token, password, pin } = payload;
 
-  // 🔹 Token check
+  // ðŸ”¹ Token check
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -338,7 +380,7 @@ const updatePassword = async (payload: {
     );
   }
 
-  // 🔹 Verify token
+  // ðŸ”¹ Verify token
   let decoded;
   try {
     decoded = jwtVerify(token, config.jwt_access_secret as Secret);
@@ -348,7 +390,7 @@ const updatePassword = async (payload: {
 
   const { userId } = decoded as { userId: number };
 
-  // 🔹 Validation
+  // ðŸ”¹ Validation
   if (!userId || !password || !pin) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -356,7 +398,7 @@ const updatePassword = async (payload: {
     );
   }
 
-  // 🔹 Get user
+  // ðŸ”¹ Get user
   const result = await pool.query(
     `SELECT id, verified_code FROM users WHERE id = $1`,
     [userId],
@@ -371,18 +413,18 @@ const updatePassword = async (payload: {
     );
   }
 
-  // 🔹 Check PIN
+  // ðŸ”¹ Check PIN
   if (user.verified_code !== Number(pin)) {
     throw new AppError(httpStatus.BAD_REQUEST, userServiceMessages.INVALID_PIN);
   }
 
-  // 🔥 Hash new password
+  // ðŸ”¥ Hash new password
   const hashedPassword = await bcrypt.hash(
     password,
     Number(config.bcrypt_salt_rounds),
   );
 
-  // 🔹 Update password + reset pin
+  // ðŸ”¹ Update password + reset pin
   await pool.query(
     `
     UPDATE users
@@ -399,7 +441,7 @@ const updatePassword = async (payload: {
 const checkAuth = async (payload: { token: string }) => {
   const { token } = payload;
 
-  // 🔹 Token check
+  // ðŸ”¹ Token check
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -415,7 +457,7 @@ const checkAuth = async (payload: { token: string }) => {
     );
   }
 
-  // 🔹 Get user (excluding password)
+  // ðŸ”¹ Get user (excluding password)
   const result = await pool.query(
     `
     SELECT 
@@ -451,7 +493,7 @@ const checkAuth = async (payload: { token: string }) => {
 const sendEmail = async (payload: { email: string }) => {
   const { email } = payload;
 
-  // 🔹 Validation
+  // ðŸ”¹ Validation
   if (!email) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -459,7 +501,7 @@ const sendEmail = async (payload: { email: string }) => {
     );
   }
 
-  // 🔹 Find user by email
+  // ðŸ”¹ Find user by email
   const result = await pool.query(
     `SELECT id, name FROM users WHERE email = $1 LIMIT 1`,
     [email],
@@ -467,7 +509,7 @@ const sendEmail = async (payload: { email: string }) => {
 
   const createdUser = result.rows[0];
 
-  // 🔹 Handle not found
+  // ðŸ”¹ Handle not found
   if (!createdUser) {
     throw new AppError(
       httpStatus.NOT_FOUND,
@@ -475,7 +517,7 @@ const sendEmail = async (payload: { email: string }) => {
     );
   }
 
-  // 🔹 Prepare data (same as mongoose)
+  // ðŸ”¹ Prepare data (same as mongoose)
   const { id, name: storedUserName } = createdUser;
 
   const jwtPayload = {
@@ -507,7 +549,7 @@ const sendEmail = async (payload: { email: string }) => {
 const confirmUser = async (payload: { token: string }) => {
   const { token } = payload;
 
-  // 🔹 Validation
+  // ðŸ”¹ Validation
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -515,7 +557,7 @@ const confirmUser = async (payload: { token: string }) => {
     );
   }
 
-  // 🔹 Verify token
+  // ðŸ”¹ Verify token
   let decoded;
   try {
     decoded = jwtVerify(token, config.jwt_access_secret as Secret);
@@ -525,7 +567,7 @@ const confirmUser = async (payload: { token: string }) => {
 
   const { userId } = decoded as { userId: number };
 
-  // 🔹 Update user
+  // ðŸ”¹ Update user
   const result = await pool.query(
     `
     UPDATE users
@@ -537,7 +579,7 @@ const confirmUser = async (payload: { token: string }) => {
     [userId],
   );
 
-  // 🔹 Check if user exists
+  // ðŸ”¹ Check if user exists
   if (result.rows.length === 0) {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
@@ -546,66 +588,86 @@ const confirmUser = async (payload: { token: string }) => {
 };
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
-  const { id, role } = userIInfo;
+  const { id, name } = userIInfo;
+  const normalizedEmail = String(email || '').trim().toLowerCase();
 
-  const jwtPayload = {
-    userId: id,
-    email,
-    message,
-  };
-  const newUserCheck = await pool.query(
-    `SELECT * FROM users WHERE email = $1`,
-    [email],
-  );
-  const existingUserCheck = await pool.query(
-    `SELECT * FROM users WHERE id = $1`,
-    [id],
-  );
-  const newUsers = newUserCheck.rows[0];
-  const existingUsers = existingUserCheck.rows[0];
-  const checkFriendShipsExits = await pool.query(
-    `SELECT *
-  FROM friendships
-  WHERE
-      (sender_id = $1 AND receiver_email = $2)
-      OR
-      (sender_id = $3 AND receiver_email = $4);`,
-    [id, email, newUsers?.id, existingUsers?.email],
-  );
-  if (checkFriendShipsExits.rows.length === 0) {
-    const insertQuery = `INSERT INTO friendships (sender_id, receiver_email, message,invite_token)
-  VALUES ($1, $2, $3, $4)`;
-    const accessToken = createToken(
-      jwtPayload,
-      config.jwt_access_secret as string,
-      config.invite_expire_in as number | undefined,
-    );
-    const inviteUrl =
-      newUserCheck.rows.length === 0
-        ? (`${config?.front_end_base_url}/accept-invite?token=${accessToken}` as string)
-        : (`${config?.front_end_base_url}/manageUser` as string);
-    await pool.query(insertQuery, [id, email, message, inviteUrl]);
+  if (!id) {
+    throw new AppError(httpStatus.UNAUTHORIZED, authorizationError.UN_AUTHORIZED);
+  }
 
-    const notifyMsg = {
-      to: [email],
-      from: emailSenderMessages.FROM_JOIN_EMAIL,
-      subject: emailSenderMessages.INVITE_JOIN_SUBJECT,
-      text: emailSenderMessages.INVITE_JOIN_MESSAGE,
-      html: InviteTemplate(
-        userIInfo?.name as string,
-        inviteUrl as string,
-        config?.front_end_base_url as string,
-      ),
-      attachments,
-    };
+  if (!normalizedEmail) {
+    throw new AppError(httpStatus.BAD_REQUEST, userServiceMessages.EMAIL_IS_REQUIRED);
+  }
 
-    await transporter.sendMail(notifyMsg);
-  } else {
+  const targetUser = await pool.query(
+    `SELECT id, email FROM users WHERE email = $1 LIMIT 1`,
+    [normalizedEmail],
+  );
+  const targetUserInfo = targetUser.rows[0];
+
+  if (targetUserInfo && Number(targetUserInfo.id) === Number(id)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'You cannot invite yourself');
+  }
+
+  const existingRelation = await pool.query(
+    `
+      SELECT *
+      FROM friendships
+      WHERE (
+        (sender_id = $1 AND (receiver_email = $2 OR receiver_id = $3))
+        OR (sender_id = $3 AND (receiver_email = $4 OR receiver_id = $1))
+      )
+      LIMIT 1
+    `,
+    [id, normalizedEmail, targetUserInfo?.id ?? -1, normalizedEmail],
+  );
+
+  if (existingRelation.rows.length > 0) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       userServiceMessages.USER_ALREADY_EXISTS_IN_YOUR_FRIENDS,
     );
   }
+
+  const jwtPayload = {
+    userId: id,
+    email: normalizedEmail,
+    message,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.invite_expire_in as number | undefined,
+  );
+
+  const inviteUrl =
+    targetUserInfo
+      ? `${config?.front_end_base_url}/manageUser`
+      : `${config?.front_end_base_url}/accept-invite?token=${accessToken}`;
+
+  await pool.query(
+    `
+      INSERT INTO friendships (sender_id, receiver_email, receiver_id, message, invite_token, invite_status, is_blocked, is_deleted)
+      VALUES ($1, $2, $3, $4, $5, $6, false, false)
+    `,
+    [id, normalizedEmail, targetUserInfo?.id ?? null, message || '', inviteUrl, FriendshipStatus.PENDING],
+  );
+
+  const notifyMsg = {
+    to: [normalizedEmail],
+    from: emailSenderMessages.FROM_JOIN_EMAIL,
+    subject: emailSenderMessages.INVITE_JOIN_SUBJECT,
+    text: emailSenderMessages.INVITE_JOIN_MESSAGE,
+    html: InviteTemplate(
+      (name as string) || 'A friend',
+      inviteUrl as string,
+      config?.front_end_base_url as string,
+    ),
+    attachments,
+  };
+
+  await transporter.sendMail(notifyMsg);
 
   return payload;
 };
@@ -616,7 +678,7 @@ const updateUserInfo = async (
   const { name, bio } = payload;
   const { id } = userINfo;
 
-  // 🔹 Check user exists
+  // ðŸ”¹ Check user exists
   const userCheck = await pool.query(`SELECT id FROM users WHERE id = $1`, [
     id,
   ]);
@@ -628,7 +690,7 @@ const updateUserInfo = async (
     );
   }
 
-  // 🔹 Update user
+  // ðŸ”¹ Update user
   const updateQuery = `
     UPDATE users
     SET 
@@ -698,7 +760,7 @@ const googleRegister = async (payload: {
 }) => {
   const { name, email, picture } = payload;
 
-  // 🔹 Validation
+  // ðŸ”¹ Validation
   if (!email) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -706,7 +768,7 @@ const googleRegister = async (payload: {
     );
   }
 
-  // 🔹 Check existing user
+  // ðŸ”¹ Check existing user
   const existingUser = await pool.query(
     `SELECT id FROM users WHERE email = $1`,
     [email],
@@ -719,7 +781,7 @@ const googleRegister = async (payload: {
     );
   }
 
-  // 🔹 Insert user (Google login → no password)
+  // ðŸ”¹ Insert user (Google login â†’ no password)
   const insertQuery = `
     INSERT INTO users (name, email, img, status, is_google_login, is_account_verified)
     VALUES ($1, $2, $3, $4, TRUE, TRUE)
@@ -742,7 +804,7 @@ const googleRegister = async (payload: {
     );
   }
 
-  // 🔹 JWT
+  // ðŸ”¹ JWT
   const jwtPayload = {
     userId: createdUser.id,
   };
@@ -757,46 +819,149 @@ const googleRegister = async (payload: {
 };
 
 const getFriends = async (payload: Partial<TUser>) => {
-  const { id, email } = payload;
-  const checkFriendShipsExits = await pool.query(
-    `SELECT * FROM friendships WHERE sender_id = $1 OR receiver_email = $2`,
-    [id, email],
+  const currentUserId = Number(payload.id);
+  const currentUserEmail = payload.email;
+
+  const { rows } = await pool.query(
+    `
+      SELECT DISTINCT
+        u.id,
+        u.name,
+        u.email,
+        u.img,
+        u.bio,
+        u.role,
+        u.status,
+        u.is_account_verified,
+        u.is_google_login,
+        u.created_at,
+        u.updated_at,
+        f.id AS friendship_id,
+        f.invite_status,
+        f.is_blocked,
+        f.blocked_by,
+        f.created_at AS friendship_created_at
+      FROM friendships f
+      JOIN users u
+        ON u.id = CASE
+          WHEN f.sender_id = $1 THEN COALESCE(f.receiver_id, (SELECT id FROM users WHERE email = f.receiver_email LIMIT 1))
+          ELSE f.sender_id
+        END
+      WHERE (
+        f.sender_id = $1
+        OR f.receiver_id = $1
+        OR f.receiver_email = $2
+      )
+      AND f.invite_status = $3
+      AND u.id != $1
+      ORDER BY u.name ASC
+    `,
+    [currentUserId, currentUserEmail, FriendshipStatus.ACCEPTED],
   );
-  return checkFriendShipsExits.rows;
+
+  return rows;
 };
 
 const blockUser = async (
-  payload: { friendId: number },
+  payload: { friendId?: number; userId?: number; targetUserId?: number },
   userInfo: Partial<TUser>,
 ) => {
-  const { friendId } = payload;
-  const { id } = userInfo;
+  const currentUserId = Number(userInfo.id);
+  const targetUserId = Number(payload.friendId ?? payload.userId ?? payload.targetUserId);
 
-  const loginUser = await pool.query(`SELECT * FROM users WHERE id = $1`, [id]);
-  const friend = await pool.query(`SELECT * FROM users WHERE id = $1`, [id]);
-  const loginUserINfo = loginUser.rows[0];
-  const friendInfo = friend.rows[0];
-  const checkFriendShipsExits = await pool.query(
-    `SELECT *
-  FROM friendships
-  WHERE
-      (sender_id = $1 AND receiver_email = $2)
-      OR
-      (sender_id = $3 AND receiver_email = $4);`,
-    [
-      friendInfo?.id,
-      loginUserINfo?.email,
-      loginUserINfo?.id,
-      friendInfo?.email,
-    ],
+  if (!currentUserId || !targetUserId) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'A valid friend is required');
+  }
+
+  const friendshipRows = await pool.query(
+    `
+      SELECT *
+      FROM friendships
+      WHERE (
+        (
+          sender_id = $1 AND (
+            receiver_id = $2 OR receiver_email = (SELECT email FROM users WHERE id = $2)
+          )
+        )
+        OR (
+          sender_id = $2 AND (
+            receiver_id = $1 OR receiver_email = (SELECT email FROM users WHERE id = $1)
+          )
+        )
+      )
+      AND invite_status = $3
+      LIMIT 2
+    `,
+    [currentUserId, targetUserId, FriendshipStatus.ACCEPTED],
   );
-  const friendsInfo = checkFriendShipsExits.rows[0];
-  console.log({ friendsInfo });
-  //   const updateQuery = `UPDATE friendships
-  // SET invite_status = $3 WHERE
-  // (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1);`;
-  //   await pool.query(updateQuery, [id, friendId, FriendshipStatus.REJECTED]);
-  //   console.log('Blocking user with ID:', friendId, 'by user with ID:', id);
+
+  if (!friendshipRows.rows.length) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Friend request not found');
+  }
+
+  const { rows } = await pool.query(
+    `
+      UPDATE friendships
+      SET is_blocked = true,
+          blocked_by = $1,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE (
+        (
+          sender_id = $1 AND (
+            receiver_id = $2 OR receiver_email = (SELECT email FROM users WHERE id = $2)
+          )
+        )
+        OR (
+          sender_id = $2 AND (
+            receiver_id = $1 OR receiver_email = (SELECT email FROM users WHERE id = $1)
+          )
+        )
+      )
+      AND invite_status = $3
+      RETURNING *
+    `,
+    [currentUserId, targetUserId, FriendshipStatus.ACCEPTED],
+  );
+
+  return rows[0] || { is_blocked: true, friendId: targetUserId };
+};
+
+const unblockUser = async (
+  payload: { friendId?: number; userId?: number; targetUserId?: number },
+  userInfo: Partial<TUser>,
+) => {
+  const currentUserId = Number(userInfo.id);
+  const targetUserId = Number(payload.friendId ?? payload.userId ?? payload.targetUserId);
+
+  if (!currentUserId || !targetUserId) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'A valid friend is required');
+  }
+
+  const { rows } = await pool.query(
+    `
+      UPDATE friendships
+      SET is_blocked = false,
+          blocked_by = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE (
+        (
+          sender_id = $1 AND (
+            receiver_id = $2 OR receiver_email = (SELECT email FROM users WHERE id = $2)
+          )
+        )
+        OR (
+          sender_id = $2 AND (
+            receiver_id = $1 OR receiver_email = (SELECT email FROM users WHERE id = $1)
+          )
+        )
+      )
+      AND invite_status = $3
+      RETURNING *
+    `,
+    [currentUserId, targetUserId, FriendshipStatus.ACCEPTED],
+  );
+
+  return rows[0] || { is_blocked: false, friendId: targetUserId };
 };
 
 export const UserServices = {
@@ -814,4 +979,5 @@ export const UserServices = {
   googleRegister,
   getFriends,
   blockUser,
+  unblockUser,
 };

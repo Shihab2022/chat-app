@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+﻿import { NextFunction, Request, Response } from 'express';
 import { Secret } from 'jsonwebtoken';
 import { jwtVerify } from '../../utils/auth';
 import config from '../config';
@@ -15,7 +15,10 @@ const auth = (...roles: string[]) => {
     next: NextFunction,
   ) => {
     try {
-      const token = req?.headers?.authorization;
+      const authorizationHeader = req?.headers?.authorization;
+      const token = authorizationHeader?.startsWith('Bearer ')
+        ? authorizationHeader.slice(7)
+        : authorizationHeader;
       if (!token) {
         throw new AppError(
           httpStatus.UNAUTHORIZED,

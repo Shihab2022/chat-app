@@ -30,7 +30,7 @@ export default function LeftSiteBarCard({
 
   const { name, img, id, email, isTyping = false, lastMessage = {} } = user;
   const isSelected = receiverId === id;
-  const isOnline = activeUsers?.includes(id?.toString());
+  const isOnline = !user.isGroup && activeUsers?.includes(id?.toString());
 
   return (
     <Card
@@ -102,7 +102,7 @@ export default function LeftSiteBarCard({
             mb: 0.25,
           }}
         >
-          {email}
+          {user.isGroup ? "Group conversation" : email}
         </Typography>
 
         {/* Message Preview or Typing Indicator */}

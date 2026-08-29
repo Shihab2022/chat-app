@@ -64,7 +64,7 @@ export default function SignUp() {
     try {
       setIsLoading(true);
       const res = await registerUserApi(data);
-      if (res?.data?.success) {
+      if (res?.success) {
         showToast(SUCCESS, REGISTER_SUCCESS);
         navigate("/login");
       }

@@ -35,6 +35,9 @@ export function connectSocket(userId: string, dispatch: any) {
   socket.on(SOCKET_EVENTS.NEW_MESSAGE, (msg) => {
     dispatch(SET_REAL_TIME_CONVERSATION(msg));
   });
+  socket.on(SOCKET_EVENTS.NEW_GROUP_MESSAGE, (msg) => {
+    dispatch(SET_REAL_TIME_CONVERSATION(msg));
+  });
   socket.on(SOCKET_EVENTS.NEW_EMOJI, (msg) => {
     dispatch(SET_EMOJI_WITH_DATA(msg));
   });

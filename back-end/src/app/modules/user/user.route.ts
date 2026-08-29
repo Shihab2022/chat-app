@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { UserController } from './user.controller';
 import auth from '../../middlewares/protectRoute';
 import { userRole } from '../../../constant';
@@ -17,10 +17,7 @@ router.post('/check', UserController.checkAuth);
 router.post('/invite', auth(userRole?.USER), UserController.inviteUser);
 router.get('/friends', auth(userRole?.USER), UserController.getFriends);
 router.post('/block', auth(userRole?.USER), UserController.blockUser);
-router.post(
-  '/update-info',
-  auth(userRole?.USER),
-  UserController.updateUserInfo,
-);
+router.post('/unblock', auth(userRole?.USER), UserController.unblockUser);
+router.post('/update-info', auth(userRole?.USER), UserController.updateUserInfo);
 
 export const UserRoutes = router;

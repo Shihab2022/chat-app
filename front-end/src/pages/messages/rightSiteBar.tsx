@@ -12,8 +12,20 @@ import { alpha, useTheme } from "@mui/material/styles";
 import { RootState } from "../../redux/store";
 import { rightSideActionInfo, rightSiteIds } from "../../constants/common";
 import { rightSideActionTypes, TUser } from "../../types";
-import { SET_RIGHT_SIDEBAR_OPEN_STATUS } from "../../redux/features/chat/conversationSlice";
+import {
+  SET_CONVERSATION,
+  SET_RECEIVER_ID,
+  SET_RIGHT_SIDEBAR_OPEN_STATUS,
+} from "../../redux/features/chat/conversationSlice";
 import { blockUserAPI } from "../../services/auth";
+import { clearChatAPI } from "../../services/message";
+import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
+import { showToast } from "../../utils/toast";
+import {
+  COMMON_ERROR_MESSAGE,
+  FAILED,
+  SUCCESS,
+} from "../../constants/common";
 
 export const RightSidebar = () => {
   const theme = useTheme();
@@ -41,11 +53,31 @@ export const RightSidebar = () => {
         console.log("favorite clicked", userInfo);
         break;
       case rightSiteIds.CLEAR_CHAT:
-        console.log("clear chat clicked", userInfo);
+        {
+          const res = await clearChatAPI({ friendId: userInfo.id });
+          if (res?.success) {
+            dispatch(SET_CONVERSATION({}));
+            showToast(SUCCESS, "Chat cleared");
+          } else {
+            showToast(FAILED, res?.message || COMMON_ERROR_MESSAGE);
+          }
+        }
         break;
       case rightSiteIds.BLOCK_USER: {
         const res = await blockUserAPI({ friendId: userInfo?.id });
-        console.log("block user result:", res);
+        if (res?.success) {
+          dispatch(SET_CONVERSATION({}));
+          dispatch(
+            SET_ALL_USERS(
+              allUsers.filter((user: TUser) => user.id !== userInfo.id),
+            ),
+          );
+          dispatch(SET_RECEIVER_ID(""));
+          dispatch(SET_RIGHT_SIDEBAR_OPEN_STATUS(false));
+          showToast(SUCCESS, "User blocked");
+        } else {
+          showToast(FAILED, res?.message || COMMON_ERROR_MESSAGE);
+        }
         break;
       }
       case rightSiteIds.DELETE_CHAT:
@@ -145,7 +177,7 @@ export const RightSidebar = () => {
 
       {/* Action Items */}
       <Stack spacing={0.5}>
-        {rightSideActionInfo.map((action) => (
+        {(selectedUserInfo?.isGroup ? [] : rightSideActionInfo).map((action) => (
           <Stack
             key={action.id}
             direction="row"

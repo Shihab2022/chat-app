@@ -1,12 +1,16 @@
-import { NextFunction, Request, Response } from 'express';
+﻿import { NextFunction, Request, Response } from 'express';
 import sendResponse from '../../../utils/sentResponce';
-import httpStatus from 'http-status'; // Correct lowercase
+import httpStatus from 'http-status';
 import { MessageServices } from './message.services';
 import { messageServiceMessages } from '../../../constant';
 
-const sendMessage = async (req: Request, res: Response, next: NextFunction) => {
+const sendMessage = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const result = await MessageServices.sendMessageIntoDB(req.body);
+    const result = await MessageServices.sendMessageIntoDB(req.body, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -19,9 +23,13 @@ const sendMessage = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getMessage = async (req: Request, res: Response, next: NextFunction) => {
+const getMessage = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const result = await MessageServices.getMessageFromDB(req.query);
+    const result = await MessageServices.getMessageFromDB(req.query as any, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -33,13 +41,14 @@ const getMessage = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+
 const getUsersForSidebar = async (
-  req: Request,
+  req: Request & { user?: any },
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.getUsersForSidebar(req.body);
+    const result = await MessageServices.getUsersForSidebar(req.query as any, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -51,7 +60,12 @@ const getUsersForSidebar = async (
     next(error);
   }
 };
-const addEmoji = async (req: Request, res: Response, next: NextFunction) => {
+
+const addEmoji = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const result = await MessageServices.addEmoji(req.body);
 
@@ -65,7 +79,12 @@ const addEmoji = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
-const removeEmoji = async (req: Request, res: Response, next: NextFunction) => {
+
+const removeEmoji = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const result = await MessageServices.removeEmoji(req.body);
 
@@ -79,9 +98,14 @@ const removeEmoji = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
-const editMessage = async (req: Request, res: Response, next: NextFunction) => {
+
+const editMessage = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const result = await MessageServices.editMessage(req.body);
+    const result = await MessageServices.editMessage(req.body, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -93,13 +117,14 @@ const editMessage = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+
 const deleteMessage = async (
-  req: Request,
+  req: Request & { user?: any },
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.deleteMessage(req.body);
+    const result = await MessageServices.deleteMessage(req.body, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -111,13 +136,14 @@ const deleteMessage = async (
     next(error);
   }
 };
+
 const ForwardMessage = async (
-  req: Request,
+  req: Request & { user?: any },
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.ForwardMessage(req.body);
+    const result = await MessageServices.ForwardMessage(req.body, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -129,13 +155,14 @@ const ForwardMessage = async (
     next(error);
   }
 };
+
 const replyMessage = async (
-  req: Request,
+  req: Request & { user?: any },
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.replyMessage(req.body);
+    const result = await MessageServices.replyMessage(req.body, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -147,13 +174,14 @@ const replyMessage = async (
     next(error);
   }
 };
+
 const clearMessage = async (
-  req: Request,
+  req: Request & { user?: any },
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.clearMessage(req.body);
+    const result = await MessageServices.clearMessage(req.body, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -165,18 +193,109 @@ const clearMessage = async (
     next(error);
   }
 };
+
 const deleteAllMessages = async (
-  req: Request,
+  req: Request & { user?: any },
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.deleteAllMessages(req.body);
+    const result = await MessageServices.deleteAllMessages(req.body, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: messageServiceMessages.DELETE_MESSAGES,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createGroup = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.createGroup(req.body, req.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Group created successfully',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const listGroups = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.listGroups(req.query as any, req.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Groups retrieved successfully',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const addGroupMember = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.addGroupMember(req.body, req.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Member added to group successfully',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const sendGroupMessage = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.sendGroupMessage(req.body, req.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Group message sent successfully',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getGroupMessages = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.getGroupMessages(req.query as any, req.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Group messages retrieved successfully',
       data: result,
     });
   } catch (error) {
@@ -196,4 +315,9 @@ export const MessageController = {
   replyMessage,
   clearMessage,
   deleteAllMessages,
+  createGroup,
+  listGroups,
+  addGroupMember,
+  sendGroupMessage,
+  getGroupMessages,
 };

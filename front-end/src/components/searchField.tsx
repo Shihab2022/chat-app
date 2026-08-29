@@ -13,7 +13,13 @@ import Typography from "@mui/material/Typography";
 import { alpha, useTheme } from "@mui/material/styles";
 import { showToast } from "../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../constants/common";
-import { editMessage, replyMessageAPI, sendMessage } from "../services/message";
+import {
+  editMessage,
+  getGroupMessagesAPI,
+  replyMessageAPI,
+  sendGroupMessageAPI,
+  sendMessage,
+} from "../services/message";
 import {
   SET_CONVERSATION,
   SET_EMOJI_ANCHOR_EL,
@@ -23,6 +29,7 @@ import {
   UPDATE_EDITED_MESSAGE,
 } from "../redux/features/chat/conversationSlice";
 import { RootState } from "../redux/store";
+import { TUser } from "../types";
 import { groupMessagesByDate } from "../utils/timeFormat";
 import EmojiPicker from "./emoji";
 import useDebouncedText from "../utils/debouncedSearch";
@@ -39,6 +46,9 @@ export default function SearchField({ myId }: SearchFieldProps) {
   const { receiverId, isEmojiOpen, editedMessage, repliedMessage, messages } =
     useSelector((state: RootState) => state?.message);
   const { allUsers } = useSelector((state: RootState) => state?.auth);
+  const activeChat = allUsers.find(
+    (user: TUser) => String(user.id) === String(receiverId),
+  );
   const { handleInputChange, message, stopTypingEvent } =
     useDebouncedText(receiverId);
 
@@ -63,7 +73,12 @@ export default function SearchField({ myId }: SearchFieldProps) {
     };
 
     try {
-      const res = await sendMessage(messageData);
+      const res = activeChat?.isGroup
+        ? await sendGroupMessageAPI({
+            groupId: receiverId,
+            text: message,
+          })
+        : await sendMessage(messageData);
       if (res?.success) {
         handleInputChange("");
         stopTypingEvent();
@@ -72,7 +87,10 @@ export default function SearchField({ myId }: SearchFieldProps) {
           ...messageData,
           created_at: new Date().toISOString(),
         });
-        const formattedMessage = groupMessagesByDate(res?.data);
+        const groupMessages = activeChat?.isGroup
+          ? await getGroupMessagesAPI({ groupId: receiverId })
+          : res;
+        const formattedMessage = groupMessagesByDate(groupMessages?.data || []);
         dispatch(SET_CONVERSATION(formattedMessage));
       }
     } catch (error) {

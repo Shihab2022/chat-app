@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
+﻿import { NextFunction, Request, Response } from 'express';
 import sendResponse from '../../../utils/sentResponce';
-import httpStatus from 'http-status'; // Correct lowercase
+import httpStatus from 'http-status';
 import { UserServices } from './user.services';
 import { setTokenOnCookie } from '../../../utils/auth';
 import { userControllerMessages } from '../../../constant';
@@ -227,6 +227,23 @@ const blockUser = async (
     next(error);
   }
 };
+const unblockUser = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await UserServices.unblockUser(req.body, req.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'You have unblocked this user !!',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 export const UserController = {
   createUser,
   loginUser,
@@ -242,4 +259,5 @@ export const UserController = {
   googleRegister,
   getFriends,
   blockUser,
+  unblockUser,
 };

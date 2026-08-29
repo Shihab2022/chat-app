@@ -61,8 +61,8 @@ export const formateMessageAndUpdate = (
 export const formattedSideBarData = (allUsers: any) => {
   if (!allUsers || allUsers.length === 0) return [];
   const sortedData = [...allUsers]?.sort((a: any, b: any) => {
-    const dateA = new Date(a.lastMessage.created_at).getTime();
-    const dateB = new Date(b.lastMessage.created_at).getTime();
+    const dateA = new Date(a.lastMessage?.created_at || 0).getTime();
+    const dateB = new Date(b.lastMessage?.created_at || 0).getTime();
     return dateB - dateA;
   });
 
