@@ -210,6 +210,29 @@ const getFriends = async (
     next(error);
   }
 };
+const getAllRegisteredUsers = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await UserServices.getAllRegisteredUsers(req.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Registered users retrieved successfully',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const acceptFriend = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const result = await UserServices.acceptFriend(req.body, req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Friend request accepted', data: result });
+  } catch (error) { next(error); }
+};
 const blockUser = async (
   req: Request & { user?: any },
   res: Response,
@@ -258,6 +281,8 @@ export const UserController = {
   googleLogin,
   googleRegister,
   getFriends,
+  getAllRegisteredUsers,
   blockUser,
   unblockUser,
+  acceptFriend,
 };

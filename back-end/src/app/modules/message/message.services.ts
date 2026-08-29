@@ -1,5 +1,5 @@
 ﻿import { TMessages } from './message.interface';
-import { getReceiverSocketId, io } from '../../../utils/socket';
+import { emitGroupEvent, getReceiverSocketId, io } from '../../../utils/socket';
 import { pool } from '../../../utils/pg';
 import AppError from '../../error/appError';
 import httpStatus from 'http-status';
@@ -92,6 +92,42 @@ const assertGroupMember = async (groupId: number, userId: number) => {
   if (!rows.length) {
     throw new AppError(httpStatus.FORBIDDEN, 'You are not a member of this group');
   }
+};
+
+const getGroup = async (groupIdOrPayload: number | any, userId?: number | any) => {
+  const groupId = typeof groupIdOrPayload === 'object'
+    ? parseUserId(groupIdOrPayload.groupId ?? groupIdOrPayload.group_id)
+    : parseUserId(groupIdOrPayload);
+  const currentUserId = parseUserId(userId?.id ?? userId ?? groupIdOrPayload.userId);
+  if (!groupId || !currentUserId) throw new AppError(httpStatus.BAD_REQUEST, 'Group is required');
+  await assertGroupMember(groupId, currentUserId);
+  const { rows } = await pool.query(
+    `SELECT g.*,
+      COALESCE(json_agg(json_build_object('id', u.id, 'name', u.name, 'email', u.email,
+        'role', gm.role, 'joined_at', gm.joined_at) ORDER BY u.name)
+        FILTER (WHERE u.id IS NOT NULL), '[]') AS members
+     FROM chat_groups g
+     LEFT JOIN group_members gm ON gm.group_id = g.id
+     LEFT JOIN users u ON u.id = gm.user_id
+     WHERE g.id = $1 GROUP BY g.id`,
+    [groupId],
+  );
+  if (!rows.length) throw new AppError(httpStatus.NOT_FOUND, 'Group not found');
+  return rows[0];
+};
+
+const getGroupMembers = async (payload: any, currentUser?: any) => {
+  const group = await getGroup(payload, currentUser);
+  return group.members || [];
+};
+
+const assertGroupAdmin = async (groupId: number, userId: number) => {
+  const { rows } = await pool.query(
+    `SELECT role FROM group_members WHERE group_id = $1 AND user_id = $2`,
+    [groupId, userId],
+  );
+  if (!rows.length) throw new AppError(httpStatus.FORBIDDEN, 'You are not a member of this group');
+  if (rows[0].role !== 'admin') throw new AppError(httpStatus.FORBIDDEN, 'Only group admins can manage the group');
 };
 
 const sendMessageIntoDB = async (payload: TMessages, currentUser?: any) => {
@@ -489,7 +525,9 @@ const createGroup = async (payload: any, currentUser?: any) => {
     [group.id, currentUserId],
   );
 
-  return group;
+  const details = await getGroup(group.id, currentUserId);
+  await emitGroupEvent(group.id, 'groupCreated', details);
+  return details;
 };
 
 const listGroups = async (payload: any, currentUser?: any) => {
@@ -535,7 +573,7 @@ const addGroupMember = async (payload: any, currentUser?: any) => {
     throw new AppError(httpStatus.BAD_REQUEST, 'Group and member are required');
   }
 
-  await assertGroupMember(groupId, currentUserId);
+  await assertGroupAdmin(groupId, currentUserId);
 
   const existing = await pool.query(
     `SELECT id FROM group_members WHERE group_id = $1 AND user_id = $2 LIMIT 1`,
@@ -546,13 +584,9 @@ const addGroupMember = async (payload: any, currentUser?: any) => {
     return existing.rows[0];
   }
 
-  const friendCheck = await getAcceptedFriendshipRows(currentUserId, memberId);
-  if (!friendCheck.length) {
-    throw new AppError(
-      httpStatus.FORBIDDEN,
-      'Only accepted friends can be added to a group',
-    );
-  }
+  await pool.query(`SELECT id FROM users WHERE id = $1`, [memberId]).then((result) => {
+    if (!result.rows.length) throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  });
 
   const { rows } = await pool.query(
     `
@@ -563,7 +597,110 @@ const addGroupMember = async (payload: any, currentUser?: any) => {
     [groupId, memberId],
   );
 
-  return rows[0];
+  const group = await getGroup(groupId, currentUserId);
+  await emitGroupEvent(groupId, 'groupMemberChanged', group);
+  return group;
+};
+
+const updateGroup = async (payload: any, currentUser?: any) => {
+  const userId = parseUserId(currentUser?.id ?? payload.userId);
+  const groupId = parseUserId(payload.groupId ?? payload.group_id);
+  if (!userId || !groupId) throw new AppError(httpStatus.BAD_REQUEST, 'Group is required');
+  await assertGroupAdmin(groupId, userId);
+  const fields: string[] = [];
+  const values: any[] = [];
+  if (payload.name !== undefined) { fields.push(`name = $${values.length + 1}`); values.push(String(payload.name).trim()); }
+  if (payload.description !== undefined) { fields.push(`description = $${values.length + 1}`); values.push(String(payload.description)); }
+  if (!fields.length) throw new AppError(httpStatus.BAD_REQUEST, 'A group name or description is required');
+  values.push(groupId);
+  const result = await pool.query(`UPDATE chat_groups SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = $${values.length} RETURNING id`, values);
+  if (!result.rows.length) throw new AppError(httpStatus.NOT_FOUND, 'Group not found');
+  const group = await getGroup(groupId, userId);
+  await emitGroupEvent(groupId, 'groupUpdated', group);
+  return group;
+};
+
+const removeGroupMember = async (payload: any, currentUser?: any) => {
+  const userId = parseUserId(currentUser?.id ?? payload.userId);
+  const groupId = parseUserId(payload.groupId ?? payload.group_id);
+  const memberId = parseUserId(payload.memberId ?? payload.user_id ?? payload.userIdToRemove);
+  if (!userId || !groupId || !memberId) throw new AppError(httpStatus.BAD_REQUEST, 'Group and member are required');
+  await assertGroupAdmin(groupId, userId);
+  const target = await pool.query(`SELECT role FROM group_members WHERE group_id=$1 AND user_id=$2`, [groupId, memberId]);
+  if (!target.rows.length) throw new AppError(httpStatus.NOT_FOUND, 'Member not found');
+  if (target.rows[0].role === 'admin') {
+    const admins = await pool.query(`SELECT COUNT(*)::int AS count FROM group_members WHERE group_id=$1 AND role='admin'`, [groupId]);
+    if (admins.rows[0].count <= 1) throw new AppError(httpStatus.BAD_REQUEST, 'The group must have at least one admin');
+  }
+  await pool.query(`DELETE FROM group_members WHERE group_id=$1 AND user_id=$2`, [groupId, memberId]);
+  const group = await getGroup(groupId, userId);
+  await emitGroupEvent(groupId, 'groupMemberChanged', group);
+  return group;
+};
+
+const setGroupMemberRole = async (payload: any, currentUser?: any) => {
+  const userId = parseUserId(currentUser?.id ?? payload.userId);
+  const groupId = parseUserId(payload.groupId ?? payload.group_id);
+  const memberId = parseUserId(payload.memberId ?? payload.member_id);
+  const role = payload.role === 'admin' ? 'admin' : payload.role === 'member' ? 'member' : null;
+  if (!userId || !groupId || !memberId || !role) throw new AppError(httpStatus.BAD_REQUEST, 'Group, member and valid role are required');
+  await assertGroupAdmin(groupId, userId);
+  if (role === 'member') {
+    const admins = await pool.query(`SELECT COUNT(*)::int AS count FROM group_members WHERE group_id=$1 AND role='admin'`, [groupId]);
+    if (admins.rows[0].count <= 1) throw new AppError(httpStatus.BAD_REQUEST, 'The group must have at least one admin');
+  }
+  const result = await pool.query(`UPDATE group_members SET role=$1 WHERE group_id=$2 AND user_id=$3 RETURNING *`, [role, groupId, memberId]);
+  if (!result.rows.length) throw new AppError(httpStatus.NOT_FOUND, 'Member not found');
+  const group = await getGroup(groupId, userId);
+  await emitGroupEvent(groupId, 'groupMemberChanged', group);
+  return group;
+};
+
+const leaveGroup = async (payload: any, currentUser?: any) => {
+  const userId = parseUserId(currentUser?.id ?? payload.userId);
+  const groupId = parseUserId(payload.groupId ?? payload.group_id);
+  if (!userId || !groupId) throw new AppError(httpStatus.BAD_REQUEST, 'Group is required');
+  const membership = await pool.query(`SELECT role FROM group_members WHERE group_id=$1 AND user_id=$2`, [groupId, userId]);
+  if (!membership.rows.length) throw new AppError(httpStatus.NOT_FOUND, 'You are not a member of this group');
+  if (membership.rows[0].role === 'admin') {
+    const admins = await pool.query(`SELECT user_id FROM group_members WHERE group_id=$1 AND role='admin' AND user_id<>$2 ORDER BY joined_at LIMIT 1`, [groupId, userId]);
+    if (!admins.rows.length) {
+      const replacement = await pool.query(`SELECT user_id FROM group_members WHERE group_id=$1 AND user_id<>$2 ORDER BY joined_at LIMIT 1`, [groupId, userId]);
+      if (replacement.rows.length) await pool.query(`UPDATE group_members SET role='admin' WHERE group_id=$1 AND user_id=$2`, [groupId, replacement.rows[0].user_id]);
+    }
+  }
+  await pool.query(`DELETE FROM group_members WHERE group_id=$1 AND user_id=$2`, [groupId, userId]);
+  const remaining = await pool.query(`SELECT COUNT(*)::int AS count FROM group_members WHERE group_id=$1`, [groupId]);
+  if (!remaining.rows[0].count) await pool.query(`DELETE FROM chat_groups WHERE id=$1`, [groupId]);
+  else {
+    const firstMember = await pool.query(
+      `SELECT user_id FROM group_members WHERE group_id=$1 ORDER BY joined_at LIMIT 1`,
+      [groupId],
+    );
+    if (firstMember.rows.length) {
+      const group = await getGroup(groupId, firstMember.rows[0].user_id);
+      await emitGroupEvent(groupId, 'groupMemberChanged', group);
+    }
+  }
+  return { groupId, left: true };
+};
+
+const deleteGroup = async (payload: any, currentUser?: any) => {
+  const userId = parseUserId(currentUser?.id ?? payload.userId);
+  const groupId = parseUserId(payload.groupId ?? payload.group_id);
+  if (!userId || !groupId) throw new AppError(httpStatus.BAD_REQUEST, 'Group is required');
+  const group = await getGroup(groupId, userId);
+  if (Number(group.created_by) !== userId) throw new AppError(httpStatus.FORBIDDEN, 'Only the group creator can delete the group');
+  const members = await pool.query(
+    `SELECT user_id FROM group_members WHERE group_id = $1`,
+    [groupId],
+  );
+  await pool.query(`DELETE FROM chat_groups WHERE id=$1`, [groupId]);
+  for (const member of members.rows) {
+    const socketId = getReceiverSocketId(String(member.user_id));
+    if (socketId) io.to(socketId).emit('groupDeleted', { groupId });
+  }
+  return { groupId, deleted: true };
 };
 
 const sendGroupMessage = async (payload: any, currentUser?: any) => {
@@ -640,6 +777,13 @@ export const MessageServices = {
   createGroup,
   listGroups,
   addGroupMember,
+  getGroup,
+  getGroupMembers,
+  updateGroup,
+  removeGroupMember,
+  setGroupMemberRole,
+  leaveGroup,
+  deleteGroup,
   sendGroupMessage,
   getGroupMessages,
 };

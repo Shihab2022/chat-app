@@ -133,6 +133,66 @@ export const addGroupMemberAPI = async (groupId: string | number, params: any) =
   });
 };
 
+export const getGroupDetailsAPI = async (groupId: string | number, params?: any) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: `/message/groups/${groupId}`,
+    axiosMethod: httpMethod.GET,
+    formData: false,
+    params: params || {},
+  });
+};
+
+export const removeGroupMemberAPI = async (groupId: string | number, memberId: string | number) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: `/message/groups/${groupId}/members/${memberId}`,
+    axiosMethod: httpMethod.DELETE,
+    formData: false,
+    params: {},
+  });
+};
+
+export const setGroupMemberRoleAPI = async (groupId: string | number, memberId: string | number, role: string) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: `/message/groups/${groupId}/members/${memberId}/role`,
+    axiosMethod: httpMethod.PATCH,
+    formData: false,
+    params: { role },
+  });
+};
+
+export const updateGroupAPI = async (groupId: string | number, params: any) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: `/message/groups/${groupId}`,
+    axiosMethod: httpMethod.PATCH,
+    formData: false,
+    params,
+  });
+};
+
+export const leaveGroupAPI = async (groupId: string | number) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: `/message/groups/${groupId}/leave`,
+    axiosMethod: httpMethod.POST,
+    formData: false,
+    params: {},
+  });
+};
+
+export const deleteGroupAPI = async (groupId: string | number) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: `/message/groups/${groupId}`,
+    axiosMethod: httpMethod.DELETE,
+    formData: false,
+    params: {},
+  });
+};
+
 export const getGroupMessagesAPI = async (params: any) => {
   return apiHandler({
     baseURL: import.meta.env.VITE_BASE_API_URL,

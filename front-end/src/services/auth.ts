@@ -126,6 +126,17 @@ export const getFriends = async (params: any) => {
   return res;
 };
 
+export const getAllRegisteredUsersAPI = async (params: any) => {
+  const res = await apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/user/all",
+    axiosMethod: httpMethod.GET,
+    formData: false,
+    params: params,
+  });
+  return res;
+};
+
 export const updateUserInfoAPI = async (params: any) => {
   const res = await apiHandler({
     baseURL: import.meta.env.VITE_BASE_API_URL,

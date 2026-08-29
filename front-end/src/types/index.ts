@@ -86,6 +86,27 @@ export type rightSideActionTypes = {
   id: string;
 };
 
+export type GroupMember = {
+  id: string | number;
+  user_id?: string | number;
+  name?: string;
+  email?: string;
+  role?: string;
+  joined_at?: string;
+};
+
+export type GroupDetails = {
+  id: string | number;
+  name: string;
+  description?: string;
+  created_by?: string | number;
+  created_at?: string;
+  updated_at?: string;
+  isGroup?: boolean;
+  members?: GroupMember[];
+  img?: string;
+} & Record<string, any>;
+
 export interface Feature {
   id: string;
   icon: ReactNode;

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Avatar,
+  Box,
   Button,
   Checkbox,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -13,22 +15,26 @@ import {
   ListItemAvatar,
   ListItemText,
   TextField,
+  Typography,
 } from "@mui/material";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import { createGroupAPI, addGroupMemberAPI } from "../../services/message";
 import { TUser } from "../../types";
 import { showToast } from "../../utils/toast";
 import { COMMON_ERROR_MESSAGE, FAILED } from "../../constants/common";
 
 interface CreateGroupDialogProps {
-  friends: TUser[];
+  users: TUser[];
+  friendIds?: string[];
   open: boolean;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (group?: TUser) => void;
 }
 
 export default function CreateGroupDialog({
-  friends,
+  users,
+  friendIds = [],
   open,
   onClose,
   onCreated,
@@ -36,37 +42,82 @@ export default function CreateGroupDialog({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const visibleUsers = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return (users || []).filter((user) => {
+      if (!query) return true;
+      return `${user.name || ""} ${user.email || ""}`
+        .toLowerCase()
+        .includes(query);
+    });
+  }, [users, search]);
 
   const handleClose = () => {
     if (saving) return;
     setName("");
     setDescription("");
     setSelectedIds([]);
+    setSearch("");
     onClose();
   };
 
   const handleCreate = async () => {
     if (!name.trim() || selectedIds.length === 0) return;
     setSaving(true);
+
     try {
       const response = await createGroupAPI({
         name: name.trim(),
         description: description.trim(),
       });
+
       const groupId = response?.data?.id;
-      if (response?.success && groupId) {
-        const memberResponses = await Promise.all(
-          selectedIds.map((userId) =>
-            addGroupMemberAPI(groupId, { userIdToAdd: Number(userId) }),
-          ),
-        );
-        if (memberResponses.every((memberResponse) => memberResponse?.success)) {
-          setName("");
-          setDescription("");
-          setSelectedIds([]);
-          onCreated();
-        }
+      if (!response?.success || !groupId) {
+        showToast(FAILED, response?.message || COMMON_ERROR_MESSAGE);
+        return;
+      }
+
+      const createdGroup = {
+        ...response.data,
+        id: String(groupId),
+        isGroup: true,
+        img: "",
+        members: response.data?.members || [],
+      } as TUser;
+
+      const memberResults = await Promise.all(
+        selectedIds.map((userId) =>
+          addGroupMemberAPI(groupId, { userIdToAdd: Number(userId) }),
+        ),
+      );
+
+      if (memberResults.every((memberResponse) => memberResponse?.success)) {
+        const memberMap = users.reduce<Record<string, TUser>>((acc, user) => {
+          acc[String(user.id)] = user;
+          return acc;
+        }, {});
+
+        createdGroup.members = [
+          ...(createdGroup.members || []),
+          ...selectedIds.map((userId) => ({
+            id: userId,
+            name: memberMap[userId]?.name || "User",
+            email: memberMap[userId]?.email || "",
+            role: "member",
+          })),
+        ];
+
+        setName("");
+        setDescription("");
+        setSelectedIds([]);
+        setSearch("");
+        onCreated(createdGroup);
+        onClose();
+      } else {
+        showToast(FAILED, COMMON_ERROR_MESSAGE);
       }
     } catch (error) {
       console.error("Group creation failed:", error);
@@ -97,9 +148,39 @@ export default function CreateGroupDialog({
           onChange={(event) => setDescription(event.target.value)}
           margin="dense"
         />
+
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            mt: 1.5,
+            px: 1.25,
+            borderRadius: 2,
+            backgroundColor: (theme) => theme.palette.action.hover,
+          }}
+        >
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Search registered users..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            variant="standard"
+            slotProps={{ input: { disableUnderline: true } }}
+          />
+        </Box>
+        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
+          <PersonAddAltOutlinedIcon
+            sx={{ fontSize: 14, verticalAlign: "middle", mr: 0.5 }}
+          />
+          You can add any registered user, even if they are not your friend yet.
+        </Typography>
+
         <List dense sx={{ maxHeight: 260, overflowY: "auto", mt: 1 }}>
-          {friends.map((friend) => {
-            const id = String(friend.id);
+          {visibleUsers.map((user) => {
+            const id = String(user.id);
+            const isFriend = friendIds.includes(id);
             return (
               <ListItem key={id} disablePadding>
                 <FormControlLabel
@@ -118,17 +199,31 @@ export default function CreateGroupDialog({
                   }
                   label={
                     <ListItemText
-                      primary={friend.name}
-                      secondary={friend.email}
+                      primary={
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <span>{user.name}</span>
+                          {isFriend ? (
+                            <Chip label="Friend" size="small" color="primary" variant="outlined" />
+                          ) : (
+                            <Chip label="New" size="small" color="secondary" variant="outlined" />
+                          )}
+                        </Box>
+                      }
+                      secondary={user.email}
                     />
                   }
                 />
                 <ListItemAvatar sx={{ minWidth: 42 }}>
-                  <Avatar src={friend.img}>{friend.name?.[0]}</Avatar>
+                  <Avatar src={user.img}>{user.name?.[0]}</Avatar>
                 </ListItemAvatar>
               </ListItem>
             );
           })}
+          {visibleUsers.length === 0 && (
+            <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: "center" }}>
+              No registered users found.
+            </Typography>
+          )}
         </List>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>

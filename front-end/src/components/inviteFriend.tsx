@@ -46,6 +46,7 @@ export default function InviteUser() {
       if (response?.success) {
         showToast(SUCCESS, INVITATION_SENT_MESSAGE);
         reset();
+        navigate("/manageUser");
       }
     } catch (error) {
       showToast(WARNING, INVITATION_FAILED_MESSAGE);

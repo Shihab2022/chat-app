@@ -16,6 +16,8 @@ router.post('/update-password', UserController.updatePassword);
 router.post('/check', UserController.checkAuth);
 router.post('/invite', auth(userRole?.USER), UserController.inviteUser);
 router.get('/friends', auth(userRole?.USER), UserController.getFriends);
+router.get('/all', auth(userRole?.USER), UserController.getAllRegisteredUsers);
+router.post('/friends/accept', auth(userRole?.USER), UserController.acceptFriend);
 router.post('/block', auth(userRole?.USER), UserController.blockUser);
 router.post('/unblock', auth(userRole?.USER), UserController.unblockUser);
 router.post('/update-info', auth(userRole?.USER), UserController.updateUserInfo);

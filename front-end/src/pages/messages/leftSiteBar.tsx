@@ -9,6 +9,8 @@ import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import { useTheme } from "@mui/material/styles";
 import {
   SET_CONVERSATION,
@@ -28,6 +30,7 @@ import IconButton from "@mui/material/IconButton";
 import InputBase from "@mui/material/InputBase";
 import CreateGroupDialog from "./createGroupDialog";
 import { getGroupMessagesAPI, getGroupsAPI } from "../../services/message";
+import { getAllRegisteredUsersAPI } from "../../services/auth";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
 
 const LeftSiteBar = () => {
@@ -35,15 +38,31 @@ const LeftSiteBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loginUser, allUsers } = useSelector(
-    (state: RootState) => state?.auth,
-  );
-  const { receiverId, messages } = useSelector(
-    (state: RootState) => state?.message,
-  );
+  const { loginUser, allUsers } = useSelector((state: RootState) => state?.auth);
+  const { receiverId, messages } = useSelector((state: RootState) => state?.message);
   const { id: myId } = loginUser || {};
   const [search, setSearch] = useState("");
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [registeredUsers, setRegisteredUsers] = useState<TUser[]>([]);
+
+  // Load every registered user (friends AND non-friends) so the group
+  // creation popup can invite users who are not friends yet.
+  const loadRegisteredUsers = async (): Promise<void> => {
+    try {
+      const res = await getAllRegisteredUsersAPI({});
+      setRegisteredUsers(res?.success ? res.data || [] : []);
+    } catch (error) {
+      console.error("Failed to load registered users:", error);
+      setRegisteredUsers([]);
+    }
+  };
+
+  const handleOpenCreateGroup = async () => {
+    setMenuAnchor(null);
+    await loadRegisteredUsers();
+    setGroupDialogOpen(true);
+  };
 
   const handleClick = async (user: Partial<TUser>) => {
     try {
@@ -81,32 +100,53 @@ const LeftSiteBar = () => {
     return filtered.length > 0 ? formattedSideBarData(filtered) : [];
   }, [allUsers, messages, search]);
 
-  const friends = allUsers.filter(
+  const friendUsers = (allUsers || []).filter(
     (user: TUser) => user.id !== myId && !user.isGroup,
   );
 
-  const handleGroupCreated = async () => {
+  const handleGroupCreated = async (createdGroup?: TUser) => {
     setGroupDialogOpen(false);
-    const response = await getGroupsAPI();
-    if (response?.success) {
-      const groups = (response.data || []).map((group: TUser) => ({
-        ...group,
-        id: String(group.id),
-        isGroup: true,
-        img: "",
-      }));
-      dispatch(
-        SET_ALL_USERS([
-          ...allUsers.filter((user: TUser) => !user.isGroup),
-          ...groups,
-        ]),
-      );
+    setMenuAnchor(null);
+
+    if (!createdGroup) {
+      const response = await getGroupsAPI();
+      if (response?.success) {
+        const groups = (response.data || []).map((group: TUser) => ({
+          ...group,
+          id: String(group.id),
+          isGroup: true,
+          img: "",
+        }));
+        dispatch(
+          SET_ALL_USERS([
+            ...allUsers.filter((user: TUser) => !user.isGroup),
+            ...groups,
+          ]),
+        );
+      }
+      return;
     }
+
+    const nextGroup = {
+      ...createdGroup,
+      id: String(createdGroup.id),
+      isGroup: true,
+      img: "",
+      members: createdGroup.members || [],
+    };
+
+    dispatch(
+      SET_ALL_USERS([
+        nextGroup,
+        ...allUsers.filter((user: TUser) => user.isGroup && String(user.id) !== String(nextGroup.id)),
+        ...allUsers.filter((user: TUser) => !user.isGroup),
+      ]),
+    );
+    dispatch(SET_RECEIVER_ID(String(nextGroup.id)));
   };
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      {/* Sidebar Header */}
       <List disablePadding>
         <ListItem disablePadding>
           <Stack
@@ -164,14 +204,32 @@ const LeftSiteBar = () => {
         </Box>
         <IconButton
           color="primary"
-          onClick={() => setGroupDialogOpen(true)}
-          aria-label="create group"
+          onClick={(event) => setMenuAnchor(event.currentTarget)}
+          aria-label="chat actions"
         >
           <AddIcon />
         </IconButton>
+        <Menu
+          anchorEl={menuAnchor}
+          open={Boolean(menuAnchor)}
+          onClose={() => setMenuAnchor(null)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={handleOpenCreateGroup}>
+            Create group
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setMenuAnchor(null);
+              navigate("/inviteUser");
+            }}
+          >
+            Invite user
+          </MenuItem>
+        </Menu>
       </Stack>
 
-      {/* User List */}
       <List sx={{ pt: 1, px: 1, flexGrow: 1, overflowY: "auto" }}>
         {formattedAllUsers
           ?.filter((d: TUser) => d?.id !== myId)
@@ -191,7 +249,8 @@ const LeftSiteBar = () => {
         )}
       </List>
       <CreateGroupDialog
-        friends={friends}
+        users={registeredUsers}
+        friendIds={friendUsers.map((user: TUser) => String(user.id))}
         open={groupDialogOpen}
         onClose={() => setGroupDialogOpen(false)}
         onCreated={handleGroupCreated}

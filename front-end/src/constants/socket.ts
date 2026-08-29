@@ -19,4 +19,8 @@ export const SOCKET_EVENTS = {
   STOP_TYPING: "stopTyping",
   MESSAGE_SEEN: "messageSeen",
   MESSAGE_SEEN_UPDATE: "messageSeenUpdate",
+  GROUP_CREATED: "groupCreated",
+  GROUP_MEMBER_CHANGED: "groupMemberChanged",
+  GROUP_UPDATED: "groupUpdated",
+  GROUP_DELETED: "groupDeleted",
 };

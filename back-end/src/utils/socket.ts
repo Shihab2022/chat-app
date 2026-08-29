@@ -18,6 +18,17 @@ export function getReceiverSocketId(userId: string) {
   return userSocketMap[userId];
 }
 
+export async function emitGroupEvent(groupId: number, event: string, payload: any) {
+  const result = await pool.query(
+    `SELECT user_id FROM group_members WHERE group_id = $1`,
+    [groupId],
+  );
+  for (const member of result.rows) {
+    const socketId = getReceiverSocketId(String(member.user_id));
+    if (socketId) io.to(socketId).emit(event, payload);
+  }
+}
+
 io.on('connection', (socket) => {
   const userId = socket.handshake.query.userId as string;
   if (userId) userSocketMap[userId] = socket.id;

@@ -255,7 +255,7 @@ const addGroupMember = async (
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.addGroupMember(req.body, req.user);
+    const result = await MessageServices.addGroupMember({ ...req.body, ...req.params }, req.user);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -267,13 +267,62 @@ const addGroupMember = async (
   }
 };
 
+const groupDetails = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.getGroup({ ...req.query, ...req.params }, req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Group details retrieved successfully', data: result });
+  } catch (error) { next(error); }
+};
+
+const groupMembers = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.getGroupMembers({ ...req.query, ...req.params }, req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Group members retrieved successfully', data: result });
+  } catch (error) { next(error); }
+};
+
+const updateGroup = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.updateGroup({ ...req.body, ...req.params }, req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Group updated successfully', data: result });
+  } catch (error) { next(error); }
+};
+
+const removeGroupMember = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.removeGroupMember({ ...req.body, ...req.params }, req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Member removed successfully', data: result });
+  } catch (error) { next(error); }
+};
+
+const setGroupMemberRole = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.setGroupMemberRole({ ...req.body, ...req.params }, req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Member role updated successfully', data: result });
+  } catch (error) { next(error); }
+};
+
+const leaveGroup = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.leaveGroup({ ...req.body, ...req.params }, req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Left group successfully', data: result });
+  } catch (error) { next(error); }
+};
+
+const deleteGroup = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const result = await MessageServices.deleteGroup({ ...req.body, ...req.params }, req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Group deleted successfully', data: result });
+  } catch (error) { next(error); }
+};
+
 const sendGroupMessage = async (
   req: Request & { user?: any },
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.sendGroupMessage(req.body, req.user);
+    const result = await MessageServices.sendGroupMessage({ ...req.body, ...req.params }, req.user);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -291,7 +340,7 @@ const getGroupMessages = async (
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.getGroupMessages(req.query as any, req.user);
+    const result = await MessageServices.getGroupMessages({ ...req.query, ...req.params }, req.user);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -318,6 +367,13 @@ export const MessageController = {
   createGroup,
   listGroups,
   addGroupMember,
+  groupDetails,
+  groupMembers,
+  updateGroup,
+  removeGroupMember,
+  setGroupMemberRole,
+  leaveGroup,
+  deleteGroup,
   sendGroupMessage,
   getGroupMessages,
 };

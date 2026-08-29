@@ -646,12 +646,27 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
       ? `${config?.front_end_base_url}/manageUser`
       : `${config?.front_end_base_url}/accept-invite?token=${accessToken}`;
 
+  // If the invited user already has an account, add them as a friend instantly
+  // (accepted status) so they appear in the friend list / sidebar immediately.
+  // If the user is not registered yet, keep it PENDING until they accept the invite.
+  const inviteStatus = targetUserInfo
+    ? FriendshipStatus.ACCEPTED
+    : FriendshipStatus.PENDING;
+
   await pool.query(
     `
-      INSERT INTO friendships (sender_id, receiver_email, receiver_id, message, invite_token, invite_status, is_blocked, is_deleted)
-      VALUES ($1, $2, $3, $4, $5, $6, false, false)
+      INSERT INTO friendships (sender_id, receiver_email, receiver_id, message, invite_token, invite_status, is_blocked, is_deleted, accepted_at)
+      VALUES ($1, $2, $3, $4, $5, $6, false, false, $7)
     `,
-    [id, normalizedEmail, targetUserInfo?.id ?? null, message || '', inviteUrl, FriendshipStatus.PENDING],
+    [
+      id,
+      normalizedEmail,
+      targetUserInfo?.id ?? null,
+      message || '',
+      inviteUrl,
+      inviteStatus,
+      targetUserInfo ? new Date() : null,
+    ],
   );
 
   const notifyMsg = {
@@ -818,6 +833,37 @@ const googleRegister = async (payload: {
   return token;
 };
 
+const getAllRegisteredUsers = async (payload: Partial<TUser>) => {
+  const currentUserId = Number(payload.id);
+
+  if (!currentUserId) {
+    throw new AppError(httpStatus.UNAUTHORIZED, authorizationError.UN_AUTHORIZED);
+  }
+
+  const { rows } = await pool.query(
+    `
+      SELECT
+        u.id,
+        u.name,
+        u.email,
+        u.img,
+        u.bio,
+        u.role,
+        u.status,
+        u.is_account_verified,
+        u.is_google_login,
+        u.created_at,
+        u.updated_at
+      FROM users u
+      WHERE u.id != $1
+      ORDER BY u.name ASC
+    `,
+    [currentUserId],
+  );
+
+  return rows;
+};
+
 const getFriends = async (payload: Partial<TUser>) => {
   const currentUserId = Number(payload.id);
   const currentUserEmail = payload.email;
@@ -852,14 +898,33 @@ const getFriends = async (payload: Partial<TUser>) => {
         OR f.receiver_id = $1
         OR f.receiver_email = $2
       )
-      AND f.invite_status = $3
+      AND f.invite_status IN ($3, $4)
       AND u.id != $1
       ORDER BY u.name ASC
     `,
-    [currentUserId, currentUserEmail, FriendshipStatus.ACCEPTED],
+    [currentUserId, currentUserEmail, FriendshipStatus.ACCEPTED, FriendshipStatus.PENDING],
   );
 
   return rows;
+};
+
+const acceptFriend = async (payload: { friendshipId?: number; userId?: number }, userInfo: Partial<TUser>) => {
+  const currentUserId = Number(userInfo.id);
+  const friendshipId = payload.friendshipId ? Number(payload.friendshipId) : null;
+  const targetUserId = payload.userId ? Number(payload.userId) : null;
+  if (!currentUserId || (!friendshipId && !targetUserId)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'A friendship or user is required');
+  }
+  const result = await pool.query(
+    `UPDATE friendships f SET invite_status = $1, accepted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+     WHERE f.invite_status = $2
+       AND (f.id = $3 OR ($4 IS NOT NULL AND f.sender_id = $4 AND f.receiver_id = $5))
+       AND f.receiver_id = $5
+     RETURNING *`,
+    [FriendshipStatus.ACCEPTED, FriendshipStatus.PENDING, friendshipId, targetUserId, currentUserId],
+  );
+  if (!result.rows.length) throw new AppError(httpStatus.NOT_FOUND, 'Pending friend request not found');
+  return result.rows[0];
 };
 
 const blockUser = async (
@@ -977,7 +1042,9 @@ export const UserServices = {
   updateUserInfo,
   googleLogin,
   googleRegister,
+  getAllRegisteredUsers,
   getFriends,
   blockUser,
   unblockUser,
+  acceptFriend,
 };
