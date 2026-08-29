@@ -6,12 +6,11 @@ async function executeMigrations() {
     console.log('🚀 Starting database migrations...');
     await runMigrations();
     console.log('✅ Migrations applied successfully!');
-    process.exit(0);
   } catch (error) {
     console.error('❌ Migration failed:', error);
-    process.exit(1); // Exit with failure code so Vercel stops deployment
+    process.exitCode = 1;
   } finally {
-    await pool.end(); // Close database connection so the build process doesn't hang
+    await pool.end();
   }
 }
 

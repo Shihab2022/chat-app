@@ -1,12 +1,22 @@
 import * as dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config({ path: path.join((process.cwd(), '.env')) });
+dotenv.config({ path: path.join(process.cwd(), '.env') });
+
+const pgPassword = process.env.PG_DB_PASS || process.env.PG_DB_PASSWORD;
+const pgDatabase = process.env.PG_DB_NAME || process.env.PG_DB;
+const databaseUrl =
+  process.env.DATABASE_URL ||
+  (process.env.PG_DB_USER && pgPassword && process.env.PG_DB_HOST && pgDatabase
+    ? `postgres://${encodeURIComponent(process.env.PG_DB_USER)}:${encodeURIComponent(
+        pgPassword,
+      )}@${process.env.PG_DB_HOST}:${process.env.PG_DB_PORT || 5432}/${pgDatabase}`
+    : undefined);
 
 export default {
   NODE_ENV: process.env.NODE_ENV,
   port: process.env.PORT,
-  database_url: process.env.DATABASE_URL,
+  database_url: databaseUrl,
   front_end_base_url: process.env.FRONT_END_BASE_URL,
   back_end_base_url: process.env.BACK_END_BASE_URL,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT,
@@ -19,11 +29,13 @@ export default {
   forget_pass_expire_in: process.env.FORGET_PASS_ACCESS_EXPIRES_IN,
   //   jwt_refresh_expire_in: process.env.JWT_REFRESH_EXPIRES_IN,
   pg_info: {
-    pg_db_user: process.env.PG_DB_USER as string,
-    pg_db_host: process.env.PG_DB_HOST as string,
-    pg_db_url: process.env.PG_DB as string,
-    pg_db_pass: process.env.PG_DB_PASSWORD as string,
-    pg_db_port: process.env.PG_DB_PORT as unknown as number,
+    pg_db_user: process.env.PG_DB_USER,
+    pg_db_host: process.env.PG_DB_HOST,
+    pg_db_name: process.env.PG_DB_NAME || process.env.PG_DB,
+    pg_db_pass: pgPassword,
+    pg_db_port: process.env.PG_DB_PORT
+      ? Number(process.env.PG_DB_PORT)
+      : undefined,
   },
   cloudinary: {
     api_key: process.env.CLOUDINARY_API_KEY,

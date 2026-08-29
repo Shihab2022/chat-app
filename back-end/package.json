@@ -6,6 +6,8 @@
   "scripts": {
     "dev": " ts-node-dev --respawn --transpile-only src/app.ts",
     "prod": "node ./dist/src/app.js",
+    "migrate": "ts-node src/scripts/migrate.ts",
+    "migrate:prod": "node ./dist/src/scripts/migrate.js",
     "build": "tsc",
     "lint": "eslint src --ignore-path .eslintignore --ext .ts",
     "lint:fix": "npx eslint src --fix ",
