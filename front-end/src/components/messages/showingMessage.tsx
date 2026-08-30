@@ -32,6 +32,26 @@ interface ShowingMessageProps {
   messageEndRef: React.RefObject<HTMLDivElement>;
 }
 
+// Cross-origin safe download that preserves the original file name and format
+const downloadFile = async (url: string, fileName: string) => {
+  try {
+    const res = await fetch(url, { mode: "cors" });
+    if (!res.ok) throw new Error("Download failed");
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(blobUrl);
+  } catch {
+    // CORS or network failure fallback: open in a new tab
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+};
+
 export const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
   const theme = useTheme();
   const {
@@ -303,9 +323,8 @@ export const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => 
               {/* PDF Document Card */}
               {file && (
                 <Link
-                  href={file}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  component="button"
+                  onClick={() => downloadFile(file, fileName || "document.pdf")}
                   underline="none"
                   sx={{
                     display: "flex",

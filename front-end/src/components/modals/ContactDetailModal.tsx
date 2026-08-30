@@ -64,6 +64,7 @@ import {
   addGroupMemberAPI,
   uploadMessageAttachmentAPI,
   getGroupsAPI,
+  getConversationStatsAPI,
 } from "../../services/message";
 import { blockUserAPI, unblockUserAPI, getFriends } from "../../services/auth";
 import { PURPLE_PRIMARY } from "../../theme";
@@ -104,6 +105,10 @@ export const ContactDetailModal: React.FC = () => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [confirmBlockOpen, setConfirmBlockOpen] = useState(false);
 
+  // Shared content statistics (media / files / links)
+  const [sharedStats, setSharedStats] = useState({ media: 0, files: 0, links: 0 });
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+
   const contact = selectedContactForDetail;
   const isGroup = !!contact?.isGroup;
   const myId = String(loginUser?.id || "");
@@ -124,16 +129,44 @@ export const ContactDetailModal: React.FC = () => {
     } finally {
       setIsLoadingGroup(false);
     }
+    };
+
+  // Load shared content statistics (media / files / links)
+  const loadSharedStats = async () => {
+    if (!contact?.id) return;
+    try {
+      setIsLoadingStats(true);
+      const isGroupChat = !!contact.isGroup;
+      const res = await getConversationStatsAPI(
+        isGroupChat ? { groupId: contact.id } : { peerId: contact.id }
+      );
+      if (res?.success && res.data) {
+        setSharedStats({
+          media: res.data.media || 0,
+          files: res.data.files || 0,
+          links: res.data.links || 0,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load shared stats:", err);
+    } finally {
+      setIsLoadingStats(false);
+    }
   };
 
   useEffect(() => {
-    if (isContactDetailModalOpen && isGroup && contact?.id) {
-      void loadGroupDetails();
-    }
-    if (contact) {
-      setGroupNameInput(contact.name || "");
-      setGroupDescInput(contact.description || contact.bio || "");
-    }
+  if (isContactDetailModalOpen && isGroup && contact?.id) {
+    void loadGroupDetails();
+  }
+  if (contact) {
+    setGroupNameInput(contact.name || "");
+    setGroupDescInput(contact.description || contact.bio || "");
+  }
+  // Fetch shared content statistics for this conversation
+  if (isContactDetailModalOpen && contact?.id) {
+    void loadSharedStats();
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isContactDetailModalOpen, isGroup, contact?.id]);
 
   if (!isContactDetailModalOpen || !contact) {
@@ -821,7 +854,7 @@ export const ContactDetailModal: React.FC = () => {
               >
                 <ImageOutlinedIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                  0
+                  {isLoadingStats ? "—" : sharedStats.media}
                 </Typography>
                 <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: "0.7rem" }}>
                   Media
@@ -842,7 +875,7 @@ export const ContactDetailModal: React.FC = () => {
               >
                 <InsertDriveFileOutlinedIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                  0
+                  {isLoadingStats ? "—" : sharedStats.files}
                 </Typography>
                 <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: "0.7rem" }}>
                   Files
@@ -863,7 +896,7 @@ export const ContactDetailModal: React.FC = () => {
               >
                 <LinkRoundedIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                  0
+                  {isLoadingStats ? "—" : sharedStats.links}
                 </Typography>
                 <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: "0.7rem" }}>
                   Links

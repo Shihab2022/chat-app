@@ -29,10 +29,13 @@ export default function Profile() {
   const { loginUser } = useSelector((state: RootState) => state?.auth);
 
   const [isLoading, setIsLoading] = useState(false);
-  const { img, email, name, bio } = loginUser || {};
+  const { img, email, name, bio, phone, country, about } = loginUser || {};
 
   const [userName, setUserName] = useState(name || "");
   const [userBio, setUserBio] = useState(bio || "");
+  const [userPhone, setUserPhone] = useState(phone || "");
+  const [userCountry, setUserCountry] = useState(country || "");
+  const [userAbout, setUserAbout] = useState(about || "");
 
   const updateUserData = async () => {
     try {
@@ -40,6 +43,9 @@ export default function Profile() {
       const res = await updateUserInfoAPI({
         name: userName,
         bio: userBio,
+        phone: userPhone,
+        about: userAbout,
+        country: userCountry,
       });
 
       if (res?.success) {
@@ -165,7 +171,6 @@ export default function Profile() {
                   onChange={(e) => setUserName(e.target.value)}
                   sx={{ mb: 3 }}
                 />
-
                 <TextField
                   label="Bio"
                   variant="outlined"
@@ -173,7 +178,37 @@ export default function Profile() {
                   multiline
                   rows={4}
                   value={userBio}
-                  onChange={(e) => setUserBio(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setUserBio(e.target.value)}
+                  sx={{ mb: 3 }}
+                />
+
+                <TextField
+                  label="About / Status"
+                  variant="outlined"
+                  fullWidth
+                  multiline
+                  rows={2}
+                  value={userAbout}
+                  onChange={(e) => setUserAbout(e.target.value)}
+                  sx={{ mb: 3 }}
+                  placeholder="Tell people about yourself"
+                />
+
+                <TextField
+                  label="Phone Number"
+                  variant="outlined"
+                  fullWidth
+                  value={userPhone}
+                  onChange={(e) => setUserPhone(e.target.value)}
+                  sx={{ mb: 3 }}
+                />
+
+                <TextField
+                  label="Country"
+                  variant="outlined"
+                  fullWidth
+                  value={userCountry}
+                  onChange={(e) => setUserCountry(e.target.value)}
                   sx={{ mb: 3 }}
                 />
 

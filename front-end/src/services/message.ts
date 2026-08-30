@@ -191,6 +191,19 @@ export const leaveGroupAPI = async (groupId: string | number) => {
   });
 };
 
+export const getConversationStatsAPI = async (params: {
+  peerId?: string | number;
+  groupId?: string | number;
+}) => {
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/stats",
+    axiosMethod: httpMethod.GET,
+    formData: false,
+    params,
+  });
+};
+
 export const deleteGroupAPI = async (groupId: string | number) => {
   return apiHandler({
     baseURL: import.meta.env.VITE_BASE_API_URL,
