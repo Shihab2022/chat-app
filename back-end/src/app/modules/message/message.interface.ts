@@ -12,6 +12,12 @@ export type TMessages = {
   text?: string;
   replyId?: Types.ObjectId;
   image?: string;
+  file_url?: string;
+  fileUrl?: string;
+  file_name?: string;
+  fileName?: string;
+  file_type?: string;
+  fileType?: string;
   groupId?: string | number;
   group_id?: string | number;
   reactions?: { emoji: string; userIds: string[] }[];

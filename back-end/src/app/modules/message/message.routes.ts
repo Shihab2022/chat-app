@@ -2,10 +2,12 @@
 import { MessageController } from './message.controller';
 import auth from '../../middlewares/protectRoute';
 import { userRole } from '../../../constant';
+import { fileUploader } from '../../../utils/fileUploder';
 
 const router = Router();
 
 router.get('/users', auth(userRole?.USER), MessageController.getUsersForSidebar);
+router.post('/upload', auth(userRole?.USER), fileUploader.upload.single('file'), MessageController.uploadAttachment);
 router.post('/send', auth(userRole?.USER), MessageController.sendMessage);
 router.get('/get', auth(userRole?.USER), MessageController.getMessage);
 router.post('/emoji', auth(userRole?.USER), MessageController.addEmoji);

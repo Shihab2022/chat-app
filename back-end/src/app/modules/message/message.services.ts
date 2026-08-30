@@ -1,4 +1,4 @@
-﻿import { TMessages } from './message.interface';
+import { TMessages } from './message.interface';
 import { emitGroupEvent, getReceiverSocketId, io } from '../../../utils/socket';
 import { pool } from '../../../utils/pg';
 import AppError from '../../error/appError';
@@ -6,6 +6,7 @@ import httpStatus from 'http-status';
 import { FriendshipStatus } from '../../../constant';
 import transporter from '../../../utils/nodemailer';
 import config from '../../config';
+import { uploadBufferToCloudinary } from '../../../utils/fileUploder';
 
 const parseUserId = (value: unknown): number | null => {
   if (value === undefined || value === null || value === '') {
@@ -14,6 +15,84 @@ const parseUserId = (value: unknown): number | null => {
 
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+};
+
+const getDisappearingExpiry = (setting: string | null | undefined): Date | null => {
+  const normalized = String(setting || 'off').toLowerCase();
+  const now = Date.now();
+  switch (normalized) {
+    case '24h':
+      return new Date(now + 24 * 60 * 60 * 1000);
+    case '7d':
+      return new Date(now + 7 * 24 * 60 * 60 * 1000);
+    case '30d':
+      return new Date(now + 30 * 24 * 60 * 60 * 1000);
+    default:
+      return null;
+  }
+};
+
+const getUserDisappearingSetting = async (userId: number) => {
+  const { rows } = await pool.query(
+    `SELECT COALESCE(disappearing_messages, 'off') AS disappearing_messages FROM users WHERE id = $1 LIMIT 1`,
+    [userId],
+  );
+  return rows[0]?.disappearing_messages || 'off';
+};
+
+const MESSAGE_NOT_EXPIRED = '(expires_at IS NULL OR expires_at > NOW())';
+
+const parseReactions = (value: unknown): Array<{ id: string; userId: string; emoji: string }> => {
+  if (!value) return [];
+  let raw = value;
+  if (typeof raw === 'string') {
+    try {
+      raw = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(raw)) return [];
+  return raw.map((reaction: any) => ({
+    id: String(reaction.id || `${reaction.userId || reaction.user_id}-${reaction.emoji}`),
+    userId: String(reaction.userId || reaction.user_id),
+    emoji: reaction.emoji,
+  }));
+};
+
+const normalizeMessageRow = (row: any) => {
+  if (!row) return row;
+  return {
+    ...row,
+    id: String(row.id),
+    sender_id: String(row.sender_id),
+    receiver_id: row.receiver_id,
+    receiverId: row.receiver_id ? String(row.receiver_id) : undefined,
+    group_id: row.group_id ? String(row.group_id) : undefined,
+    reply_id: row.reply_id,
+    replyId: row.reply_id ? String(row.reply_id) : undefined,
+    is_deleted: row.is_deleted,
+    isDeleted: Boolean(row.is_deleted),
+    file_url: row.file_url,
+    file: row.file_url,
+    file_name: row.file_name,
+    fileName: row.file_name,
+    file_type: row.file_type,
+    fileType: row.file_type,
+    reactions: parseReactions(row.reactions),
+  };
+};
+
+const normalizeMessageRows = (rows: any[]) => rows.map(normalizeMessageRow);
+
+const emitDirectMessageEvent = (event: string, message: any, peerUserId?: number | string) => {
+  const normalized = normalizeMessageRow(message);
+  const receiverSocketId = getReceiverSocketId(String(peerUserId ?? message.receiver_id));
+  const senderSocketId = getReceiverSocketId(String(message.sender_id));
+  if (receiverSocketId) io.to(receiverSocketId).emit(event, normalized);
+  if (senderSocketId && senderSocketId !== receiverSocketId) {
+    io.to(senderSocketId).emit(event, normalized);
+  }
 };
 
 const getAcceptedFriendshipRows = async (userA: number, userB: number) => {
@@ -105,7 +184,7 @@ const getGroup = async (groupIdOrPayload: number | any, userId?: number | any) =
   await assertGroupMember(groupId, currentUserId);
   const { rows } = await pool.query(
     `SELECT g.*,
-      COALESCE(json_agg(json_build_object('id', u.id, 'name', u.name, 'email', u.email,
+      COALESCE(json_agg(json_build_object('id', u.id, 'name', u.name, 'email', u.email, 'img', u.img,
         'role', gm.role, 'joined_at', gm.joined_at) ORDER BY u.name)
         FILTER (WHERE u.id IS NOT NULL), '[]') AS members
      FROM chat_groups g
@@ -142,10 +221,16 @@ const sendMessageIntoDB = async (payload: TMessages, currentUser?: any) => {
 
   await assertDirectChatAllowed(sender_id, receiverId);
 
+  const disappearingSetting = await getUserDisappearingSetting(sender_id);
+  const expiresAt = getDisappearingExpiry(disappearingSetting);
   const text = payload.text || '';
+  const image = payload.image || '';
+  const fileUrl = payload.file_url || payload.fileUrl || '';
+  const fileName = payload.file_name || payload.fileName || '';
+  const fileType = payload.file_type || payload.fileType || (fileUrl ? 'pdf' : null);
   const insertQuery = `
-    INSERT INTO messages (sender_id, receiver_id, text, image, reply_id)
-    VALUES ($1, $2, $3, $4, $5)
+    INSERT INTO messages (sender_id, receiver_id, text, image, reply_id, expires_at, file_url, file_name, file_type)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING *
   `;
 
@@ -153,29 +238,31 @@ const sendMessageIntoDB = async (payload: TMessages, currentUser?: any) => {
     sender_id,
     receiverId,
     text,
-    payload.image || '',
+    image,
     payload.replyId ? Number(payload.replyId) : null,
+    expiresAt,
+    fileUrl || null,
+    fileName || null,
+    fileType || null,
   ]);
 
   const newMessage = insertResult.rows[0];
-  const receiverSocketId = getReceiverSocketId(String(receiverId));
-
-  if (receiverSocketId) {
-    io.to(receiverSocketId).emit('newMessage', newMessage);
-  }
+  emitDirectMessageEvent('newMessage', newMessage, receiverId);
 
   const messagesQuery = `
     SELECT *
     FROM messages
-    WHERE 
+    WHERE (
       (sender_id = $1 AND receiver_id = $2)
       OR
       (sender_id = $2 AND receiver_id = $1)
+    )
+    AND ${MESSAGE_NOT_EXPIRED}
     ORDER BY created_at ASC
   `;
 
   const messagesResult = await pool.query(messagesQuery, [sender_id, receiverId]);
-  return messagesResult.rows;
+  return normalizeMessageRows(messagesResult.rows);
 };
 
 const getMessageFromDB = async (payload: Partial<TMessages>, currentUser?: any) => {
@@ -188,16 +275,45 @@ const getMessageFromDB = async (payload: Partial<TMessages>, currentUser?: any) 
 
   await assertDirectChatAllowed(currentUserId, otherUserId);
 
+  await pool.query(
+    `
+      UPDATE messages
+      SET seen = true, seen_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+      WHERE sender_id = $1 AND receiver_id = $2 AND seen = false
+    `,
+    [otherUserId, currentUserId],
+  );
+
+  await pool.query(
+    `
+      INSERT INTO conversation_preferences (user_id, peer_id, last_read_at, updated_at)
+      VALUES ($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      ON CONFLICT (user_id, peer_id) WHERE peer_id IS NOT NULL
+      DO UPDATE SET last_read_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+    `,
+    [currentUserId, otherUserId],
+  ).catch(async () => {
+    await pool.query(
+      `
+        UPDATE conversation_preferences
+        SET last_read_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = $1 AND peer_id = $2
+      `,
+      [currentUserId, otherUserId],
+    );
+  });
+
   const query = `
     SELECT *
     FROM messages
-    WHERE (sender_id = $1 AND receiver_id = $2)
-       OR (sender_id = $2 AND receiver_id = $1)
+    WHERE ((sender_id = $1 AND receiver_id = $2)
+       OR (sender_id = $2 AND receiver_id = $1))
+       AND ${MESSAGE_NOT_EXPIRED}
     ORDER BY created_at ASC
   `;
 
   const result = await pool.query(query, [currentUserId, otherUserId]);
-  return result.rows;
+  return normalizeMessageRows(result.rows);
 };
 
 const getUsersForSidebar = async (payload: any, currentUser?: any) => {
@@ -220,6 +336,18 @@ const getUsersForSidebar = async (payload: any, currentUser?: any) => {
       u.is_google_login,
       u.created_at,
       u.updated_at,
+      COALESCE(cp.is_favourite, false) AS is_favourite,
+      COALESCE(cp.is_archived, false) AS is_archived,
+      COALESCE(cp.is_pinned, false) AS is_pinned,
+      COALESCE(cp.is_muted, false) AS is_muted,
+      (
+        SELECT COUNT(*)::int
+        FROM messages um
+        WHERE um.sender_id = u.id
+          AND um.receiver_id = $1
+          AND um.seen = false
+          AND (um.expires_at IS NULL OR um.expires_at > NOW())
+      ) AS unread_count,
       m.id AS message_id,
       m.sender_id,
       m.receiver_id,
@@ -231,6 +359,8 @@ const getUsersForSidebar = async (payload: any, currentUser?: any) => {
         WHEN f.sender_id = $1 THEN COALESCE(f.receiver_id, (SELECT id FROM users WHERE email = f.receiver_email LIMIT 1))
         ELSE f.sender_id
       END
+    LEFT JOIN conversation_preferences cp
+      ON cp.user_id = $1 AND cp.peer_id = u.id
     LEFT JOIN LATERAL (
       SELECT *
       FROM messages m
@@ -238,6 +368,7 @@ const getUsersForSidebar = async (payload: any, currentUser?: any) => {
         (m.sender_id = $1 AND m.receiver_id = u.id)
         OR (m.sender_id = u.id AND m.receiver_id = $1)
       )
+      AND (m.expires_at IS NULL OR m.expires_at > NOW())
       ORDER BY m.created_at DESC
       LIMIT 1
     ) m ON TRUE
@@ -249,6 +380,7 @@ const getUsersForSidebar = async (payload: any, currentUser?: any) => {
     AND f.invite_status = $2
     AND COALESCE(f.is_blocked, false) = false
     AND u.id != $1
+    AND COALESCE(cp.is_archived, false) = false
     ORDER BY m.created_at DESC NULLS LAST, u.name ASC
   `;
 
@@ -266,6 +398,11 @@ const getUsersForSidebar = async (payload: any, currentUser?: any) => {
     isGoogleLogin: row.is_google_login,
     created_at: row.created_at,
     updatedAt: row.updated_at,
+    isFavourite: row.is_favourite,
+    isArchived: row.is_archived,
+    isPinned: row.is_pinned,
+    isMuted: row.is_muted,
+    unreadCount: row.unread_count || 0,
     lastMessage: row.message_id
       ? {
           id: row.message_id,
@@ -278,42 +415,80 @@ const getUsersForSidebar = async (payload: any, currentUser?: any) => {
   }));
 };
 
-const addEmoji = async (payload: any) => {
-  const { messageId, userId, emoji, receiverId } = payload;
-  const query = `
-    INSERT INTO message_reactions (message_id, user_id, emoji)
-    VALUES ($1, $2, $3)
-    ON CONFLICT (message_id, user_id)
-    DO UPDATE SET emoji = EXCLUDED.emoji
-    RETURNING *;
-  `;
+const addEmoji = async (payload: any, currentUser?: any) => {
+  const messageId = parseUserId(payload.messageId);
+  const userId = parseUserId(currentUser?.id ?? payload.userId);
+  const emoji = payload.emoji;
+  const receiverId = payload.receiverId;
 
-  const { rows } = await pool.query(query, [messageId, userId, emoji]);
-  const updatedReaction = rows[0];
-  const receiverSocketId = getReceiverSocketId(String(receiverId));
-
-  if (receiverSocketId) {
-    io.to(receiverSocketId).emit('newEmoji', updatedReaction);
+  if (!messageId || !userId || !emoji) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Message, user, and emoji are required');
   }
-  return updatedReaction;
+
+  const existing = await pool.query(`SELECT * FROM messages WHERE id = $1 LIMIT 1`, [messageId]);
+  if (!existing.rows.length) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Message not found');
+  }
+
+  const reactions = parseReactions(existing.rows[0].reactions);
+  const reactionEntry = {
+    id: `${messageId}-${userId}`,
+    userId: String(userId),
+    emoji,
+  };
+  const existingIdx = reactions.findIndex((item) => item.userId === String(userId));
+  if (existingIdx >= 0) {
+    reactions[existingIdx] = reactionEntry;
+  } else {
+    reactions.push(reactionEntry);
+  }
+
+  const { rows } = await pool.query(
+    `
+      UPDATE messages
+      SET reactions = $1::jsonb, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING *
+    `,
+    [JSON.stringify(reactions), messageId],
+  );
+
+  const updatedMessage = normalizeMessageRow(rows[0]);
+  emitDirectMessageEvent('newEmoji', updatedMessage, receiverId ?? updatedMessage.receiver_id);
+  return updatedMessage;
 };
 
-const removeEmoji = async (payload: any) => {
-  const { receiverId, messId, emojiId } = payload;
-  const deleteQuery = `
-    DELETE FROM message_reactions
-    WHERE id = $1 AND message_id = $2
-    RETURNING *;
-  `;
+const removeEmoji = async (payload: any, currentUser?: any) => {
+  const messageId = parseUserId(payload.messId ?? payload.messageId);
+  const userId = parseUserId(currentUser?.id ?? payload.userId);
+  const receiverId = payload.receiverId;
 
-  const { rows } = await pool.query(deleteQuery, [emojiId, messId]);
-  const deletedReaction = rows[0];
-  const receiverSocketId = getReceiverSocketId(String(receiverId));
-
-  if (receiverSocketId) {
-    io.to(receiverSocketId).emit('removeEmoji', deletedReaction);
+  if (!messageId || !userId) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Message and user are required');
   }
-  return deletedReaction;
+
+  const existing = await pool.query(`SELECT * FROM messages WHERE id = $1 LIMIT 1`, [messageId]);
+  if (!existing.rows.length) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Message not found');
+  }
+
+  const reactions = parseReactions(existing.rows[0].reactions).filter(
+    (item) => item.userId !== String(userId),
+  );
+
+  const { rows } = await pool.query(
+    `
+      UPDATE messages
+      SET reactions = $1::jsonb, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING *
+    `,
+    [JSON.stringify(reactions), messageId],
+  );
+
+  const updatedMessage = normalizeMessageRow(rows[0]);
+  emitDirectMessageEvent('removeEmoji', updatedMessage, receiverId ?? updatedMessage.receiver_id);
+  return updatedMessage;
 };
 
 const editMessage = async (payload: any, currentUser?: any) => {
@@ -346,16 +521,13 @@ const editMessage = async (payload: any, currentUser?: any) => {
   `;
 
   const { rows } = await pool.query(query, [messageId, text]);
-  const updatedMessage = rows[0];
+  const updatedMessage = normalizeMessageRow(rows[0]);
 
   if (!updatedMessage) {
     return null;
   }
 
-  const receiverSocketId = getReceiverSocketId(String(receiverId ?? updatedMessage.receiver_id));
-  if (receiverSocketId) {
-    io.to(receiverSocketId).emit('editMessage', updatedMessage);
-  }
+  emitDirectMessageEvent('editMessage', updatedMessage, receiverId ?? updatedMessage.receiver_id);
   return updatedMessage;
 };
 
@@ -376,16 +548,13 @@ const deleteMessage = async (payload: any, currentUser?: any) => {
   `;
 
   const { rows } = await pool.query(query, [messageId, sender_id]);
-  const updatedMessage = rows[0];
+  const updatedMessage = normalizeMessageRow(rows[0]);
 
   if (!updatedMessage) {
     return null;
   }
 
-  const receiverSocketId = getReceiverSocketId(String(receiverId ?? updatedMessage.receiver_id));
-  if (receiverSocketId) {
-    io.to(receiverSocketId).emit('deletedMessage', updatedMessage);
-  }
+  emitDirectMessageEvent('deletedMessage', updatedMessage, receiverId ?? updatedMessage.receiver_id);
   return updatedMessage;
 };
 
@@ -447,18 +616,23 @@ const replyMessage = async (payload: TMessages, currentUser?: any) => {
 
   const receiverSocketId = getReceiverSocketId(String(receiverId));
   if (receiverSocketId) {
-    io.to(receiverSocketId).emit('newMessage', newMessage);
+    io.to(receiverSocketId).emit('newMessage', normalizeMessageRow(newMessage));
+  }
+  const senderSocketId = getReceiverSocketId(String(sender_id));
+  if (senderSocketId) {
+    io.to(senderSocketId).emit('newMessage', normalizeMessageRow(newMessage));
   }
 
   const fetchQuery = `
     SELECT * FROM messages
-    WHERE (sender_id = $1 AND receiver_id = $2)
-       OR (sender_id = $2 AND receiver_id = $1)
+    WHERE ((sender_id = $1 AND receiver_id = $2)
+       OR (sender_id = $2 AND receiver_id = $1))
+       AND ${MESSAGE_NOT_EXPIRED}
     ORDER BY created_at ASC;
   `;
 
   const { rows: messages } = await pool.query(fetchQuery, [sender_id, receiverId]);
-  return messages;
+  return normalizeMessageRows(messages);
 };
 
 const clearMessage = async (payload: any, currentUser?: any) => {
@@ -506,13 +680,15 @@ const createGroup = async (payload: any, currentUser?: any) => {
     throw new AppError(httpStatus.BAD_REQUEST, 'Group name is required');
   }
 
+  const groupImg = payload.img || payload.avatar || payload.image || null;
+
   const { rows } = await pool.query(
     `
-      INSERT INTO chat_groups (name, description, created_by)
-      VALUES ($1, $2, $3)
+      INSERT INTO chat_groups (name, description, created_by, img)
+      VALUES ($1, $2, $3, $4)
       RETURNING *
     `,
-    [name, payload.description || '', currentUserId],
+    [name, payload.description || '', currentUserId, groupImg],
   );
 
   const group = rows[0];
@@ -537,11 +713,29 @@ const createGroup = async (payload: any, currentUser?: any) => {
     );
     // The link deliberately opens the signed-in app. Acceptance is always checked
     // against the recipient's account, not an untrusted email-link token.
-    await transporter.sendMail({
-      to: [email as string], from: 'Chatty', subject: `Invitation to join ${group.name}`,
-      text: `You have been invited to join ${group.name}. Sign in to Chatty to accept the invitation.`,
-      html: `<p>You have been invited to join <strong>${group.name}</strong>.</p><p><a href="${config.front_end_base_url}/chat">Open Chatty and accept</a></p>`,
-    });
+    try {
+      await transporter.sendMail({
+        to: [email as string],
+        from: config.smtp?.user_name ? `"Chatty" <${config.smtp.user_name}>` : 'Chatty',
+        subject: `Invitation to join ${group.name}`,
+        text: `You have been invited to join ${group.name}. Sign in to Chatty to accept the invitation.`,
+        html: `<p>You have been invited to join <strong>${group.name}</strong>.</p><p><a href="${config.front_end_base_url}/chat">Open Chatty and accept</a></p>`,
+      });
+    } catch (mailErr) {
+      console.error("Failed to send group invitation email:", mailErr);
+    }
+  }
+
+  // Also support initialMemberIds if passed directly
+  const initialMemberIds = Array.isArray(payload.initialMemberIds) ? payload.initialMemberIds : [];
+  for (const rawMemberId of initialMemberIds) {
+    const memberId = parseUserId(rawMemberId);
+    if (memberId && memberId !== currentUserId) {
+      await pool.query(
+        `INSERT INTO group_members (group_id, user_id, role) VALUES ($1, $2, 'member') ON CONFLICT (group_id, user_id) DO NOTHING`,
+        [group.id, memberId],
+      );
+    }
   }
 
   const details = await getGroup(group.id, currentUserId);
@@ -554,7 +748,7 @@ const listPendingGroupInvitations = async (currentUser?: any) => {
   const email = String(currentUser?.email || '').toLowerCase();
   if (!userId || !email) throw new AppError(httpStatus.UNAUTHORIZED, 'Authentication is required');
   const { rows } = await pool.query(
-    `SELECT gi.id, gi.group_id, gi.email, gi.created_at, g.name, g.description,
+    `SELECT gi.id, gi.group_id, gi.email, gi.created_at, g.name, g.description, g.img,
             inviter.name AS invited_by_name
      FROM group_invitations gi
      JOIN chat_groups g ON g.id = gi.group_id
@@ -600,6 +794,7 @@ const listGroups = async (payload: any, currentUser?: any) => {
             'id', u.id,
             'name', u.name,
             'email', u.email,
+            'img', u.img,
             'role', gm.role,
             'joined_at', gm.joined_at
           )
@@ -666,7 +861,11 @@ const updateGroup = async (payload: any, currentUser?: any) => {
   const values: any[] = [];
   if (payload.name !== undefined) { fields.push(`name = $${values.length + 1}`); values.push(String(payload.name).trim()); }
   if (payload.description !== undefined) { fields.push(`description = $${values.length + 1}`); values.push(String(payload.description)); }
-  if (!fields.length) throw new AppError(httpStatus.BAD_REQUEST, 'A group name or description is required');
+  if (payload.img !== undefined || payload.avatar !== undefined || payload.image !== undefined) {
+    fields.push(`img = $${values.length + 1}`);
+    values.push(payload.img ?? payload.avatar ?? payload.image ?? null);
+  }
+  if (!fields.length) throw new AppError(httpStatus.BAD_REQUEST, 'A group name, description, or image is required');
   values.push(groupId);
   const result = await pool.query(`UPDATE chat_groups SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = $${values.length} RETURNING id`, values);
   if (!result.rows.length) throw new AppError(httpStatus.NOT_FOUND, 'Group not found');
@@ -769,16 +968,23 @@ const sendGroupMessage = async (payload: any, currentUser?: any) => {
 
   await assertGroupMember(groupId, currentUserId);
 
+  const disappearingSetting = await getUserDisappearingSetting(currentUserId);
+  const expiresAt = getDisappearingExpiry(disappearingSetting);
+  const image = payload.image || '';
+  const fileUrl = payload.file_url || payload.fileUrl || '';
+  const fileName = payload.file_name || payload.fileName || '';
+  const fileType = payload.file_type || payload.fileType || (fileUrl ? 'pdf' : null);
+
   const { rows } = await pool.query(
     `
-      INSERT INTO messages (sender_id, group_id, text, receiver_id, image)
-      VALUES ($1, $2, $3, NULL, $4)
+      INSERT INTO messages (sender_id, group_id, text, receiver_id, image, expires_at, file_url, file_name, file_type)
+      VALUES ($1, $2, $3, NULL, $4, $5, $6, $7, $8)
       RETURNING *
     `,
-    [currentUserId, groupId, text, payload.image || ''],
+    [currentUserId, groupId, text, image, expiresAt, fileUrl || null, fileName || null, fileType || null],
   );
 
-  const message = rows[0];
+  const message = normalizeMessageRow(rows[0]);
   const members = await pool.query(
     `SELECT user_id FROM group_members WHERE group_id = $1`,
     [groupId],
@@ -809,12 +1015,29 @@ const getGroupMessages = async (payload: any, currentUser?: any) => {
       SELECT m.*
       FROM messages m
       WHERE m.group_id = $1
+        AND ${MESSAGE_NOT_EXPIRED}
       ORDER BY m.created_at ASC
     `,
     [groupId],
   );
 
-  return rows;
+  return normalizeMessageRows(rows);
+};
+
+const uploadAttachment = async (file: Express.Multer.File) => {
+  if (!file) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'File is required');
+  }
+
+  const result = await uploadBufferToCloudinary(file.buffer, file.mimetype);
+  const isPdf = file.mimetype === 'application/pdf';
+
+  return {
+    url: result.secure_url,
+    fileName: file.originalname,
+    fileType: isPdf ? 'pdf' : 'image',
+    resourceType: result.resource_type,
+  };
 };
 
 export const MessageServices = {
@@ -843,4 +1066,5 @@ export const MessageServices = {
   deleteGroup,
   sendGroupMessage,
   getGroupMessages,
+  uploadAttachment,
 };

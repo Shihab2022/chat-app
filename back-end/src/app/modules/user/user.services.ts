@@ -667,22 +667,32 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     );
   }
 
-  const notifyMsg = {
-    to: [normalizedEmail],
-    from: emailSenderMessages.FROM_JOIN_EMAIL,
-    subject: emailSenderMessages.INVITE_JOIN_SUBJECT,
-    text: emailSenderMessages.INVITE_JOIN_MESSAGE,
-    html: InviteTemplate(
-      (name as string) || 'A friend',
-      inviteUrl as string,
-      config?.front_end_base_url as string,
-    ),
-    attachments,
-  };
+  let emailSent = false;
+  try {
+    const fromAddress = config.smtp?.user_name
+      ? `"Chatty" <${config.smtp.user_name}>`
+      : emailSenderMessages.FROM_JOIN_EMAIL;
 
-  await transporter.sendMail(notifyMsg);
+    const notifyMsg = {
+      to: [normalizedEmail],
+      from: fromAddress,
+      subject: emailSenderMessages.INVITE_JOIN_SUBJECT,
+      text: emailSenderMessages.INVITE_JOIN_MESSAGE,
+      html: InviteTemplate(
+        (name as string) || 'A friend',
+        inviteUrl as string,
+        config?.front_end_base_url as string,
+      ),
+      attachments,
+    };
 
-  return payload;
+    await transporter.sendMail(notifyMsg);
+    emailSent = true;
+  } catch (emailError) {
+    console.error("Failed to send invite email:", emailError);
+  }
+
+  return { ...payload, inviteUrl, emailSent };
 };
 
 const updateUserInfo = async (
@@ -990,7 +1000,7 @@ const blockUser = async (
   const targetUserId = Number(payload.friendId ?? payload.userId ?? payload.targetUserId);
 
   if (!currentUserId || !targetUserId) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'A valid friend is required');
+    throw new AppError(httpStatus.BAD_REQUEST, 'A valid user is required');
   }
 
   const friendshipRows = await pool.query(
@@ -1009,14 +1019,21 @@ const blockUser = async (
           )
         )
       )
-      AND invite_status = $3
       LIMIT 2
     `,
-    [currentUserId, targetUserId, FriendshipStatus.ACCEPTED],
+    [currentUserId, targetUserId],
   );
 
   if (!friendshipRows.rows.length) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Friend request not found');
+    const targetEmailRes = await pool.query(`SELECT email FROM users WHERE id = $1`, [targetUserId]);
+    const targetEmail = targetEmailRes.rows[0]?.email || '';
+    const insertRes = await pool.query(
+      `INSERT INTO friendships (sender_id, receiver_id, receiver_email, is_blocked, blocked_by, invite_status)
+       VALUES ($1, $2, $3, true, $1, 'REJECTED')
+       RETURNING *`,
+      [currentUserId, targetUserId, targetEmail],
+    );
+    return insertRes.rows[0] || { is_blocked: true, friendId: targetUserId };
   }
 
   const { rows } = await pool.query(
@@ -1037,10 +1054,9 @@ const blockUser = async (
           )
         )
       )
-      AND invite_status = $3
       RETURNING *
     `,
-    [currentUserId, targetUserId, FriendshipStatus.ACCEPTED],
+    [currentUserId, targetUserId],
   );
 
   return rows[0] || { is_blocked: true, friendId: targetUserId };
@@ -1054,7 +1070,7 @@ const unblockUser = async (
   const targetUserId = Number(payload.friendId ?? payload.userId ?? payload.targetUserId);
 
   if (!currentUserId || !targetUserId) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'A valid friend is required');
+    throw new AppError(httpStatus.BAD_REQUEST, 'A valid user is required');
   }
 
   const { rows } = await pool.query(
@@ -1075,10 +1091,9 @@ const unblockUser = async (
           )
         )
       )
-      AND invite_status = $3
       RETURNING *
     `,
-    [currentUserId, targetUserId, FriendshipStatus.ACCEPTED],
+    [currentUserId, targetUserId],
   );
 
   return rows[0] || { is_blocked: false, friendId: targetUserId };

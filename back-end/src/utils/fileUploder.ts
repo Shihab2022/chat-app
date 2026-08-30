@@ -1,43 +1,56 @@
-// import multer from 'multer';
-// import path from 'path';
-// import fs from 'fs';
-// import { v2 as cloudinary } from 'cloudinary';
-// import config from '../app/config';
-// import { ICloudinaryResponse, IFile } from '../app/interface/file';
-// cloudinary.config({
-//   cloud_name: 'dwqdndar8',
-//   api_key: config.cloudinary.api_key,
-//   api_secret: config.cloudinary.api_secret,
-// });
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, path.join(process.cwd(), 'uploads'));
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, file.originalname);
-//   },
-// });
+import multer from 'multer';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import config from '../app/config';
 
-// const uploadToCloudinary = async (
-//   file: IFile,
-// ): Promise<ICloudinaryResponse | undefined> => {
-//   return new Promise((resolve, reject) => {
-//     cloudinary.uploader.upload(
-//       file.path,
-//       (error: Error, result: ICloudinaryResponse) => {
-//         fs.unlinkSync(file.path);
-//         if (error) {
-//           reject(error);
-//         } else {
-//           resolve(result);
-//         }
-//       },
-//     );
-//   });
-// };
-// const upload = multer({ storage: storage });
+cloudinary.config({
+  cloud_name: config.cloudinary.cloud_name || process.env.CLOUDINARY_CLOUD_NAME || 'dwqdndar8',
+  api_key: config.cloudinary.api_key,
+  api_secret: config.cloudinary.api_secret,
+});
 
-// export const fileUploader = {
-//   upload,
-//   uploadToCloudinary,
-// };
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'application/pdf',
+];
+
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+      cb(null, true);
+      return;
+    }
+    cb(new Error('Only images and PDF files are allowed'));
+  },
+});
+
+export const uploadBufferToCloudinary = (
+  buffer: Buffer,
+  mimetype: string,
+  folder = 'chat-app/messages',
+): Promise<UploadApiResponse> => {
+  return new Promise((resolve, reject) => {
+    const resourceType = mimetype === 'application/pdf' ? 'raw' : 'auto';
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: resourceType },
+      (error, result) => {
+        if (error || !result) {
+          reject(error || new Error('Cloudinary upload failed'));
+          return;
+        }
+        resolve(result);
+      },
+    );
+    uploadStream.end(buffer);
+  });
+};
+
+export const fileUploader = {
+  upload,
+};

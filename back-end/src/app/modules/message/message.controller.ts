@@ -67,7 +67,7 @@ const addEmoji = async (
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.addEmoji(req.body);
+    const result = await MessageServices.addEmoji(req.body, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -86,7 +86,7 @@ const removeEmoji = async (
   next: NextFunction,
 ) => {
   try {
-    const result = await MessageServices.removeEmoji(req.body);
+    const result = await MessageServices.removeEmoji(req.body, req.user);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -364,6 +364,24 @@ const getGroupMessages = async (
   }
 };
 
+const uploadAttachment = async (
+  req: Request & { user?: any; file?: Express.Multer.File },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.uploadAttachment(req.file as Express.Multer.File);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'File uploaded successfully',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const MessageController = {
   sendMessage,
   getMessage,
@@ -390,4 +408,5 @@ export const MessageController = {
   deleteGroup,
   sendGroupMessage,
   getGroupMessages,
+  uploadAttachment,
 };
