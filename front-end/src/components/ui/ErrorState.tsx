@@ -42,7 +42,7 @@ const ErrorState = ({
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: alpha(theme.palette.error.main, 0.12),
-          color: theme.palette.error.light,
+          color: theme.palette.error.main,
           border: `1px solid ${alpha(theme.palette.error.main, 0.22)}`,
         }}
       >

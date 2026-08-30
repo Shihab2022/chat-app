@@ -140,7 +140,7 @@ export default function UpdatePassword() {
             to="/login"
             variant="body2"
             sx={{
-              color: "primary.light",
+              color: "primary.main",
               fontWeight: 600,
               textDecoration: "none",
               display: "inline-flex",

@@ -84,11 +84,11 @@ export const Navbar: React.FC = () => {
       position="fixed"
       elevation={0}
       sx={{
-        backgroundColor: "transparent",
+        backgroundColor: scrolled ? "rgba(255, 255, 255, 0.85)" : "transparent",
         backdropFilter: scrolled ? "blur(16px)" : "none",
         WebkitBackdropFilter: scrolled ? "blur(16px)" : "none",
         borderBottom: scrolled
-          ? "1px solid rgba(255, 255, 255, 0.08)"
+          ? "1px solid #E4E6EB"
           : "1px solid transparent",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         py: scrolled ? 0.5 : 1.5,
@@ -114,11 +114,11 @@ export const Navbar: React.FC = () => {
                 width: 40,
                 height: 40,
                 borderRadius: "12px",
-                background: "linear-gradient(135deg, #7C4DFF 0%, #00E5FF 100%)",
+                background: "linear-gradient(135deg, #0066CC 0%, #00A884 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 4px 20px rgba(124, 77, 255, 0.4)",
+                boxShadow: "0 4px 14px rgba(0, 102, 204, 0.25)",
               }}
             >
               <ForumIcon sx={{ color: "#FFFFFF", fontSize: 24 }} />
@@ -129,9 +129,7 @@ export const Navbar: React.FC = () => {
                 fontWeight: 800,
                 fontSize: "1.4rem",
                 letterSpacing: "-0.5px",
-                background: "linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                color: "#111B21",
               }}
             >
               Chatty
@@ -147,13 +145,13 @@ export const Navbar: React.FC = () => {
                   component="a"
                   href={item.href}
                   sx={{
-                    color: COLORS.textSecondary || "rgba(255,255,255,0.7)",
+                    color: COLORS.textSecondary || "#667781",
                     textDecoration: "none",
                     fontSize: "0.95rem",
                     fontWeight: 500,
                     transition: "color 0.2s ease",
                     "&:hover": {
-                      color: "#00E5FF",
+                      color: "#0066CC",
                     },
                   }}
                 >
@@ -165,13 +163,13 @@ export const Navbar: React.FC = () => {
                   component="a"
                   onClick={() => navigate("/chat")}
                   sx={{
-                    color: COLORS.textSecondary || "rgba(255,255,255,0.7)",
+                    color: COLORS.textSecondary || "#667781",
                     textDecoration: "none",
                     fontSize: "0.95rem",
                     fontWeight: 500,
                     transition: "color 0.2s ease",
                     "&:hover": {
-                      color: "#00E5FF",
+                      color: "#0066CC",
                     },
                   }}
                 >
@@ -190,10 +188,10 @@ export const Navbar: React.FC = () => {
                     onClick={handleMenuOpen}
                     sx={{
                       p: 0.5,
-                      border: "2px solid rgba(124, 77, 255, 0.5)",
+                      border: "2px solid #E4E6EB",
                       transition: "all 0.2s ease",
                       "&:hover": {
-                        borderColor: "#00E5FF",
+                        borderColor: "#0066CC",
                         transform: "scale(1.05)",
                       },
                     }}
@@ -203,8 +201,8 @@ export const Navbar: React.FC = () => {
                         width: 36,
                         height: 36,
                         background:
-                          "linear-gradient(135deg, #7C4DFF 0%, #00E5FF 100%)",
-                        color: "#FFF",
+                        "linear-gradient(135deg, #0066CC 0%, #00A884 100%)",
+                        color: "#111B21",
                         fontWeight: 700,
                         fontSize: "0.95rem",
                       }}
@@ -224,12 +222,12 @@ export const Navbar: React.FC = () => {
                         sx: {
                           mt: 1.5,
                           width: 200,
-                          backgroundColor: "rgba(15, 23, 42, 0.95)",
+                          backgroundColor: "#FFFFFF",
                           backdropFilter: "blur(20px)",
-                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          border: "1px solid #E4E6EB",
                           borderRadius: "16px",
-                          boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-                          color: "#FFF",
+                          boxShadow: "0 10px 30px rgba(15, 23, 42, 0.12)",
+                          color: "#111B21",
                           overflow: "visible",
                           "&:before": {
                             content: '""',
@@ -239,11 +237,11 @@ export const Navbar: React.FC = () => {
                             right: 18,
                             width: 10,
                             height: 10,
-                            bgcolor: "rgba(15, 23, 42, 0.95)",
+                            bgcolor: "#FFFFFF",
                             transform: "translateY(-50%) rotate(45deg)",
                             zIndex: 0,
-                            borderTop: "1px solid rgba(255, 255, 255, 0.12)",
-                            borderLeft: "1px solid rgba(255, 255, 255, 0.12)",
+                            borderTop: "1px solid #E4E6EB",
+                            borderLeft: "1px solid #E4E6EB",
                           },
                         },
                       },
@@ -254,19 +252,19 @@ export const Navbar: React.FC = () => {
                     <Box sx={{ px: 2, py: 1.5 }}>
                       <Typography
                         variant="subtitle2"
-                        sx={{ fontWeight: 700, color: "#FFF" }}
+                        sx={{ fontWeight: 700, color: "#111B21" }}
                       >
                         Logged In
                       </Typography>
                       <Typography
                         variant="caption"
-                        sx={{ color: "rgba(255, 255, 255, 0.5)" }}
+                        sx={{ color: "#667781" }}
                       >
                         User Account
                       </Typography>
                     </Box>
                     <Divider
-                      sx={{ borderColor: "rgba(255, 255, 255, 0.08)", my: 0.5 }}
+                      sx={{ borderColor: "#E4E6EB", my: 0.5 }}
                     />
                     <MenuItem
                       onClick={() => navigate(`/profile/id=${myId}`)}
@@ -275,12 +273,12 @@ export const Navbar: React.FC = () => {
                         px: 2,
                         borderRadius: "8px",
                         "&:hover": {
-                          backgroundColor: "rgba(255, 255, 255, 0.05)",
+                          backgroundColor: "rgba(0, 102, 204, 0.06)",
                         },
                       }}
                     >
                       <ListItemIcon
-                        sx={{ color: "rgba(255, 255, 255, 0.7)", minWidth: 32 }}
+                        sx={{ color: "#667781", minWidth: 32 }}
                       >
                         <PersonIcon fontSize="small" />
                       </ListItemIcon>
@@ -293,19 +291,19 @@ export const Navbar: React.FC = () => {
                         px: 2,
                         borderRadius: "8px",
                         "&:hover": {
-                          backgroundColor: "rgba(255, 255, 255, 0.05)",
+                          backgroundColor: "rgba(0, 102, 204, 0.06)",
                         },
                       }}
                     >
                       <ListItemIcon
-                        sx={{ color: "rgba(255, 255, 255, 0.7)", minWidth: 32 }}
+                        sx={{ color: "#667781", minWidth: 32 }}
                       >
                         <ChatBubbleIcon fontSize="small" />
                       </ListItemIcon>
                       Dashboard
                     </MenuItem>
                     <Divider
-                      sx={{ borderColor: "rgba(255, 255, 255, 0.08)", my: 0.5 }}
+                      sx={{ borderColor: "#E4E6EB", my: 0.5 }}
                     />
                     <MenuItem
                       onClick={handleLogout}
@@ -333,13 +331,13 @@ export const Navbar: React.FC = () => {
                     variant="outlined"
                     sx={{
                       borderRadius: "12px",
-                      borderColor: "rgba(255, 255, 255, 0.2)",
-                      color: "#FFFFFF",
+                      borderColor: "#D6DBE1",
+                      color: "#111B21",
                       textTransform: "none",
                       fontWeight: 600,
                       "&:hover": {
-                        borderColor: COLORS.primary || "#7C4DFF",
-                        backgroundColor: "rgba(124, 77, 255, 0.08)",
+                        borderColor: COLORS.primary || "#0066CC",
+                        backgroundColor: "rgba(0, 102, 204, 0.06)",
                       },
                     }}
                   >
@@ -351,14 +349,14 @@ export const Navbar: React.FC = () => {
                     sx={{
                       borderRadius: "12px",
                       background:
-                        "linear-gradient(135deg, #7C4DFF 0%, #00E5FF 100%)",
-                      color: "#FFFFFF",
+                        "linear-gradient(135deg, #0066CC 0%, #00A884 100%)",
+                      color: "#111B21",
                       fontWeight: 700,
                       textTransform: "none",
-                      boxShadow: "0 4px 15px rgba(124, 77, 255, 0.35)",
+                      boxShadow: "0 4px 14px rgba(0, 102, 204, 0.3)",
                       "&:hover": {
                         transform: "translateY(-2px)",
-                        boxShadow: "0 6px 20px rgba(0, 229, 255, 0.45)",
+                        boxShadow: "0 6px 18px rgba(0, 102, 204, 0.35)",
                       },
                     }}
                   >
@@ -375,7 +373,7 @@ export const Navbar: React.FC = () => {
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ color: "#FFFFFF" }}
+              sx={{ color: "#111B21" }}
             >
               {mobileOpen ? <CloseIcon /> : <MenuIcon />}
             </IconButton>
@@ -392,9 +390,9 @@ export const Navbar: React.FC = () => {
           paper: {
             sx: {
               width: "280px",
-              backgroundColor: "rgba(15, 23, 42, 0.95)",
+              backgroundColor: "#FFFFFF",
               backdropFilter: "blur(20px)",
-              borderLeft: "1px solid rgba(255, 255, 255, 0.08)",
+              borderLeft: "1px solid #E4E6EB",
               pt: 8,
               px: 3,
             },
@@ -408,7 +406,7 @@ export const Navbar: React.FC = () => {
               component="a"
               href={item.href}
               onClick={handleDrawerToggle}
-              sx={{ py: 1.5, px: 0, color: "#FFF" }}
+              sx={{ py: 1.5, px: 0, color: "#111B21" }}
             >
               <ListItemText
                 primary={item.label}
@@ -422,7 +420,7 @@ export const Navbar: React.FC = () => {
             <ListItem
               component="a"
               onClick={() => navigate("/chat")}
-              sx={{ py: 1.5, px: 0, color: "#FFF" }}
+              sx={{ py: 1.5, px: 0, color: "#111B21" }}
             >
               <ListItemText
                 primary={"Dashboard"}
@@ -464,8 +462,8 @@ export const Navbar: React.FC = () => {
                 sx={{
                   py: 1.2,
                   borderRadius: "12px",
-                  color: "#FFF",
-                  borderColor: "rgba(255,255,255,0.2)",
+                  color: "#111B21",
+                  borderColor: "#D6DBE1",
                 }}
               >
                 Login
@@ -481,7 +479,7 @@ export const Navbar: React.FC = () => {
                   py: 1.2,
                   borderRadius: "12px",
                   background:
-                    "linear-gradient(135deg, #7C4DFF 0%, #00E5FF 100%)",
+                    "linear-gradient(135deg, #0066CC 0%, #00A884 100%)",
                   fontWeight: 700,
                 }}
               >

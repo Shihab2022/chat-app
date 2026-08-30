@@ -137,7 +137,7 @@ export default function SignIn() {
             to="/forgetPassword"
             variant="body2"
             sx={{
-              color: "primary.light",
+              color: "primary.main",
               textDecoration: "none",
               fontWeight: 600,
               "&:hover": { textDecoration: "underline" },
@@ -180,7 +180,7 @@ export default function SignIn() {
             to="/signUp"
             variant="body2"
             sx={{
-              color: "primary.light",
+              color: "primary.main",
               fontWeight: 700,
               textDecoration: "none",
               "&:hover": { textDecoration: "underline" },

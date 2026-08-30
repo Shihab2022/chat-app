@@ -3,7 +3,7 @@ import { alpha, useTheme } from "@mui/material/styles";
 
 const shimmer = {
   borderRadius: 2,
-  backgroundColor: "rgba(255,255,255,0.07)",
+  backgroundColor: "rgba(15,23,42,0.06)",
 };
 
 /**
@@ -51,8 +51,8 @@ export const MessageSkeleton = () => {
               sx={{
                 borderRadius: 4,
                 backgroundColor: isOwn
-                  ? alpha(theme.palette.primary.main, 0.22)
-                  : "rgba(255,255,255,0.07)",
+                  ? alpha(theme.palette.primary.main, 0.16)
+                  : "rgba(15,23,42,0.06)",
               }}
             />
           </Stack>

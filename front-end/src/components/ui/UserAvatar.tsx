@@ -51,10 +51,10 @@ const UserAvatar = ({
         fontSize: Math.max(12, Math.round(size * 0.34)),
         fontWeight: 600,
         backgroundColor: isGroup
-          ? alpha(theme.palette.secondary.main, 0.18)
-          : alpha(theme.palette.primary.main, 0.24),
-        color: isGroup ? theme.palette.secondary.light : theme.palette.text.primary,
-        border: `1px solid ${alpha(theme.palette.common.white, 0.06)}`,
+          ? alpha(theme.palette.secondary.main, 0.16)
+          : alpha(theme.palette.primary.main, 0.14),
+        color: isGroup ? theme.palette.secondary.dark : theme.palette.primary.dark,
+        border: `1px solid ${alpha(theme.palette.common.black, 0.04)}`,
       }}
     >
       {img ? undefined : isGroup ? (
@@ -76,7 +76,7 @@ const UserAvatar = ({
         "& .MuiBadge-badge": {
           backgroundColor: onlineColor,
           color: onlineColor,
-          boxShadow: `0 0 0 2px ${theme.palette.background.default}`,
+          boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
           width: Math.max(10, Math.round(size * 0.25)),
           height: Math.max(10, Math.round(size * 0.25)),
           borderRadius: "50%",

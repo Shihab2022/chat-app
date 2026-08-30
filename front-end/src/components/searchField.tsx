@@ -163,12 +163,16 @@ export default function SearchField({ myId }: SearchFieldProps) {
         component="form"
         onSubmit={(e) => e.preventDefault()}
         sx={{
-          p: "4px 8px",
-          borderRadius: 3,
+          p: "6px 6px",
+          borderRadius: "24px",
           border: `1px solid ${theme.palette.divider}`,
-          backgroundColor: alpha(theme.palette.background.paper, 0.9),
-          backdropFilter: "blur(12px)",
-          boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.05)}`,
+          backgroundColor: theme.palette.grey[100],
+          boxShadow: `0 1px 3px ${alpha(theme.palette.common.black, 0.05)}`,
+          transition: "border-color 160ms ease, box-shadow 160ms ease",
+          "&:focus-within": {
+            borderColor: theme.palette.primary.main,
+            boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.16)}`,
+          },
         }}
       >
         {/* Reply Indicator Bar */}
@@ -220,7 +224,7 @@ export default function SearchField({ myId }: SearchFieldProps) {
               dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
               dispatch(SET_ONE_ICON(false));
             }}
-            sx={{ p: "10px", color: theme.palette.text.secondary }}
+            sx={{ width: 44, height: 44, color: theme.palette.text.secondary, "&:hover": { backgroundColor: alpha(theme.palette.primary.main, 0.08) } }}
             aria-label="add attachment or emoji"
           >
             <AddIcon />
@@ -249,12 +253,29 @@ export default function SearchField({ myId }: SearchFieldProps) {
 
           <IconButton
             onClick={handleSubmit}
-            color="primary"
-            sx={{ p: "10px" }}
             aria-label="send message"
             disabled={!message}
+            sx={{
+              width: 44,
+              height: 44,
+              ml: 0.5,
+              flexShrink: 0,
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+              transition: "background-color 160ms ease, transform 120ms ease, box-shadow 160ms ease",
+              boxShadow: `0 2px 8px ${alpha(theme.palette.primary.main, 0.3)}`,
+              "&:hover": {
+                backgroundColor: theme.palette.primary.dark,
+                boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.4)}`,
+              },
+              "&.Mui-disabled": {
+                backgroundColor: theme.palette.action.disabledBackground,
+                color: theme.palette.text.disabled,
+                boxShadow: "none",
+              },
+            }}
           >
-            <SendIcon />
+            <SendIcon sx={{ fontSize: 20 }} />
           </IconButton>
         </Box>
       </Paper>

@@ -46,7 +46,7 @@ const EmptyState = ({
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: alpha(theme.palette.primary.main, 0.1),
-            color: theme.palette.primary.light,
+            color: theme.palette.primary.main,
             border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
           }}
         >

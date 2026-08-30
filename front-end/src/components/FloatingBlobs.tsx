@@ -38,7 +38,7 @@ export const FloatingBlobs: React.FC = () => {
           height: { xs: "250px", md: "450px" },
           borderRadius: "50%",
           background:
-            "radial-gradient(circle, rgba(124, 77, 255, 0.25) 0%, rgba(0,0,0,0) 70%)",
+            "radial-gradient(circle, rgba(0, 102, 204, 0.10) 0%, rgba(0,0,0,0) 70%)",
           filter: "blur(80px)",
           animation: `${float1} 18s infinite ease-in-out`,
         }}
@@ -52,7 +52,7 @@ export const FloatingBlobs: React.FC = () => {
           height: { xs: "300px", md: "500px" },
           borderRadius: "50%",
           background:
-            "radial-gradient(circle, rgba(0, 229, 255, 0.2) 0%, rgba(0,0,0,0) 70%)",
+            "radial-gradient(circle, rgba(0, 168, 132, 0.08) 0%, rgba(0,0,0,0) 70%)",
           filter: "blur(90px)",
           animation: `${float2} 22s infinite ease-in-out`,
         }}
@@ -66,7 +66,7 @@ export const FloatingBlobs: React.FC = () => {
           height: { xs: "200px", md: "400px" },
           borderRadius: "50%",
           background:
-            "radial-gradient(circle, rgba(124, 77, 255, 0.15) 0%, rgba(0,0,0,0) 70%)",
+            "radial-gradient(circle, rgba(0, 102, 204, 0.08) 0%, rgba(0,0,0,0) 70%)",
           filter: "blur(100px)",
           animation: `${float1} 25s infinite ease-in-out reverse`,
         }}

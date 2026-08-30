@@ -34,9 +34,9 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
             py: 0.5,
             fontWeight: 600,
             fontSize: "0.8rem",
-            color: COLORS.secondary,
-            backgroundColor: "rgba(0, 229, 255, 0.1)",
-            border: "1px solid rgba(0, 229, 255, 0.3)",
+            color: "#0066CC",
+            backgroundColor: "rgba(0, 102, 204, 0.08)",
+            border: "1px solid rgba(0, 102, 204, 0.25)",
             borderRadius: "20px",
           }}
         />
@@ -47,9 +47,7 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
         sx={{
           fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
           fontWeight: 800,
-          background: "linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
+          color: "#111B21",
           mb: 2,
         }}
       >

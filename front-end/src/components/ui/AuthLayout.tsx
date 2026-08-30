@@ -42,7 +42,7 @@ const AuthLayout = ({ children, title, subtitle, maxWidth = "sm" }: AuthLayoutPr
           px: { xl: 10, lg: 6 },
           py: 6,
           borderRight: `1px solid ${theme.palette.divider}`,
-          backgroundColor: "#0A0C11",
+          backgroundColor: "#EAF2FB",
         }}
       >
         <Box
@@ -52,7 +52,7 @@ const AuthLayout = ({ children, title, subtitle, maxWidth = "sm" }: AuthLayoutPr
             width: 520,
             height: 520,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${alpha(theme.palette.primary.main, 0.22)} 0%, transparent 65%)`,
+            background: `radial-gradient(circle, ${alpha(theme.palette.primary.main, 0.14)} 0%, transparent 65%)`,
             filter: "blur(60px)",
             top: "-10%",
             left: "-8%",
@@ -65,7 +65,7 @@ const AuthLayout = ({ children, title, subtitle, maxWidth = "sm" }: AuthLayoutPr
             width: 460,
             height: 460,
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${alpha(theme.palette.secondary.main, 0.14)} 0%, transparent 65%)`,
+            background: `radial-gradient(circle, ${alpha(theme.palette.secondary.main, 0.12)} 0%, transparent 65%)`,
             filter: "blur(70px)",
             bottom: "-5%",
             right: "-6%",
@@ -85,14 +85,15 @@ const AuthLayout = ({ children, title, subtitle, maxWidth = "sm" }: AuthLayoutPr
               lineHeight: 1.15,
               letterSpacing: "-0.03em",
               mb: 2,
+              color: theme.palette.text.primary,
             }}
           >
             Conversations that{" "}
-            <Box component="span" sx={{ color: theme.palette.primary.light }}>
+            <Box component="span" sx={{ color: theme.palette.primary.main }}>
               move at the speed of you.
             </Box>
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 4, fontSize: "1.05rem", lineHeight: 1.7, maxWidth: 400 }}>
+          <Typography variant="body1" sx={{ color: theme.palette.text.secondary, mb: 4, fontSize: "1.05rem", lineHeight: 1.7, maxWidth: 400 }}>
             Chatty brings your friends and teams together with effortless real-time messaging — wherever you are.
           </Typography>
 
@@ -107,14 +108,14 @@ const AuthLayout = ({ children, title, subtitle, maxWidth = "sm" }: AuthLayoutPr
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: alpha(theme.palette.primary.main, 0.14),
-                    color: theme.palette.primary.light,
-                    border: `1px solid ${alpha(theme.palette.primary.main, 0.25)}`,
+                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                    color: theme.palette.primary.main,
+                    border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
                   }}
                 >
                   {point.icon}
                 </Box>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: theme.palette.text.primary }}>
                   {point.text}
                 </Typography>
               </Stack>
@@ -122,7 +123,7 @@ const AuthLayout = ({ children, title, subtitle, maxWidth = "sm" }: AuthLayoutPr
           </Stack>
         </Box>
 
-        <Typography variant="caption" color="text.disabled" sx={{ position: "relative", zIndex: 1 }}>
+        <Typography variant="caption" sx={{ color: theme.palette.text.disabled, position: "relative", zIndex: 1 }}>
           © {new Date().getFullYear()} Chatty. Built for connection.
         </Typography>
       </Box>

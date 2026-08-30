@@ -4,7 +4,6 @@ import { Box, Paper, Stack, Typography } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 
 import { RootState } from "../../redux/store";
-import { NAV_BAR_HEIGHT } from "../../constants/common";
 import { TUser } from "../../types";
 import ShowingMessage from "./showingMessage";
 import TypingIndicator from "./TypingIndicator";
@@ -31,7 +30,7 @@ const Message = () => {
   return (
     <Box
       sx={{
-        pt: `${NAV_BAR_HEIGHT + 16}px`,
+        pt: { xs: 2, sm: 3 },
         pb: 3,
         px: { xs: 1.5, sm: 3 },
         maxWidth: 1000,

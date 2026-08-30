@@ -171,6 +171,7 @@ function ChatContainer() {
 
           <Box
             component="main"
+            className="chatty-chat-wallpaper light-scrollbar"
             sx={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}
           >
             {!receiverId ? (
@@ -242,7 +243,7 @@ function ChatContainer() {
                 zIndex: theme.zIndex.modal + 1,
                 backgroundColor: theme.palette.background.paper,
                 borderLeft: `1px solid ${theme.palette.divider}`,
-                boxShadow: "-16px 0 40px rgba(0,0,0,0.45)",
+                boxShadow: "-12px 0 32px rgba(15,23,42,0.14)",
                 transform: isRightSidebarOpen ? "translateX(0)" : "translateX(100%)",
                 transition: "transform 240ms ease",
                 overflowY: "auto",

@@ -3,7 +3,7 @@ import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { Menu } from "@mui/material";
+import { Box, Menu } from "@mui/material";
 import {
   SET_EMOJI_ANCHOR_EL,
   SET_EMOJI_STATUS,
@@ -52,7 +52,7 @@ const EmojiPicker = ({
         }}
       >
         {isEmojiOpen && (
-          <div className="absolute bottom-12 left-100 z-10">
+          <Box sx={{ p: 0.5, minWidth: 352, maxWidth: "calc(100vw - 24px)" }}>
             <Picker
               data={data}
               onEmojiSelect={(emoji: { native: string }) => {
@@ -67,7 +67,7 @@ const EmojiPicker = ({
               }}
               previewPosition="none"
             />
-          </div>
+          </Box>
         )}
       </Menu>
     </>

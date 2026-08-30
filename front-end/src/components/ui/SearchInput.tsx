@@ -33,14 +33,14 @@ const SearchInput = ({
         gap: 0.5,
         px: 1.25,
         height: 42,
-        borderRadius: "12px",
-        backgroundColor: "rgba(255,255,255,0.045)",
+        borderRadius: "10px",
+        backgroundColor: theme.palette.grey[50],
         border: `1px solid ${theme.palette.divider}`,
         transition: "border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease",
         "&:focus-within": {
           borderColor: theme.palette.primary.main,
-          backgroundColor: "rgba(255,255,255,0.06)",
-          boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.22)}`,
+          backgroundColor: "#FFFFFF",
+          boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.16)}`,
         },
       }}
     >

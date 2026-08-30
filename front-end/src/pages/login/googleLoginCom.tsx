@@ -3,7 +3,7 @@ import axios from "axios";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FAILED } from "../../constants/common";
 import googleImage from "../../assets/google.png";
-import { alpha, useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -47,12 +47,12 @@ const GoogleLoginCom = ({ handleClick }: any) => {
         sx={{
           py: 1.3,
           borderRadius: 10,
-          borderColor: "rgba(255,255,255,0.16)",
+          borderColor: "#D0D5DD",
           color: theme.palette.text.primary,
-          backgroundColor: alpha(theme.palette.common.white, 0.035),
+          backgroundColor: "#FFFFFF",
           "&:hover": {
-            backgroundColor: alpha(theme.palette.common.white, 0.08),
-            borderColor: "rgba(255,255,255,0.28)",
+            backgroundColor: theme.palette.grey[50],
+            borderColor: "#B4BCC3",
           },
         }}
       >

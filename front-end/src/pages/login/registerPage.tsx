@@ -176,7 +176,7 @@ export default function SignUp() {
             to="/login"
             variant="body2"
             sx={{
-              color: "primary.light",
+              color: "primary.main",
               fontWeight: 700,
               textDecoration: "none",
               "&:hover": { textDecoration: "underline" },

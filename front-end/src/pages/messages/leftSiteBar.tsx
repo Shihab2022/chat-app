@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   Avatar,
-  Badge,
   Box,
   Button,
   Dialog,
@@ -14,17 +13,13 @@ import {
   DialogTitle,
   IconButton,
   List,
-  ListItemAvatar,
-  ListItemButton,
   ListItemIcon,
-  ListItemSecondaryAction,
-  ListItemText,
   Menu,
   MenuItem,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { alpha, useTheme } from "@mui/material/styles";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import GroupAddRoundedIcon from "@mui/icons-material/GroupAddRounded";
@@ -42,6 +37,7 @@ import ProfileMenu from "../../components/ProfileMenu/ProfileMenu";
 import SearchInput from "../../components/ui/SearchInput";
 import UserAvatar from "../../components/ui/UserAvatar";
 import ChatSkeleton from "../../components/ui/ChatSkeleton";
+import { CHATTY_ACTIVE_CONVERSATION } from "../../theme";
 import type { Conversation } from "../../components/ui/ChatSkeleton";
 
 interface Props {
@@ -287,7 +283,7 @@ function LeftSiteBar({ onSelectChat, activeConversation }: Props) {
                 minWidth: 210,
                 borderRadius: 3,
                 border: `1px solid ${theme.palette.divider}`,
-                boxShadow: "0 16px 40px rgba(0,0,0,0.35)",
+                boxShadow: "0 12px 28px rgba(15,23,42,0.12)",
               },
             },
           }}
@@ -302,15 +298,12 @@ function LeftSiteBar({ onSelectChat, activeConversation }: Props) {
             <ListItemIcon>
               <MarkEmailUnreadRoundedIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText
-              primary="Group invitations"
-              slotProps={{
-                primary: {
-                  variant: "body2",
-                  ...(pendingGroupInvites.length ? { color: "primary" } : {}),
-                },
-              }}
-            />
+            <Typography
+              variant="body2"
+              sx={{ flex: 1, ...(pendingGroupInvites.length ? { color: "primary.main", fontWeight: 700 } : {}) }}
+            >
+              Group invitations
+            </Typography>
             {pendingGroupInvites.length > 0 && (
               <Typography variant="caption" color="primary" sx={{ fontWeight: 700 }}>
                 {pendingGroupInvites.length}
@@ -417,97 +410,123 @@ function LeftSiteBar({ onSelectChat, activeConversation }: Props) {
 
 function ConversationItem({ conv, theme, onClick }: any) {
   const displayName = conv.name;
-  const unreadColor = theme.palette.primary.main;
-  const hasUnread = conv.unread > 0;
+  const hasUnread = (conv.unread || 0) > 0;
 
   return (
-    <ListItemButton
+    <Box
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e: React.KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       sx={{
-        alignItems: "flex-start",
-        px: 2,
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        px: 1.5,
         py: 1.25,
-        backgroundColor: conv.isActive ? "action.hover" : "inherit",
-        borderLeft: conv.isActive ? `3px solid ${theme.palette.primary.main}` : "3px solid transparent",
-        "&:hover": { backgroundColor: "action.hover" },
-        transition: "background-color 150ms ease, border-color 150ms ease",
+        cursor: "pointer",
+        backgroundColor: conv.isActive ? CHATTY_ACTIVE_CONVERSATION : "transparent",
+        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.6)}`,
+        transition: "background-color 150ms ease",
+        "&:hover": {
+          backgroundColor: conv.isActive ? CHATTY_ACTIVE_CONVERSATION : alpha(theme.palette.action.hover, 0.7),
+        },
+        "&:focus-visible": {
+          outline: `2px solid ${theme.palette.primary.main}`,
+          outlineOffset: -2,
+        },
       }}
     >
-      <ListItemAvatar sx={{ minWidth: 48, mr: 1.5 }}>
-        <Badge
-          overlap="circular"
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          badgeContent={
-            conv.online ? (
-              <Box
-                sx={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: "50%",
-                  backgroundColor: theme.palette.success.main,
-                  border: `2px solid ${theme.palette.background.paper}`,
-                }}
-              />
-            ) : null
-          }
-        >
-          <UserAvatar img={conv.avatar} name={displayName} size={48} isGroup={conv.isGroup} />
-        </Badge>
-      </ListItemAvatar>
-
-      <ListItemText
-        primary={displayName}
-        slotProps={{
-          primary: {
-            sx: { fontWeight: hasUnread ? 600 : 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-          },
-        }}
-        secondary={
-          <Typography
-            component="span"
-            variant="body2"
-            noWrap
-            sx={{
-              color: theme.palette.text.secondary,
-              fontWeight: hasUnread ? 600 : 400,
-              display: "block",
-              maxWidth: "calc(100% - 70px)",
-            }}
-          >
-            {conv.lastMessage || "No messages yet"}
-          </Typography>
-        }
-        sx={{ my: 0, mr: 1 }}
-      />
-
-      <ListItemSecondaryAction
-        sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 60, pl: 1 }}
-      >
-        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
-          {conv.time || ""}
-        </Typography>
-        {hasUnread && (
+      <Box sx={{ position: "relative", flexShrink: 0 }}>
+        <UserAvatar img={conv.avatar} name={displayName} size={48} isGroup={conv.isGroup} />
+        {conv.online && (
           <Box
             sx={{
-              minWidth: 20,
-              height: 20,
-              px: 0.6,
-              mt: 0.5,
-              borderRadius: 10,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: unreadColor,
-              color: theme.palette.primary.contrastText,
-              fontSize: 11,
-              fontWeight: 700,
+              position: "absolute",
+              bottom: 2,
+              right: 2,
+              width: 11,
+              height: 11,
+              borderRadius: "50%",
+              backgroundColor: theme.palette.success.main,
+              border: `2px solid ${theme.palette.background.paper}`,
+            }}
+          />
+        )}
+      </Box>
+
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+          <Typography
+            noWrap
+            variant="subtitle2"
+            sx={{ fontWeight: hasUnread ? 700 : 600, fontSize: "0.925rem", color: theme.palette.text.primary }}
+          >
+            {displayName}
+          </Typography>
+          <Typography
+            noWrap
+            variant="caption"
+            sx={{
+              flexShrink: 0,
+              fontSize: "0.68rem",
+              fontWeight: hasUnread ? 700 : 500,
+              color: hasUnread ? theme.palette.primary.main : theme.palette.text.secondary,
             }}
           >
-            {conv.unread}
-          </Box>
-        )}
-      </ListItemSecondaryAction>
-    </ListItemButton>
+            {conv.time || ""}
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mt: 0.25 }}>
+          <Typography
+            noWrap
+            variant="body2"
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              fontSize: "0.8125rem",
+              fontStyle: conv.lastMessage ? "normal" : "italic",
+              fontWeight: hasUnread ? 600 : 400,
+              color: conv.raw?.isTyping
+                ? theme.palette.primary.main
+                : conv.lastMessage
+                ? theme.palette.text.secondary
+                : theme.palette.text.disabled,
+            }}
+          >
+            {conv.raw?.isTyping ? "typing…" : conv.lastMessage || "No messages yet"}
+          </Typography>
+          {hasUnread && (
+            <Box
+              aria-label={`${conv.unread} unread messages`}
+              sx={{
+                minWidth: 20,
+                height: 20,
+                px: 0.7,
+                borderRadius: 10,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+                fontSize: 11,
+                fontWeight: 700,
+                lineHeight: 1,
+                flexShrink: 0,
+              }}
+            >
+              {conv.unread}
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

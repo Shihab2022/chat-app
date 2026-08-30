@@ -115,7 +115,7 @@ export default function ConfirmAccount() {
             <Box
               component="span"
               onClick={() => navigate("/login")}
-              sx={{ color: "primary.light", fontWeight: 600, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+              sx={{ color: "primary.main", fontWeight: 600, cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
             >
               Sign in now
             </Box>

@@ -2,76 +2,84 @@
 import { createTheme, alpha } from "@mui/material/styles";
 
 /**
- * Chatty — Modern Design System
- * Dark, premium, Linear/Slack-inspired. Primary = Chatty indigo.
+ * Chatty — Modern Light Design System
+ * Crisp, airy, WhatsApp Web + macOS Messages inspired. Primary = Clean Chatty Blue.
  */
-export const CHATTY_PRIMARY = "#4F46E5";
-export const CHATTY_PRIMARY_LIGHT = "#818CF8";
-export const CHATTY_PRIMARY_DARK = "#4338CA";
-export const CHATTY_SUCCESS = "#2DD4A7";
-export const CHATTY_WARNING = "#F5A524";
-export const CHATTY_ERROR = "#F43F5E";
-export const CHATTY_ONLINE = "#2DD4A7";
+export const CHATTY_PRIMARY = "#0066CC";
+export const CHATTY_PRIMARY_LIGHT = "#4D94E0";
+export const CHATTY_PRIMARY_DARK = "#0050A3";
+export const CHATTY_SUCCESS = "#00A884";
+export const CHATTY_WARNING = "#B26A00";
+export const CHATTY_ERROR = "#D93025";
+export const CHATTY_ONLINE = "#00A884";
 
-export const SURFACE_0 = "#0C0E13";
-export const SURFACE_1 = "#12151B";
-export const SURFACE_2 = "#191D25";
-export const SURFACE_3 = "#222732";
+// Light surfaces
+export const SURFACE_0 = "#F0F2F5";
+export const SURFACE_1 = "#FFFFFF";
+export const SURFACE_2 = "#FAFBFC";
+export const SURFACE_3 = "#F4F6F8";
 
-export const BORDER_SUBTLE = "rgba(255, 255, 255, 0.06)";
-export const BORDER_DEFAULT = "rgba(255, 255, 255, 0.10)";
+export const BORDER_SUBTLE = "#E4E6EB";
+export const BORDER_DEFAULT = "#E9EDEF";
 
-export const TEXT_PRIMARY = "#EDEEF2";
-export const TEXT_SECONDARY = "#9AA2AF";
-export const TEXT_MUTED = "#5D646F";
+export const TEXT_PRIMARY = "#111B21";
+export const TEXT_SECONDARY = "#667781";
+export const TEXT_MUTED = "#8696A0";
+
+// Chat-specific tokens (light mode)
+export const CHATTY_CHAT_WALLPAPER = "#EFEAE2";
+export const CHATTY_OUTGOING_BUBBLE = "#D9ECFF"; // soft light blue
+export const CHATTY_INCOMING_BUBBLE = "#FFFFFF";
+export const CHATTY_ACTIVE_CONVERSATION = "#E7F0FD";
 
 export const FONT_FAMILY =
   "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 export const DIALOG_SHADOW =
-  "0 0 0 1px rgba(255,255,255,0.04), 0 8px 20px rgba(0,0,0,0.4), 0 24px 60px rgba(0,0,0,0.55)";
+  "0 4px 16px rgba(15,23,42,0.10), 0 24px 64px rgba(15,23,42,0.18)";
 export const POPOVER_SHADOW =
-  "0 0 0 1px rgba(255,255,255,0.05), 0 4px 12px rgba(0,0,0,0.35), 0 12px 32px rgba(0,0,0,0.5)";
+  "0 2px 8px rgba(15,23,42,0.06), 0 12px 28px rgba(15,23,42,0.12)";
 export const CARD_SHADOW =
-  "0 0 0 1px rgba(255,255,255,0.04), 0 1px 2px rgba(0,0,0,0.3), 0 6px 18px rgba(0,0,0,0.28)";
+  "0 1px 2px rgba(15,23,42,0.05), 0 4px 16px rgba(15,23,42,0.08)";
 
 export const chattyTheme = createTheme({
   palette: {
-    mode: "dark",
+    mode: "light",
     primary: {
       main: CHATTY_PRIMARY,
       light: CHATTY_PRIMARY_LIGHT,
       dark: CHATTY_PRIMARY_DARK,
       contrastText: "#FFFFFF",
     },
-    secondary: { main: "#38BDF8", light: "#7DD3FC", dark: "#0EA5E9", contrastText: "#08101A" },
-    success: { main: CHATTY_SUCCESS, contrastText: "#06130E" },
-    warning: { main: CHATTY_WARNING, contrastText: "#1A1204" },
-    error: { main: CHATTY_ERROR, light: "#FB7185", dark: "#E11D48", contrastText: "#FFFFFF" },
-    info: { main: "#38BDF8", contrastText: "#08101A" },
+    secondary: { main: "#0E8F6E", light: "#39B08E", dark: "#0B6E55", contrastText: "#FFFFFF" },
+    success: { main: CHATTY_SUCCESS, light: "#2DC995", dark: "#0E8A67", contrastText: "#FFFFFF" },
+    warning: { main: CHATTY_WARNING, light: "#D68A2D", dark: "#8A5200", contrastText: "#FFFFFF" },
+    error: { main: CHATTY_ERROR, light: "#EC5B5B", dark: "#A91C16", contrastText: "#FFFFFF" },
+    info: { main: "#0EA5E9", light: "#5BC0EE", dark: "#0276AA", contrastText: "#FFFFFF" },
     background: { default: SURFACE_0, paper: SURFACE_1 },
     text: { primary: TEXT_PRIMARY, secondary: TEXT_SECONDARY, disabled: TEXT_MUTED },
     divider: BORDER_DEFAULT,
     action: {
-      active: "#C3C8D2",
-      hover: "rgba(255,255,255,0.055)",
-      selected: "rgba(79,70,229,0.16)",
-      disabled: "rgba(255,255,255,0.2)",
-      disabledBackground: "rgba(255,255,255,0.06)",
-      focus: "rgba(79,70,229,0.28)",
+      active: "#54656F",
+      hover: "rgba(15,23,42,0.05)",
+      selected: "rgba(0,102,204,0.10)",
+      selectedOpacity: 0.1,
+      disabled: "rgba(15,23,42,0.3)",
+      disabledBackground: "rgba(15,23,42,0.05)",
+      focus: "rgba(0,102,204,0.18)",
     },
     common: { black: "#000000", white: "#FFFFFF" },
     grey: {
-      50: "#F6F7F9",
-      100: "#EEF0F3",
-      200: "#DDE0E6",
-      300: "#C3C8D2",
-      400: "#9AA2AF",
-      500: "#757D89",
-      600: "#5D646F",
-      700: "#3C424C",
-      800: "#222732",
-      900: "#191D25",
+      50: "#F8F9FA",
+      100: "#F0F2F5",
+      200: "#E4E6EB",
+      300: "#D0D5DD",
+      400: "#B4BCC3",
+      500: "#8A949E",
+      600: "#667781",
+      700: "#54656F",
+      800: "#3D4A53",
+      900: "#1F2A33",
     },
   },
   shape: { borderRadius: 12 },
@@ -101,12 +109,12 @@ export const chattyTheme = createTheme({
           MozOsxFontSmoothing: "grayscale",
           color: TEXT_PRIMARY,
         },
-        "*": { scrollbarWidth: "thin", scrollbarColor: `${SURFACE_3} transparent` },
+        "*": { scrollbarWidth: "thin", scrollbarColor: `#C9D2DA transparent` },
         "::-webkit-scrollbar": { width: 8, height: 8 },
         "::-webkit-scrollbar-track": { background: "transparent" },
-        "::-webkit-scrollbar-thumb": { backgroundColor: SURFACE_3, borderRadius: 8 },
-        "::-webkit-scrollbar-thumb:hover": { backgroundColor: "#2C3340" },
-        ":focus-visible": { outline: "2px solid rgba(129,140,248,0.7)", outlineOffset: "2px" },
+        "::-webkit-scrollbar-thumb": { backgroundColor: "#C9D2DA", borderRadius: 8 },
+        "::-webkit-scrollbar-thumb:hover": { backgroundColor: "#AEB8C1" },
+        ":focus-visible": { outline: "2px solid rgba(0,102,204,0.6)", outlineOffset: "2px" },
       },
     },
     MuiPaper: { styleOverrides: { root: { backgroundImage: "none" } } },
@@ -121,18 +129,18 @@ export const chattyTheme = createTheme({
             "background-color 160ms ease, box-shadow 160ms ease, transform 120ms ease, opacity 160ms ease",
           "&:active": { transform: "translateY(0.5px)" },
           "&.MuiButton-containedPrimary": {
-            boxShadow: `0 1px 2px rgba(0,0,0,0.25), 0 6px 16px ${alpha(CHATTY_PRIMARY, 0.28)}`,
-            "&:hover": { boxShadow: `0 1px 2px rgba(0,0,0,0.25), 0 8px 22px ${alpha(CHATTY_PRIMARY, 0.38)}` },
+            boxShadow: `0 1px 2px rgba(15,23,42,0.12), 0 4px 12px ${alpha(CHATTY_PRIMARY, 0.22)}`,
+            "&:hover": { boxShadow: `0 1px 2px rgba(15,23,42,0.12), 0 6px 18px ${alpha(CHATTY_PRIMARY, 0.32)}` },
           },
         },
         sizeSmall: { padding: "6px 12px", fontSize: "0.8125rem" },
         sizeMedium: { padding: "9px 18px", fontSize: "0.875rem" },
         sizeLarge: { padding: "12px 22px", fontSize: "0.9375rem", borderRadius: 12 },
         outlined: {
-          borderColor: BORDER_DEFAULT,
-          "&:hover": { borderColor: "rgba(255,255,255,0.18)", backgroundColor: "rgba(255,255,255,0.04)" },
+          borderColor: "#D0D5DD",
+          "&:hover": { borderColor: "#B4BCC3", backgroundColor: "rgba(15,23,42,0.03)" },
         },
-        text: { "&:hover": { backgroundColor: "rgba(255,255,255,0.05)" } },
+        text: { "&:hover": { backgroundColor: "rgba(15,23,42,0.05)" } },
       },
     },
     MuiIconButton: {
@@ -165,24 +173,24 @@ export const chattyTheme = createTheme({
       styleOverrides: {
         root: {
           "& fieldset": { borderColor: BORDER_DEFAULT },
-          "&:hover:not(.Mui-disabled) fieldset": { borderColor: "rgba(255,255,255,0.18)" },
+          "&:hover:not(.Mui-disabled) fieldset": { borderColor: "#D0D5DD" },
           "&.Mui-focused fieldset": { borderColor: `${CHATTY_PRIMARY} !important` },
         },
       },
     },
     MuiInputLabel: {
-      styleOverrides: { root: { "&.Mui-focused": { color: CHATTY_PRIMARY_LIGHT } } },
+      styleOverrides: { root: { "&.Mui-focused": { color: CHATTY_PRIMARY } } },
     },
     MuiTextField: { defaultProps: { variant: "outlined", size: "small" } },
     MuiChip: {
       styleOverrides: {
         root: { borderRadius: 8, fontWeight: 600 },
-        colorPrimary: { backgroundColor: alpha(CHATTY_PRIMARY, 0.16), color: CHATTY_PRIMARY_LIGHT },
+        colorPrimary: { backgroundColor: alpha(CHATTY_PRIMARY, 0.12), color: CHATTY_PRIMARY },
       },
     },
     MuiDialog: {
       styleOverrides: {
-        paper: { borderRadius: 18, backgroundColor: SURFACE_2, backgroundImage: "none", boxShadow: DIALOG_SHADOW },
+        paper: { borderRadius: 18, backgroundColor: SURFACE_1, backgroundImage: "none", boxShadow: DIALOG_SHADOW },
       },
     },
     MuiDialogTitle: { styleOverrides: { root: { fontWeight: 700, fontSize: "1.05rem", color: TEXT_PRIMARY } } },
@@ -191,7 +199,7 @@ export const chattyTheme = createTheme({
       styleOverrides: {
         paper: {
           borderRadius: 14,
-          backgroundColor: SURFACE_3,
+          backgroundColor: SURFACE_1,
           backgroundImage: "none",
           boxShadow: POPOVER_SHADOW,
           border: `1px solid ${BORDER_SUBTLE}`,
@@ -211,8 +219,8 @@ export const chattyTheme = createTheme({
           fontSize: "0.875rem",
           color: TEXT_PRIMARY,
           transition: "background-color 150ms ease",
-          "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
-          "&.Mui-selected": { backgroundColor: alpha(CHATTY_PRIMARY, 0.16) },
+          "&:hover": { backgroundColor: "rgba(15,23,42,0.05)" },
+          "&.Mui-selected": { backgroundColor: alpha(CHATTY_PRIMARY, 0.1) },
         },
       },
     },
@@ -220,22 +228,22 @@ export const chattyTheme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          backgroundColor: SURFACE_3,
-          color: TEXT_PRIMARY,
+          backgroundColor: "#1F2A33",
+          color: "#F8F9FA",
           borderRadius: 8,
-          border: `1px solid ${BORDER_SUBTLE}`,
+          border: `1px solid rgba(255,255,255,0.08)`,
           boxShadow: POPOVER_SHADOW,
           fontSize: "0.75rem",
           padding: "6px 10px",
         },
-        arrow: { color: SURFACE_3 },
+        arrow: { color: "#1F2A33" },
       },
     },
     MuiAvatar: {
       styleOverrides: {
         root: {
-          backgroundColor: alpha(CHATTY_PRIMARY, 0.22),
-          color: TEXT_PRIMARY,
+          backgroundColor: alpha(CHATTY_PRIMARY, 0.14),
+          color: CHATTY_PRIMARY,
           fontWeight: 600,
         },
       },
@@ -244,7 +252,7 @@ export const chattyTheme = createTheme({
       styleOverrides: { root: { borderRadius: 10, transition: "background-color 160ms ease" } },
     },
     MuiBackdrop: {
-      styleOverrides: { root: { backgroundColor: "rgba(3, 4, 7, 0.6)", backdropFilter: "blur(3px)" } },
+      styleOverrides: { root: { backgroundColor: "rgba(17, 27, 33, 0.35)", backdropFilter: "blur(2px)" } },
     },
     MuiTab: {
       styleOverrides: {
@@ -252,26 +260,26 @@ export const chattyTheme = createTheme({
           textTransform: "none",
           fontWeight: 600,
           borderRadius: 8,
-          "&.Mui-selected": { color: CHATTY_PRIMARY_LIGHT },
+          "&.Mui-selected": { color: CHATTY_PRIMARY },
         },
       },
     },
-    MuiSkeleton: { styleOverrides: { root: { backgroundColor: "rgba(255,255,255,0.07)" } } },
+    MuiSkeleton: { styleOverrides: { root: { backgroundColor: "rgba(15,23,42,0.08)" } } },
     MuiAlert: {
       styleOverrides: {
         root: {
           borderRadius: 12,
-          "&.MuiAlert-standardError": { backgroundColor: alpha(CHATTY_ERROR, 0.12), color: "#FECDD3" },
-          "&.MuiAlert-standardSuccess": { backgroundColor: alpha(CHATTY_SUCCESS, 0.12), color: "#A7F3D0" },
-          "&.MuiAlert-standardWarning": { backgroundColor: alpha(CHATTY_WARNING, 0.12), color: "#FDE68A" },
-          "&.MuiAlert-standardInfo": { backgroundColor: alpha("#38BDF8", 0.12), color: "#BAE6FD" },
+          "&.MuiAlert-standardError": { backgroundColor: alpha(CHATTY_ERROR, 0.1), color: "#A91C16" },
+          "&.MuiAlert-standardSuccess": { backgroundColor: alpha(CHATTY_SUCCESS, 0.1), color: "#0E8A67" },
+          "&.MuiAlert-standardWarning": { backgroundColor: alpha(CHATTY_WARNING, 0.1), color: "#8A5200" },
+          "&.MuiAlert-standardInfo": { backgroundColor: alpha("#0EA5E9", 0.1), color: "#0276AA" },
         },
       },
     },
     MuiTableHead: { styleOverrides: { root: { "& .MuiTableCell-root": { fontWeight: 700 } } } },
     MuiTableCell: { styleOverrides: { root: { borderColor: BORDER_SUBTLE, color: TEXT_PRIMARY } } },
     MuiLinearProgress: {
-      styleOverrides: { root: { borderRadius: 6, height: 6, backgroundColor: "rgba(255,255,255,0.08)" } },
+      styleOverrides: { root: { borderRadius: 6, height: 6, backgroundColor: "rgba(15,23,42,0.08)" } },
     },
     MuiBadge: { styleOverrides: { badge: { fontWeight: 700 } } },
     //COMPONENTS_OVERRIDES_END

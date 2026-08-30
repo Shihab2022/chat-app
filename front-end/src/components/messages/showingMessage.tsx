@@ -9,6 +9,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { RootState } from "../../redux/store";
 import { TMessage, TUser } from "../../types";
 import { formatTimes } from "../../utils/timeFormat";
+import { CHATTY_INCOMING_BUBBLE, CHATTY_OUTGOING_BUBBLE } from "../../theme";
 import MessageIcons from "./messageIcons";
 import ShowingEmoji from "./showingEmoji";
 import { ImgViewer } from "../imgViewer";
@@ -38,13 +39,16 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
   const { loginUser, allUsers } = useSelector(
     (state: RootState) => state?.auth,
   );
-  const { messages = {} } = useSelector((state: RootState) => state?.message);
+  const { messages = {}, receiverId } = useSelector((state: RootState) => state?.message);
   const myId = loginUser?.id;
   const isOwn = sender_id === myId;
   const time = formatTimes(created_at);
   const seenTime = seen_at ? formatTimes(seen_at) : null;
 
   const userInfo = allUsers.find((user: TUser) => user.id === sender_id);
+  const activeChat = allUsers.find((u: TUser) => String(u.id) === String(receiverId));
+  const isGroupChat = !!activeChat?.isGroup;
+  const senderName = isGroupChat && !isOwn ? userInfo?.name || "Unknown" : "";
 
   // Find replied message details
   const repliedMessage = replyId
@@ -99,31 +103,29 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
     if (seen) {
       return (
         <Tooltip title={seenTime ? `Read at ${seenTime}` : "Seen"}>
-          <DoneAllIcon
-            sx={{
-              fontSize: 15,
-              color: isOwn
-                ? alpha(theme.palette.common.white, 0.95)
-                : theme.palette.primary.main,
-            }}
-          />
+          <DoneAllIcon sx={{ fontSize: 15, color: theme.palette.primary.main }} />
         </Tooltip>
       );
     }
 
     return (
       <Tooltip title="Sent">
-        <DoneIcon
-          sx={{
-            fontSize: 15,
-            color: isOwn
-              ? alpha(theme.palette.common.white, 0.6)
-              : theme.palette.text.disabled,
-          }}
-        />
+        <DoneIcon sx={{ fontSize: 15, color: theme.palette.text.disabled }} />
       </Tooltip>
     );
   };
+
+  const bubbleBackground = isDeleted
+    ? "transparent"
+    : isOwn
+    ? CHATTY_OUTGOING_BUBBLE
+    : CHATTY_INCOMING_BUBBLE;
+  const bubbleBorder = isDeleted
+    ? `1px dashed ${alpha(theme.palette.error.main, 0.4)}`
+    : isOwn
+    ? "none"
+    : `1px solid ${alpha(theme.palette.common.black, 0.06)}`;
+  const bubbleRadius = isOwn ? "18px 4px 18px 18px" : "4px 18px 18px 18px";
 
   return (
     <Stack
@@ -159,42 +161,47 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
       >
         <Paper
           elevation={0}
+          className="animate-msg-in"
           sx={{
-            px: 2,
-            py: 1.25,
-            borderRadius: isOwn ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-            backgroundColor: isDeleted
-              ? alpha(theme.palette.error.main, 0.06)
-              : isOwn
-                ? theme.palette.primary.main
-                : theme.palette.background.paper,
-            color:
-              isOwn && !isDeleted
-                ? theme.palette.primary.contrastText
-                : theme.palette.text.primary,
-            border: isDeleted
-              ? `1px solid ${alpha(theme.palette.error.main, 0.3)}`
-              : `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-            boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.04)}`,
+            px: 1.75,
+            py: 1,
+            borderRadius: bubbleRadius,
+            backgroundColor: bubbleBackground,
+            color: theme.palette.text.primary,
+            border: bubbleBorder,
+            boxShadow: `0 1px 4px ${alpha(theme.palette.common.black, 0.06)}`,
             position: "relative",
-            minWidth: 110,
+            minWidth: 100,
+            maxWidth: "100%",
+            wordBreak: "break-word",
           }}
         >
+          {/* Sender name for group chats */}
+          {senderName && (
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 700,
+                display: "block",
+                mb: 0.25,
+                color: theme.palette.primary.main,
+              }}
+            >
+              {senderName}
+            </Typography>
+          )}
+
           {/* Replied Message Preview */}
           {replyId && (
             <Box
               sx={{
-                borderLeft: `3px solid ${
-                  isOwn
-                    ? theme.palette.common.white
-                    : theme.palette.primary.main
-                }`,
+                borderLeft: `3px solid ${theme.palette.primary.main}`,
                 pl: 1.5,
                 py: 0.5,
                 mb: 1,
                 borderRadius: 1,
                 backgroundColor: isOwn
-                  ? alpha(theme.palette.common.black, 0.15)
+                  ? alpha(theme.palette.primary.main, 0.12)
                   : alpha(theme.palette.action.hover, 0.08),
               }}
             >
@@ -203,9 +210,7 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
                 sx={{
                   fontWeight: 700,
                   display: "block",
-                  color: isOwn
-                    ? theme.palette.common.white
-                    : theme.palette.primary.main,
+                  color: theme.palette.primary.main,
                 }}
               >
                 {replyUser?.id === myId ? "You" : replyUser?.name || "User"}
@@ -213,10 +218,7 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
               <Typography
                 variant="body2"
                 noWrap
-                sx={{
-                  fontSize: "0.75rem",
-                  opacity: 0.85,
-                }}
+                sx={{ fontSize: "0.75rem", color: theme.palette.text.secondary }}
               >
                 {repliedMessage?.text || "Original message"}
               </Typography>
@@ -229,7 +231,7 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
               variant="body2"
               sx={{
                 fontStyle: "italic",
-                color: theme.palette.error.main,
+                color: theme.palette.text.secondary,
               }}
             >
               This message was deleted
@@ -253,7 +255,6 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
             spacing={0.5}
             sx={{
               mt: 0.5,
-              opacity: 0.85,
               alignItems: "center",
               justifyContent: "flex-end",
             }}
@@ -262,7 +263,7 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
               variant="caption"
               sx={{
                 fontSize: "0.68rem",
-                color: "inherit",
+                color: theme.palette.text.secondary,
               }}
             >
               {time}
@@ -275,10 +276,8 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
                 sx={{
                   fontSize: "0.65rem",
                   fontWeight: 600,
-                  color: isOwn
-                    ? alpha(theme.palette.common.white, 0.9)
-                    : theme.palette.primary.main,
-                  ml: 0.5,
+                  color: theme.palette.primary.main,
+                  ml: 0.25,
                 }}
               >
                 • {seenTime ? `Read at ${seenTime}` : "Seen"}
