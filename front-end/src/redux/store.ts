@@ -3,11 +3,14 @@ import conversationSlice from "./features/chat/conversationSlice";
 import authSlice from "./features/auth/authSlice";
 import activitiesSlice from "./features/userActivities";
 
+import settingsSlice from "./features/settings/settingsSlice";
+
 export const store = configureStore({
   reducer: {
     message: conversationSlice,
     auth: authSlice,
     activities: activitiesSlice,
+    settings: settingsSlice,
   },
   // middleware: (getDefaultMiddleware) =>
   //     getDefaultMiddleware().concat(baseApi.middleware),

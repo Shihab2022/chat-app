@@ -1,4 +1,5 @@
-﻿import {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
   emailSenderMessages,
   FriendshipStatus,
   passwordMinLength,
@@ -19,6 +20,7 @@ import { Secret } from 'jsonwebtoken';
 import { ForgotPasswordTemplate } from '../../../templates/forgotPassword';
 import { ConfirmAccountTemplate } from '../../../templates/confirmAccount';
 import { pool } from '../../../utils/pg';
+
 const imagePath = path.resolve(__dirname, '../../../assets/logo.png');
 const attachments = [
   {
@@ -27,6 +29,7 @@ const attachments = [
     cid: 'logoImage',
   },
 ];
+
 const createUserIntoDB = async (payload: TUser) => {
   const { email, password, userName, name } = payload;
   if (!name || !email || !password) {
@@ -43,7 +46,7 @@ const createUserIntoDB = async (payload: TUser) => {
     );
   }
 
-  // ðŸ”¹ Check existing user
+  // Check existing user
   const existingUser = await pool.query(
     `SELECT id FROM users WHERE email = $1`,
     [email],
@@ -55,7 +58,7 @@ const createUserIntoDB = async (payload: TUser) => {
     );
   }
 
-  // ðŸ”¥ Hash password (replacement of mongoose pre-save)
+  // Hash password
   const hashedPassword = await bcrypt.hash(
     password,
     Number(config.bcrypt_salt_rounds),
@@ -63,7 +66,7 @@ const createUserIntoDB = async (payload: TUser) => {
 
   const fullName = `${userName} ${name}`;
 
-  // ðŸ”¹ Insert user
+  // Insert user
   const insertQuery = `
     INSERT INTO users (name, email, password, status)
     VALUES ($1, $2, $3, $4)
@@ -78,7 +81,7 @@ const createUserIntoDB = async (payload: TUser) => {
   ]);
 
   const createdUser = result.rows[0];
-  // ðŸ”¹ JWT
+  // JWT
   const jwtPayload = {
     userId: createdUser.id,
   };
@@ -89,7 +92,7 @@ const createUserIntoDB = async (payload: TUser) => {
     config.jwt_access_expire_in as number | undefined,
   );
 
-  // ðŸ”¹ Email
+  // Email
   const notifyMsg = {
     to: [email],
     from: emailSenderMessages.FROM_JOIN_EMAIL,
@@ -107,6 +110,7 @@ const createUserIntoDB = async (payload: TUser) => {
 
   return token;
 };
+
 const acceptInvite = async (payload: {
   token: string;
   firstname: string;
@@ -282,6 +286,7 @@ const acceptInvite = async (payload: {
     mess: [mess],
   };
 };
+
 const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const { email } = payload;
   const result = await pool.query(
@@ -323,6 +328,7 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   const { password, ...newData } = user;
   return { data: newData, accessToken };
 };
+
 const forgetPassword = async (payload: Partial<TUser>) => {
   const { email } = payload;
 
@@ -365,6 +371,7 @@ const forgetPassword = async (payload: Partial<TUser>) => {
   await transporter.sendMail(notifyMsg);
   return true;
 };
+
 const updatePassword = async (payload: {
   token: string;
   password: string;
@@ -372,7 +379,6 @@ const updatePassword = async (payload: {
 }) => {
   const { token, password, pin } = payload;
 
-  // ðŸ”¹ Token check
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -380,7 +386,6 @@ const updatePassword = async (payload: {
     );
   }
 
-  // ðŸ”¹ Verify token
   let decoded;
   try {
     decoded = jwtVerify(token, config.jwt_access_secret as Secret);
@@ -390,7 +395,6 @@ const updatePassword = async (payload: {
 
   const { userId } = decoded as { userId: number };
 
-  // ðŸ”¹ Validation
   if (!userId || !password || !pin) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -398,7 +402,6 @@ const updatePassword = async (payload: {
     );
   }
 
-  // ðŸ”¹ Get user
   const result = await pool.query(
     `SELECT id, verified_code FROM users WHERE id = $1`,
     [userId],
@@ -413,18 +416,15 @@ const updatePassword = async (payload: {
     );
   }
 
-  // ðŸ”¹ Check PIN
   if (user.verified_code !== Number(pin)) {
     throw new AppError(httpStatus.BAD_REQUEST, userServiceMessages.INVALID_PIN);
   }
 
-  // ðŸ”¥ Hash new password
   const hashedPassword = await bcrypt.hash(
     password,
     Number(config.bcrypt_salt_rounds),
   );
 
-  // ðŸ”¹ Update password + reset pin
   await pool.query(
     `
     UPDATE users
@@ -438,10 +438,10 @@ const updatePassword = async (payload: {
 
   return true;
 };
+
 const checkAuth = async (payload: { token: string }) => {
   const { token } = payload;
 
-  // ðŸ”¹ Token check
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -457,7 +457,6 @@ const checkAuth = async (payload: { token: string }) => {
     );
   }
 
-  // ðŸ”¹ Get user (excluding password)
   const result = await pool.query(
     `
     SELECT 
@@ -470,6 +469,18 @@ const checkAuth = async (payload: { token: string }) => {
       is_account_verified,
       is_google_login,
       bio,
+      COALESCE(username, '') as username,
+      COALESCE(phone, '') as phone,
+      COALESCE(country, '') as country,
+      COALESCE(about, '') as about,
+      COALESCE(date_of_birth, '') as date_of_birth,
+      COALESCE(website, '') as website,
+      COALESCE(theme, 'light') as theme,
+      COALESCE(font_size, 'default') as font_size,
+      COALESCE(compact_list, false) as compact_list,
+      COALESCE(wallpaper_id, 'default') as wallpaper_id,
+      COALESCE(wallpaper_category, 'all') as wallpaper_category,
+      COALESCE(disappearing_messages, '7d') as disappearing_messages,
       created_at,
       updated_at
     FROM users
@@ -490,10 +501,10 @@ const checkAuth = async (payload: { token: string }) => {
 
   return user;
 };
+
 const sendEmail = async (payload: { email: string }) => {
   const { email } = payload;
 
-  // ðŸ”¹ Validation
   if (!email) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -501,7 +512,6 @@ const sendEmail = async (payload: { email: string }) => {
     );
   }
 
-  // ðŸ”¹ Find user by email
   const result = await pool.query(
     `SELECT id, name FROM users WHERE email = $1 LIMIT 1`,
     [email],
@@ -509,7 +519,6 @@ const sendEmail = async (payload: { email: string }) => {
 
   const createdUser = result.rows[0];
 
-  // ðŸ”¹ Handle not found
   if (!createdUser) {
     throw new AppError(
       httpStatus.NOT_FOUND,
@@ -517,7 +526,6 @@ const sendEmail = async (payload: { email: string }) => {
     );
   }
 
-  // ðŸ”¹ Prepare data (same as mongoose)
   const { id, name: storedUserName } = createdUser;
 
   const jwtPayload = {
@@ -546,10 +554,10 @@ const sendEmail = async (payload: { email: string }) => {
 
   return true;
 };
+
 const confirmUser = async (payload: { token: string }) => {
   const { token } = payload;
 
-  // ðŸ”¹ Validation
   if (!token) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -557,7 +565,6 @@ const confirmUser = async (payload: { token: string }) => {
     );
   }
 
-  // ðŸ”¹ Verify token
   let decoded;
   try {
     decoded = jwtVerify(token, config.jwt_access_secret as Secret);
@@ -567,7 +574,6 @@ const confirmUser = async (payload: { token: string }) => {
 
   const { userId } = decoded as { userId: number };
 
-  // ðŸ”¹ Update user
   const result = await pool.query(
     `
     UPDATE users
@@ -579,13 +585,13 @@ const confirmUser = async (payload: { token: string }) => {
     [userId],
   );
 
-  // ðŸ”¹ Check if user exists
   if (result.rows.length === 0) {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
 
   return true;
 };
+
 const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
   const { email, message } = payload;
   const { id, name } = userIInfo;
@@ -678,14 +684,30 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
 
   return payload;
 };
-const updateUserInfo = async (
-  payload: { name: string; bio: string },
-  userINfo: TUser,
-) => {
-  const { name, bio } = payload;
-  const { id } = userINfo;
 
-  // ðŸ”¹ Check user exists
+const updateUserInfo = async (
+  payload: {
+    name?: string;
+    bio?: string;
+    img?: string;
+    username?: string;
+    phone?: string;
+    about?: string;
+    country?: string;
+    website?: string;
+    date_of_birth?: string;
+    theme?: string;
+    font_size?: string;
+    compact_list?: boolean;
+    wallpaper_id?: string;
+    wallpaper_category?: string;
+    disappearing_messages?: string;
+  },
+  userInfo: TUser,
+) => {
+  const { id } = userInfo;
+
+  // Check user exists
   const userCheck = await pool.query(`SELECT id FROM users WHERE id = $1`, [
     id,
   ]);
@@ -697,14 +719,27 @@ const updateUserInfo = async (
     );
   }
 
-  // ðŸ”¹ Update user
+  // Update user with all supported profile & settings fields
   const updateQuery = `
     UPDATE users
     SET 
-      name = $1,
-      bio = $2,
+      name = COALESCE($1, name),
+      bio = COALESCE($2, bio),
+      img = COALESCE($3, img),
+      username = COALESCE($4, username),
+      phone = COALESCE($5, phone),
+      about = COALESCE($6, about),
+      country = COALESCE($7, country),
+      website = COALESCE($8, website),
+      date_of_birth = COALESCE($9, date_of_birth),
+      theme = COALESCE($10, theme),
+      font_size = COALESCE($11, font_size),
+      compact_list = COALESCE($12, compact_list),
+      wallpaper_id = COALESCE($13, wallpaper_id),
+      wallpaper_category = COALESCE($14, wallpaper_category),
+      disappearing_messages = COALESCE($15, disappearing_messages),
       updated_at = CURRENT_TIMESTAMP
-    WHERE id = $3
+    WHERE id = $16
     RETURNING 
       id,
       name,
@@ -713,18 +748,48 @@ const updateUserInfo = async (
       role,
       status,
       bio,
+      COALESCE(username, '') as username,
+      COALESCE(phone, '') as phone,
+      COALESCE(country, '') as country,
+      COALESCE(about, '') as about,
+      COALESCE(date_of_birth, '') as date_of_birth,
+      COALESCE(website, '') as website,
+      COALESCE(theme, 'light') as theme,
+      COALESCE(font_size, 'default') as font_size,
+      COALESCE(compact_list, false) as compact_list,
+      COALESCE(wallpaper_id, 'default') as wallpaper_id,
+      COALESCE(wallpaper_category, 'all') as wallpaper_category,
+      COALESCE(disappearing_messages, '7d') as disappearing_messages,
       is_account_verified,
       is_google_login,
       created_at,
       updated_at
   `;
 
-  const result = await pool.query(updateQuery, [name, bio, id]);
+  const result = await pool.query(updateQuery, [
+    payload.name ?? null,
+    payload.bio ?? null,
+    payload.img ?? null,
+    payload.username ?? null,
+    payload.phone ?? null,
+    payload.about ?? null,
+    payload.country ?? null,
+    payload.website ?? null,
+    payload.date_of_birth ?? null,
+    payload.theme ?? null,
+    payload.font_size ?? null,
+    payload.compact_list !== undefined ? payload.compact_list : null,
+    payload.wallpaper_id ?? null,
+    payload.wallpaper_category ?? null,
+    payload.disappearing_messages ?? null,
+    id,
+  ]);
 
   const updatedUserInfo = result.rows[0];
 
   return updatedUserInfo;
 };
+
 const googleLogin = async (payload: {
   name: string;
   email: string;
@@ -760,6 +825,7 @@ const googleLogin = async (payload: {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found !');
   }
 };
+
 const googleRegister = async (payload: {
   name: string;
   email: string;
@@ -767,7 +833,6 @@ const googleRegister = async (payload: {
 }) => {
   const { name, email, picture } = payload;
 
-  // ðŸ”¹ Validation
   if (!email) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -775,7 +840,6 @@ const googleRegister = async (payload: {
     );
   }
 
-  // ðŸ”¹ Check existing user
   const existingUser = await pool.query(
     `SELECT id FROM users WHERE email = $1`,
     [email],
@@ -788,7 +852,6 @@ const googleRegister = async (payload: {
     );
   }
 
-  // ðŸ”¹ Insert user (Google login â†’ no password)
   const insertQuery = `
     INSERT INTO users (name, email, img, status, is_google_login, is_account_verified)
     VALUES ($1, $2, $3, $4, TRUE, TRUE)
@@ -798,7 +861,7 @@ const googleRegister = async (payload: {
   const result = await pool.query(insertQuery, [
     name,
     email,
-    picture, // mapped to img
+    picture,
     userStatus?.ACTIVE,
   ]);
 
@@ -811,7 +874,6 @@ const googleRegister = async (payload: {
     );
   }
 
-  // ðŸ”¹ JWT
   const jwtPayload = {
     userId: createdUser.id,
   };

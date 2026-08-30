@@ -3,6 +3,7 @@ import { setUser } from "../redux/features/auth/authSlice";
 import { checkAuth } from "../services/auth";
 import { getToken } from "./auth";
 import { connectSocket } from "./socketService";
+import { hydrateUserSettings } from "./userSettings";
 
 export const checkAuthRes = async (dispatch: any, setIsLoading: any) => {
   try {
@@ -13,6 +14,7 @@ export const checkAuthRes = async (dispatch: any, setIsLoading: any) => {
       const user = res?.data;
       connectSocket(user?.id, dispatch);
       dispatch(setUser(user));
+      hydrateUserSettings(dispatch, user);
     }
   } catch (error) {
     console.log({ error });

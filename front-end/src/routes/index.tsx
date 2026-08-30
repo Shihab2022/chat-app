@@ -7,7 +7,6 @@ import ForgetPassword from "../pages/login/forgetPassword";
 import InviteUser from "../components/inviteFriend";
 import Profile from "../components/profile";
 import NotFoundPage from "../404";
-import NavBar from "../pages/messages/navBar";
 import AcceptInvite from "../pages/acceptInvite";
 import UpdatePassword from "../pages/updatePassword";
 import ConfirmAccount from "../pages/confirmAccount";
@@ -23,18 +22,11 @@ export default function Router() {
     },
     {
       path: "/chat",
-      children: [
-        {
-          path: "/chat",
-          element: (
-            <ProtectedRoute>
-              <NavBar isDrawer>
-                <ChatContainer />
-              </NavBar>
-            </ProtectedRoute>
-          ),
-        },
-      ],
+      element: (
+        <ProtectedRoute>
+          <ChatContainer />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "/inviteUser",
@@ -48,9 +40,7 @@ export default function Router() {
       path: "/manageUser",
       element: (
         <ProtectedRoute>
-          <NavBar>
-            <ManageUser />
-          </NavBar>
+          <ManageUser />
         </ProtectedRoute>
       ),
     },
@@ -58,9 +48,7 @@ export default function Router() {
       path: "/profile/:userId",
       element: (
         <ProtectedRoute>
-          <NavBar>
-            <Profile />
-          </NavBar>
+          <Profile />
         </ProtectedRoute>
       ),
     },

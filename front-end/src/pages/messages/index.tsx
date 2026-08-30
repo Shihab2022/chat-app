@@ -1,64 +1,75 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { Box, CssBaseline, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import LeftSiteBar from "./leftSiteBar";
-import { RightSidebar } from "./rightSiteBar";
-import ChatHeader from "./navBar";
-import Message from "../../components/messages/message";
-import SearchField from "../../components/searchField";
-import Loader from "../../components/loader";
-import EmptyState from "../../components/ui/EmptyState";
-import { getGroupsAPI, getUsersForSidebar } from "../../services/message";
-import { toStartCaseStr } from "../../utils/common";
-import { checkAuthRes } from "../../utils/checkAuth";
-import {
-  SET_RECEIVER_ID,
-  SET_RIGHT_SIDEBAR_OPEN_STATUS,
-} from "../../redux/features/chat/conversationSlice";
-import { SET_ALL_USERS as SET_USERS } from "../../redux/features/auth/authSlice";
+
 import { RootState } from "../../redux/store";
+import { connectSocket, disconnectSocket } from "../../utils/socketService";
+import { checkAuthRes } from "../../utils/checkAuth";
+import { getUsersForSidebar, getGroupsAPI } from "../../services/message";
+import { toStartCaseStr } from "../../utils/common";
+import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
+import { hydrateUserSettings } from "../../utils/userSettings";
 import { TUser } from "../../types";
-import { showToast } from "../../utils/toast";
-import {
-  CONFIRM_MESSAGE,
-  DRAWER_WIDTH,
-  WARNING,
-} from "../../constants/common";
-import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 
-const LEFT_DRAWER_WIDTH = DRAWER_WIDTH; // 340
-const RIGHT_DRAWER_WIDTH = "368px";
+import LeftNavigation from "../../components/navigation/LeftNavigation";
+import ChatsSidebar from "../../components/sidebars/ChatsSidebar";
+import ContactsSidebar from "../../components/sidebars/ContactsSidebar";
+import GroupsSidebar from "../../components/sidebars/GroupsSidebar";
+import ProfileSidebar from "../../components/sidebars/ProfileSidebar";
+import SettingsSidebar from "../../components/sidebars/SettingsSidebar";
 
-function ChatContainer() {
+import EmptyStateView from "../../components/chat/EmptyStateView";
+import ActiveChatView from "../../components/chat/ActiveChatView";
+import ChatWallpaperDrawer from "../../components/wallpaper/ChatWallpaperDrawer";
+
+import ContactDetailModal from "../../components/modals/ContactDetailModal";
+import NewGroupModal from "../../components/modals/NewGroupModal";
+import QRCodeModal from "../../components/modals/QRCodeModal";
+import EditProfileModal from "../../components/modals/EditProfileModal";
+import DisappearingMessagesModal from "../../components/modals/DisappearingMessagesModal";
+import NewChatModal from "../../components/modals/NewChatModal";
+import ArchivedChatsModal from "../../components/modals/ArchivedChatsModal";
+import InviteFriendModal from "../../components/modals/InviteFriendModal";
+import Loader from "../../components/loader";
+
+export default function ChatContainer() {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [isLoading, setIsLoading] = useState(false);
-  const [mobileChatOpen, setMobileChatOpen] = useState(false);
 
-  const { loginUser } = useSelector((state: RootState) => state?.auth);
-  const { isRightSidebarOpen, receiverId } = useSelector((state: RootState) => state?.message);
-  const { id: myId } = loginUser || {};
+  const { loginUser } = useSelector((state: RootState) => state.auth);
+  const { receiverId } = useSelector((state: RootState) => state.message);
+  const { activeNavTab } = useSelector((state: RootState) => state.settings);
 
-  const handleDrawerToggle = () => setMobileChatOpen(!mobileChatOpen);
-  void handleDrawerToggle;
+  const myId = loginUser?.id;
 
-  const handleRightSidebarToggle = () => {
-    dispatch(SET_RIGHT_SIDEBAR_OPEN_STATUS(!isRightSidebarOpen));
-  };
+  // Initialize socket and fetch user list
+  useEffect(() => {
+    if (!loginUser?.id) {
+      checkAuthRes(dispatch, setIsLoading);
+    } else {
+      hydrateUserSettings(dispatch, loginUser);
+      connectSocket(String(loginUser.id), dispatch);
+      fetchInitialUsers();
 
-  const getAllUsers = async () => {
+      return () => {
+        disconnectSocket();
+      };
+    }
+  }, [loginUser?.id]);
+
+  const fetchInitialUsers = async () => {
     try {
       const params = { id: myId };
       const [usersResponse, groupsResponse] = await Promise.all([
         getUsersForSidebar(params),
         getGroupsAPI(),
       ]);
+
       if (usersResponse?.success) {
         const users = (usersResponse?.data || []).map((d: TUser) => ({
           ...d,
@@ -72,13 +83,11 @@ function ChatContainer() {
             name: group.name,
             isGroup: true,
             img: "",
-          }),
+          })
         );
         const conversation = [...users, ...groups];
-
-        if (conversation?.length > 0) {
-          dispatch(SET_RECEIVER_ID(String(conversation[0].id)));
-          dispatch(SET_USERS(conversation));
+        if (conversation.length > 0) {
+          dispatch(SET_ALL_USERS(conversation));
         }
       }
     } catch (error) {
@@ -86,36 +95,26 @@ function ChatContainer() {
     }
   };
 
-  useEffect(() => {
-    if (!loginUser?.id) {
-      checkAuthRes(dispatch, setIsLoading);
-    } else {
-      if (!loginUser?.is_account_verified) {
-        navigate("/");
-        showToast(WARNING, CONFIRM_MESSAGE);
-      } else {
-        getAllUsers();
-      }
+  // Render Left Panel based on selected Navigation Tab
+  const renderSidebar = () => {
+    switch (activeNavTab) {
+      case "contacts":
+        return <ContactsSidebar />;
+      case "groups":
+        return <GroupsSidebar />;
+      case "profile":
+        return <ProfileSidebar />;
+      case "settings":
+        return <SettingsSidebar />;
+      case "chats":
+      default:
+        return <ChatsSidebar />;
     }
-  }, [loginUser]);
-
-  // Sync sidebar/chat view depending on device + active receiver
-  useEffect(() => {
-    if (!isMobile) {
-      setMobileChatOpen(false);
-      return;
-    }
-    if (receiverId) setMobileChatOpen(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [receiverId, isMobile]);
-
-  const handleBack = () => {
-    setMobileChatOpen(false);
-    dispatch(SET_RIGHT_SIDEBAR_OPEN_STATUS(false));
   };
 
-    const showSidebar = !isMobile ? true : !mobileChatOpen;
-  const showChat = !isMobile ? true : mobileChatOpen && !!receiverId;
+  // On mobile: show chat if receiverId is set and on chats tab; otherwise show sidebar
+  const showMobileChat = isMobile && !!receiverId && activeNavTab === "chats";
+  const showSidebar = !isMobile || !showMobileChat;
 
   return (
     <>
@@ -123,143 +122,69 @@ function ChatContainer() {
       <Box
         sx={{
           display: "flex",
+          flexDirection: { xs: "column-reverse", md: "row" },
           height: "100dvh",
+          width: "100vw",
           overflow: "hidden",
           backgroundColor: theme.palette.background.default,
         }}
       >
-        {/* ── Left sidebar ── */}
-        <Box
-          component="nav"
-          aria-label="conversations"
-          sx={{
-            width: LEFT_DRAWER_WIDTH,
-            flexShrink: 0,
-            display: showSidebar ? "flex" : "none",
-            flexDirection: "column",
-            borderRight: `1px solid ${theme.palette.divider}`,
-            backgroundColor: theme.palette.background.paper,
-            overflow: "hidden",
-            transform: { xs: showSidebar ? "translateX(0)" : "translateX(-100%)" },
-            transition: "transform 220ms ease",
-            zIndex: theme.zIndex.drawer,
-          }}
-        >
-          <LeftSiteBar
-            onSelectChat={() => setMobileChatOpen(true)}
-            activeConversation={receiverId}
-          />
-        </Box>
+        {/* ── Far-Left Navigation Rail ── */}
+        {(!isMobile || !showMobileChat) && <LeftNavigation />}
 
-        {/* ── Main chat column ── */}
-        <Box
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            display: showChat ? "flex" : "none",
-            flexDirection: "column",
-            height: "100%",
-          }}
-        >
-          <ChatHeader
-            isDrawer
-            showBack={isMobile && mobileChatOpen}
-            onBack={handleBack}
-            toggleProfileSidebar={handleRightSidebarToggle}
-            profileSidebarOpen={isRightSidebarOpen}
-          />
-
-          <Box
-            component="main"
-            className="chatty-chat-wallpaper light-scrollbar"
-            sx={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}
-          >
-            {!receiverId ? (
-              <EmptyState
-                title="Select a conversation"
-                description="Choose a conversation from the sidebar to start messaging."
-                icon={<ChatBubbleOutlineRoundedIcon sx={{ fontSize: 34 }} />}
-              />
-            ) : (
-              <Message />
-            )}
-          </Box>
-
+        {/* ── Left Sidebar Panel (Chats / Contacts / Groups / Profile / Settings) ── */}
+        {showSidebar && (
           <Box
             sx={{
-              px: { xs: 1.5, sm: 2.5 },
-              pb: 1.5,
-              pt: 1,
-              borderTop: `1px solid ${theme.palette.divider}`,
-              backgroundColor: theme.palette.background.paper,
+              width: { xs: "100%", md: 340, lg: 360 },
+              height: { xs: "calc(100dvh - 58px)", md: "100%" },
+              flexShrink: 0,
+              display: "flex",
+              flexDirection: "column",
+              borderRight: { xs: "none", md: `1px solid ${theme.palette.divider}` },
+              overflow: "hidden",
             }}
           >
-            {receiverId ? (
-              <SearchField myId={myId} />
+            {renderSidebar()}
+          </Box>
+        )}
+
+        {/* ── Center Main Content Column (Active Chat or Empty State) ── */}
+        {(!isMobile || showMobileChat) && (
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              position: "relative",
+            }}
+          >
+            {activeNavTab === "chats" && receiverId ? (
+              <ActiveChatView />
             ) : (
-              <Box sx={{ height: 72 }} />
+              <EmptyStateView tab={activeNavTab} />
             )}
           </Box>
-        </Box>
-
-        {/* ── Right info drawer ── */}
-        {isRightSidebarOpen && (
-          <>
-            {/* desktop static */}
-            <Box
-              sx={{
-                width: RIGHT_DRAWER_WIDTH,
-                display: { xs: "none", md: "flex" },
-                flexDirection: "column",
-                borderLeft: `1px solid ${theme.palette.divider}`,
-                backgroundColor: theme.palette.background.paper,
-                height: "100%",
-                overflowY: "auto",
-              }}
-            >
-              <RightSidebar />
-            </Box>
-
-            {/* mobile overlay */}
-            <Box
-              sx={{
-                display: { xs: "block", md: "none" },
-                position: "fixed",
-                inset: 0,
-                zIndex: theme.zIndex.modal,
-                backgroundColor: "rgba(0,0,0,0.4)",
-              }}
-              onClick={handleRightSidebarToggle}
-            />
-            <Box
-              sx={{
-                display: { xs: "block", md: "none" },
-                position: "fixed",
-                top: 0,
-                right: 0,
-                bottom: 0,
-                width: "85%",
-                maxWidth: "368px",
-                zIndex: theme.zIndex.modal + 1,
-                backgroundColor: theme.palette.background.paper,
-                borderLeft: `1px solid ${theme.palette.divider}`,
-                boxShadow: "-12px 0 32px rgba(15,23,42,0.14)",
-                transform: isRightSidebarOpen ? "translateX(0)" : "translateX(100%)",
-                transition: "transform 240ms ease",
-                overflowY: "auto",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <RightSidebar />
-            </Box>
-          </>
         )}
+
+        {/* ── Right-Side Dedicated Wallpaper Drawer (Pages 10 & 11) ── */}
+        <ChatWallpaperDrawer />
       </Box>
 
-      <Loader loading={isLoading} title="Chat Loading..." />
+      {/* ── All Modals Matching PDF ── */}
+      <ContactDetailModal />
+      <NewGroupModal />
+      <QRCodeModal />
+      <EditProfileModal />
+      <DisappearingMessagesModal />
+      <NewChatModal />
+      <ArchivedChatsModal />
+      <InviteFriendModal />
+
+      <Loader loading={isLoading} title="Loading Application..." />
     </>
   );
 }
-
-// placeholder for default export
-export default ChatContainer;

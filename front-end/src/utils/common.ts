@@ -68,3 +68,40 @@ export const formattedSideBarData = (allUsers: any) => {
 
   return sortedData;
 };
+
+export const getLastMessagePreview = (lastMessage: unknown): string => {
+  if (!lastMessage) return "";
+  if (typeof lastMessage === "string") return lastMessage;
+
+  if (typeof lastMessage === "object") {
+    const msg = lastMessage as Record<string, unknown>;
+    const text = msg.text ?? msg.content ?? msg.message;
+    if (typeof text === "string" && text.trim()) return text;
+    if (msg.image) return "Photo";
+    if (msg.audio) return "Audio message";
+    if (msg.file) return "File";
+  }
+
+  return "";
+};
+
+export const getLastMessageTime = (lastMessage: unknown, fallback = ""): string => {
+  if (!lastMessage || typeof lastMessage !== "object") return fallback;
+  const createdAt = (lastMessage as { created_at?: string }).created_at;
+  if (!createdAt) return fallback;
+
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) return fallback;
+
+  const now = new Date();
+  const isToday =
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear();
+
+  if (isToday) {
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
+};
