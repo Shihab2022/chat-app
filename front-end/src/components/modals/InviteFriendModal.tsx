@@ -12,15 +12,18 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
+  Alert,
+  Tooltip,
 } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import MailOutlineRoundedIcon from "@mui/icons-material/MailOutlineRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 
 import { RootState } from "../../redux/store";
 import { SET_INVITE_FRIEND_MODAL_OPEN } from "../../redux/features/settings/settingsSlice";
-import { inviteUserApi } from "../../services/auth";
+import { inviteUserApi, getFriends } from "../../services/auth";
 import { PURPLE_PRIMARY } from "../../theme";
 import { showToast } from "../../utils/toast";
 import { SUCCESS, FAILED } from "../../constants/common";
@@ -34,11 +37,13 @@ export const InviteFriendModal: React.FC = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("Hey! Let's connect on Chatty.");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState<string | null>(null);
 
   const handleClose = () => {
     dispatch(SET_INVITE_FRIEND_MODAL_OPEN(false));
     setEmail("");
     setMessage("Hey! Let's connect on Chatty.");
+    setGeneratedLink(null);
   };
 
   const handleSendInvite = async () => {
@@ -49,20 +54,41 @@ export const InviteFriendModal: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      const res = await inviteUserApi({ email: email.trim(), message });
+      const res = await inviteUserApi({ email: email.trim(), message: message.trim() });
       if (res?.success) {
-        showToast(SUCCESS, `Invitation sent to ${email.trim()}!`);
-        handleClose();
+        const inviteUrl = res.data?.inviteUrl;
+        const emailSent = res.data?.emailSent;
+
+        if (emailSent) {
+          showToast(SUCCESS, `Invitation email sent to ${email.trim()}!`);
+        } else {
+          showToast(SUCCESS, `Invitation created for ${email.trim()}!`);
+        }
+
+        if (inviteUrl) {
+          setGeneratedLink(inviteUrl);
+        } else {
+          handleClose();
+        }
+        void getFriends({});
       } else {
-        showToast(SUCCESS, `Invitation link sent to ${email.trim()}!`);
-        handleClose();
+        showToast(FAILED, res?.message || "Failed to send invitation.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Invite error:", err);
-      showToast(SUCCESS, `Invitation link sent to ${email.trim()}!`);
-      handleClose();
+      showToast(FAILED, err?.response?.data?.message || "Failed to send invitation");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCopyGeneratedLink = async () => {
+    if (!generatedLink) return;
+    try {
+      await navigator.clipboard.writeText(generatedLink);
+      showToast(SUCCESS, "Invitation link copied to clipboard!");
+    } catch {
+      showToast(FAILED, "Failed to copy link");
     }
   };
 
@@ -107,7 +133,7 @@ export const InviteFriendModal: React.FC = () => {
       {/* Content */}
       <DialogContent sx={{ p: 2.5 }}>
         <Typography variant="body2" sx={{ color: theme.palette.text.secondary, fontSize: "0.8125rem", mb: 2 }}>
-          Send an email invitation or link to start a new chat with your colleagues and friends.
+          Send an invitation to connect with your friends and colleagues on Chatty.
         </Typography>
 
         <Box sx={{ mb: 2 }}>
@@ -133,7 +159,7 @@ export const InviteFriendModal: React.FC = () => {
           />
         </Box>
 
-        <Box sx={{ mb: 1 }}>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="caption" sx={{ fontWeight: 600, color: theme.palette.text.primary, display: "block", mb: 0.75 }}>
             Personal Message (Optional)
           </Typography>
@@ -141,11 +167,29 @@ export const InviteFriendModal: React.FC = () => {
             fullWidth
             size="small"
             multiline
-            rows={3}
+            rows={2}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
         </Box>
+
+        {generatedLink && (
+          <Alert severity="success" sx={{ borderRadius: "8px", fontSize: "0.8rem", mb: 1 }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, display: "block" }}>
+              Invitation Link Generated:
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}>
+              <Typography variant="caption" noWrap sx={{ fontFamily: "monospace", flex: 1 }}>
+                {generatedLink}
+              </Typography>
+              <Tooltip title="Copy Link">
+                <IconButton size="small" onClick={handleCopyGeneratedLink} sx={{ color: PURPLE_PRIMARY }}>
+                  <ContentCopyRoundedIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </Alert>
+        )}
       </DialogContent>
 
       {/* Actions */}
@@ -167,7 +211,7 @@ export const InviteFriendModal: React.FC = () => {
             },
           }}
         >
-          Cancel
+          {generatedLink ? "Done" : "Cancel"}
         </Button>
 
         <Button
@@ -186,7 +230,7 @@ export const InviteFriendModal: React.FC = () => {
             "&:hover": { backgroundColor: "#6D28D9" },
           }}
         >
-          Send Invite
+          {isSubmitting ? "Sending..." : "Send Invite"}
         </Button>
       </DialogActions>
     </Dialog>

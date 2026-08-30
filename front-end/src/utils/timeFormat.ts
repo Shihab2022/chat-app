@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { normalizeMessage } from "./messageNormalize";
+
 export const formatDate = (isoString: Date): string => {
   const d = new Date(isoString);
   const today = new Date();
@@ -37,35 +39,64 @@ export const formatTimes: any = (isoString: any) => {
 
 export function groupMessagesByDate(messages: any) {
   return messages.reduce((groups: any, msg: any) => {
-    const dateObj = new Date(msg.created_at);
+    const normalized = normalizeMessage(msg);
+    const dateObj = new Date(normalized.created_at);
     const formattedDate = formatDate(dateObj);
     if (!groups[formattedDate]) {
       groups[formattedDate] = [];
     }
-    groups[formattedDate].push(msg);
+    groups[formattedDate].push(normalized);
 
     return groups;
   }, {});
 }
 
 export function addMessageToGroups(groups: any, msg: any) {
-  const dateObj = new Date(msg.created_at);
-
+  const normalized = normalizeMessage(msg);
+  const dateObj = new Date(normalized.created_at);
   const formattedDate = formatDate(dateObj);
-  if (!groups[formattedDate]) {
-    groups[formattedDate] = [];
+  const nextGroups = { ...groups };
+
+  if (!nextGroups[formattedDate]) {
+    nextGroups[formattedDate] = [];
   }
 
-  // Add the message
-  groups[formattedDate].push(msg);
+  const msgId = String(normalized.id ?? "");
+  const senderId = String(normalized.sender_id ?? "");
+  const msgText = normalized.text ?? "";
 
-  return groups;
+  for (const dateKey of Object.keys(nextGroups)) {
+    const existingIdx = nextGroups[dateKey].findIndex(
+      (existing: any) => String(existing.id) === msgId,
+    );
+    if (existingIdx >= 0) {
+      const updated = [...nextGroups[dateKey]];
+      updated[existingIdx] = { ...updated[existingIdx], ...normalized };
+      return { ...nextGroups, [dateKey]: updated };
+    }
+
+    const optimisticIdx = nextGroups[dateKey].findIndex(
+      (existing: any) =>
+        String(existing.id).startsWith("local-") &&
+        String(existing.sender_id) === senderId &&
+        (existing.text ?? "") === msgText,
+    );
+    if (optimisticIdx >= 0) {
+      const updated = [...nextGroups[dateKey]];
+      updated[optimisticIdx] = { ...normalized, seen: normalized.seen ?? updated[optimisticIdx].seen };
+      return { ...nextGroups, [dateKey]: updated };
+    }
+  }
+
+  nextGroups[formattedDate] = [...nextGroups[formattedDate], normalized];
+  return nextGroups;
 }
 export function formatFirstMessage(msg: any) {
-  const dateObj = new Date(msg.created_at);
+  const normalized = normalizeMessage(msg);
+  const dateObj = new Date(normalized.created_at);
   const formattedDate = formatDate(dateObj);
 
   return {
-    [formattedDate]: [msg],
+    [formattedDate]: [normalized],
   };
 }

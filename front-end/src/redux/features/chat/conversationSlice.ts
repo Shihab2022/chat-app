@@ -30,25 +30,32 @@ const conversationSlice = createSlice({
       state.isEmojiAdded = false;
     },
     SET_REAL_TIME_CONVERSATION: (state, action) => {
+      const payload = action?.payload;
+      const peerId = String(state.receiverId || "");
+      if (!peerId || !payload) {
+        state.isEmojiAdded = false;
+        return;
+      }
+
+      const isCurrentGroupChat = String(payload.group_id || "") === peerId;
       const isCurrentDirectChat =
-        action?.payload?.sender_id === state.receiverId;
-      const isCurrentGroupChat =
-        String(action?.payload?.group_id || "") === String(state.receiverId);
+        String(payload.sender_id || "") === peerId ||
+        String(payload.receiver_id || payload.receiverId || "") === peerId;
+
       if (isCurrentDirectChat || isCurrentGroupChat) {
         if (Object.keys(state.messages).length > 0) {
-          const addedMessage = addMessageToGroups(
-            state.messages,
-            action.payload,
-          );
-          state.messages = addedMessage;
+          state.messages = addMessageToGroups(state.messages, payload);
         } else {
-          const addedMessage = formatFirstMessage(action.payload);
-          state.messages = addedMessage;
+          state.messages = formatFirstMessage(payload);
         }
       }
       state.isEmojiAdded = false;
     },
     SET_RECEIVER_ID: (state, action) => {
+      if (state.receiverId !== action.payload) {
+        state.messages = {};
+        state.isEmojiAdded = false;
+      }
       state.receiverId = action.payload;
     },
     SET_EMOJI_STATUS: (state, action) => {
@@ -94,12 +101,11 @@ const conversationSlice = createSlice({
       ) as GroupedMessages;
     },
     REMOVE_EMOJI: (state, action) => {
+      state.isEmojiAdded = true;
       state.messages = formateMessageAndUpdate(
         action.payload,
         state.messages as Record<string, any[]>,
       ) as GroupedMessages;
-      state.isEmojiAdded = true;
-      state.selectedReactions = action.payload.reactions;
     },
     SET_REPLIED_MESSAGE: (state, action) => {
       state.repliedMessage = action.payload;
@@ -110,7 +116,9 @@ const conversationSlice = createSlice({
     SET_MESSAGE_SEEN_UPDATE: (state, action) => {
       const { messageId, seen_at } = action.payload;
       for (const dateKey of Object.keys(state.messages)) {
-        const message = state.messages[dateKey].find((m) => m.id === messageId);
+        const message = state.messages[dateKey].find(
+          (m) => String(m.id) === String(messageId),
+        );
         if (message) {
           message.seen = true;
           if (seen_at) message.seen_at = seen_at;

@@ -5,6 +5,8 @@ import {
   SET_ALL_USERS,
   SET_END_TYPING_STATUS,
   SET_START_TYPING_STATUS,
+  CLEAR_UNREAD_FOR_PEER,
+  INCREMENT_UNREAD_FOR_PEER,
 } from "../redux/features/auth/authSlice";
 import {
   DELETE_MESSAGE,
@@ -116,7 +118,27 @@ export function connectSocket(userId: string, dispatch: any) {
     dispatch(SET_ACTIVE_USERS(userIds));
   });
   socket.on(SOCKET_EVENTS.NEW_MESSAGE, (msg) => {
-    dispatch(SET_REAL_TIME_CONVERSATION(msg));
+    dispatch((innerDispatch: any, getState: any) => {
+      const state = getState();
+      const currentReceiverId = String(state?.message?.receiverId ?? "");
+      const senderId = String(msg?.sender_id ?? "");
+      const isCurrentChat = senderId === currentReceiverId;
+
+      innerDispatch(SET_REAL_TIME_CONVERSATION(msg));
+
+      if (senderId) {
+        if (isCurrentChat) {
+          innerDispatch(CLEAR_UNREAD_FOR_PEER(senderId));
+        } else {
+          innerDispatch(
+            INCREMENT_UNREAD_FOR_PEER({
+              peerId: senderId,
+              lastMessage: msg,
+            }),
+          );
+        }
+      }
+    });
   });
   socket.on(SOCKET_EVENTS.NEW_GROUP_MESSAGE, (msg) => {
     dispatch(SET_REAL_TIME_CONVERSATION(msg));

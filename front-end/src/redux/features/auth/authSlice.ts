@@ -42,6 +42,37 @@ const authSlice = createSlice({
           : { ...user },
       );
     },
+    CLEAR_UNREAD_FOR_PEER: (state, action) => {
+      const peerId = String(action.payload);
+      state.allUsers = state.allUsers.map((user: TUser) =>
+        String(user.id) === peerId ? { ...user, unreadCount: 0 } : user,
+      );
+    },
+    UPDATE_PEER_LAST_MESSAGE: (state, action) => {
+      const { peerId, lastMessage } = action.payload;
+      state.allUsers = state.allUsers.map((user: TUser) =>
+        String(user.id) === String(peerId)
+          ? {
+              ...user,
+              lastMessage,
+              updatedAt: lastMessage?.created_at,
+            }
+          : user,
+      );
+    },
+    INCREMENT_UNREAD_FOR_PEER: (state, action) => {
+      const { peerId, lastMessage } = action.payload;
+      state.allUsers = state.allUsers.map((user: TUser) =>
+        String(user.id) === String(peerId)
+          ? {
+              ...user,
+              lastMessage,
+              updatedAt: lastMessage?.created_at,
+              unreadCount: (user.unreadCount || 0) + 1,
+            }
+          : user,
+      );
+    },
   },
 });
 
@@ -51,5 +82,8 @@ export const {
   SET_ALL_USERS,
   SET_START_TYPING_STATUS,
   SET_END_TYPING_STATUS,
+  CLEAR_UNREAD_FOR_PEER,
+  UPDATE_PEER_LAST_MESSAGE,
+  INCREMENT_UNREAD_FOR_PEER,
 } = authSlice.actions;
 export default authSlice.reducer;

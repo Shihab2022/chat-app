@@ -22,9 +22,9 @@ export const CCard = ({ formattedData, selectedEmoji }: any) => {
   const { id: myId } = loginUser;
   const dispatch = useDispatch();
   const data = get(formattedData, selectedEmoji, []);
-  const handelRemoveEmoji = async (id: string, messId: string) => {
+  const handelRemoveEmoji = async (messId: string) => {
     try {
-      const res = await removeEmoji({ receiverId, messId, emojiId: id });
+      const res = await removeEmoji({ receiverId, messId, messageId: messId });
       if (res?.success) {
         dispatch(REMOVE_EMOJI(res?.data));
         dispatch(SET_EMOJI_DETAILS_DIALOG_STATUS(false));
@@ -36,9 +36,10 @@ export const CCard = ({ formattedData, selectedEmoji }: any) => {
   return (
     <>
       {data.map((d: any) => {
-        const { emoji, img, name, id, userId, messId } = d;
+        const { emoji, img, name, userId, messId } = d;
         return (
           <Stack
+            key={`${messId}-${userId}-${emoji}`}
             direction="row"
             spacing={4}
             sx={{
@@ -91,8 +92,9 @@ export const CCard = ({ formattedData, selectedEmoji }: any) => {
                   textDecoration: "underline",
                   fontSize: "15px",
                 }}
-                onClick={() => {
-                  handelRemoveEmoji(id, messId);
+                onClick={(e) => {
+                  e.preventDefault();
+                  handelRemoveEmoji(messId);
                 }}
               >
                 Remove

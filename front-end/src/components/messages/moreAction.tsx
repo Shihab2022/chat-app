@@ -129,13 +129,11 @@ export default function MoreActions({
           horizontal: "left",
         }}
       >
-        {(mess?.sender_id === myId
+        {(String(mess?.sender_id) === String(myId)
           ? moreActionsConfigMyActions
           : moreActionsConfig
         ).map((c) => (
-          <CCard c={c} handleClick={handleClick}>
-            Profile
-          </CCard>
+          <CCard key={c.title} c={c} handleClick={handleClick} />
         ))}
       </Menu>
 

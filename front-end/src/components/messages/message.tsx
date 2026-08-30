@@ -30,11 +30,7 @@ const Message = () => {
   return (
     <Box
       sx={{
-        pt: { xs: 2, sm: 3 },
-        pb: 3,
-        px: { xs: 1.5, sm: 3 },
-        maxWidth: 1000,
-        mx: "auto",
+        width: "100%",
         display: "flex",
         flexDirection: "column",
         gap: 2,

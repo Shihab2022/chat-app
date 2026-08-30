@@ -29,7 +29,7 @@ export interface ChatMessage {
   id: string;
   sender_id: string;
   receiverId: string;
-  text: string;
+  text?: string;
   seen?: boolean;
   pending?: boolean;
   isDeleted?: boolean;
@@ -43,12 +43,15 @@ export type GroupedMessages = {
   [date: string]: ChatMessage[];
 };
 export type TMessage = {
-  id: string; // comes as string in JSON
+  id: string;
   sender_id: string;
   receiverId: string;
   text?: string;
   image?: string;
-  created_at: string; // usually ISO string from backend
+  file?: string;
+  fileName?: string;
+  fileType?: string;
+  created_at: string;
   updatedAt?: string;
   time?: string;
   seen: boolean;
@@ -57,6 +60,7 @@ export type TMessage = {
   isDeleted?: boolean;
   replyId?: string;
   reactions?: Reaction[];
+  group_id?: string;
 };
 
 export type Reaction = {

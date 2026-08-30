@@ -14,6 +14,8 @@ import ResendEmail from "../pages/reSendConfirm";
 import ManageUser from "../pages/manageUser";
 import HomePage from "../pages/home";
 
+import InviteRedirect from "../pages/inviteRedirect";
+
 export default function Router() {
   return useRoutes([
     {
@@ -27,6 +29,10 @@ export default function Router() {
           <ChatContainer />
         </ProtectedRoute>
       ),
+    },
+    {
+      path: "/invite",
+      element: <InviteRedirect />,
     },
     {
       path: "/inviteUser",

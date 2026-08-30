@@ -29,7 +29,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { RootState } from "../../redux/store";
 import { SET_NEW_GROUP_MODAL_OPEN } from "../../redux/features/settings/settingsSlice";
 import { SET_ALL_USERS } from "../../redux/features/auth/authSlice";
-import { createGroupAPI, getGroupsAPI } from "../../services/message";
+import { createGroupAPI, getGroupsAPI, uploadMessageAttachmentAPI } from "../../services/message";
 import { PURPLE_PRIMARY } from "../../theme";
 import { showToast } from "../../utils/toast";
 import { SUCCESS, FAILED } from "../../constants/common";
@@ -46,6 +46,7 @@ export const NewGroupModal: React.FC = () => {
   const [groupName, setGroupName] = useState("");
   const [groupDescription, setGroupDescription] = useState("");
   const [groupAvatar, setGroupAvatar] = useState<string>("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [groupType, setGroupType] = useState<"public" | "private">("public");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,6 +62,7 @@ export const NewGroupModal: React.FC = () => {
     setGroupName("");
     setGroupDescription("");
     setGroupAvatar("");
+    setAvatarFile(null);
     setSelectedParticipants([]);
     setGroupType("public");
   };
@@ -68,6 +70,7 @@ export const NewGroupModal: React.FC = () => {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setAvatarFile(file);
       const reader = new FileReader();
       reader.onload = () => {
         setGroupAvatar(reader.result as string);
@@ -90,9 +93,23 @@ export const NewGroupModal: React.FC = () => {
 
     try {
       setIsSubmitting(true);
+      let uploadedImageUrl: string | undefined = undefined;
+
+      if (avatarFile) {
+        try {
+          const uploadRes = await uploadMessageAttachmentAPI(avatarFile);
+          if (uploadRes?.success && uploadRes.data?.url) {
+            uploadedImageUrl = uploadRes.data.url;
+          }
+        } catch (uploadErr) {
+          console.warn("Avatar upload failed during group creation:", uploadErr);
+        }
+      }
+
       const res = await createGroupAPI({
         name: groupName.trim(),
         description: groupDescription.trim(),
+        img: uploadedImageUrl,
         initialMemberIds: selectedParticipants.map(Number),
       });
 

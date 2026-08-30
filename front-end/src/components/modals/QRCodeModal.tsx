@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import QRCode from "qrcode";
 import {
   Dialog,
   DialogTitle,
@@ -12,7 +13,7 @@ import {
   Tabs,
   Tab,
   Stack,
-  Avatar,
+  Tooltip,
   CircularProgress,
   Alert,
 } from "@mui/material";
@@ -27,12 +28,13 @@ import FullscreenExitRoundedIcon from "@mui/icons-material/FullscreenExitRounded
 import QrCodeScannerRoundedIcon from "@mui/icons-material/QrCodeScannerRounded";
 import QrCode2RoundedIcon from "@mui/icons-material/QrCode2Rounded";
 import UploadFileRoundedIcon from "@mui/icons-material/UploadFileRounded";
+import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 
 import { RootState } from "../../redux/store";
 import { SET_QR_CODE_MODAL_OPEN } from "../../redux/features/settings/settingsSlice";
 import { PURPLE_PRIMARY } from "../../theme";
 import { showToast } from "../../utils/toast";
-import { SUCCESS } from "../../constants/common";
+import { SUCCESS, FAILED } from "../../constants/common";
 
 export const QRCodeModal: React.FC = () => {
   const theme = useTheme();
@@ -51,6 +53,7 @@ export const QRCodeModal: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     if (qrCodeInitialTab) {
@@ -58,97 +61,95 @@ export const QRCodeModal: React.FC = () => {
     }
   }, [qrCodeInitialTab, isQRCodeModalOpen]);
 
-  const displayName = loginUser?.name || profileUserData.name;
-  const username = profileUserData.username || (loginUser?.username ? `@${String(loginUser.username).replace(/^@/, "")}` : "");
+  const displayName = loginUser?.name || profileUserData.name || "User";
+  const username =
+    profileUserData.username ||
+    (loginUser?.username ? `@${String(loginUser.username).replace(/^@/, "")}` : "");
   const userId = loginUser?.id ? String(loginUser.id) : "";
   const userAvatar = loginUser?.img || profileUserData.avatar;
 
-  // Draw real high-quality QR code onto canvas
+  const inviteLink = `${window.location.origin}/invite?id=${userId}`;
+
+  // Generate Real High-Precision QR Code using standard 'qrcode' package
   useEffect(() => {
-    if (activeTab !== "my-code" || !isQRCodeModalOpen) return;
+    if (activeTab !== "my-code" || !isQRCodeModalOpen || !canvasRef.current) return;
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const generateRealQRCode = async () => {
+      try {
+        setIsGenerating(true);
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-    const size = 220;
-    canvas.width = size;
-    canvas.height = size;
+        // Generate standard QR code with high error correction level 'H'
+        // High error correction (30%) allows placing center avatar without breaking readability
+        await QRCode.toCanvas(canvas, inviteLink, {
+          width: 240,
+          margin: 2,
+          errorCorrectionLevel: "H",
+          color: {
+            dark: "#1E1B4B", // Deep indigo / near-black
+            light: "#FFFFFF",
+          },
+        });
 
-    // Background
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, size, size);
+        // Draw centered branding / avatar badge onto the canvas
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          const centerX = canvas.width / 2;
+          const centerY = canvas.height / 2;
+          const avatarRadius = 24;
 
-    // Generate pseudo QR pattern based on user info & seed key
-    const moduleCount = 29;
-    const moduleSize = size / moduleCount;
-
-    // Draw position finder patterns at 3 corners
-    const drawFinderPattern = (startX: number, startY: number) => {
-      ctx.fillStyle = "#111827";
-      // 7x7 outer box
-      ctx.fillRect(startX * moduleSize, startY * moduleSize, 7 * moduleSize, 7 * moduleSize);
-      // 5x5 white inner
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect((startX + 1) * moduleSize, (startY + 1) * moduleSize, 5 * moduleSize, 5 * moduleSize);
-      // 3x3 dark center
-      ctx.fillStyle = "#111827";
-      ctx.fillRect((startX + 2) * moduleSize, (startY + 2) * moduleSize, 3 * moduleSize, 3 * moduleSize);
-    };
-
-    drawFinderPattern(1, 1);
-    drawFinderPattern(moduleCount - 8, 1);
-    drawFinderPattern(1, moduleCount - 8);
-
-    // Random but seeded dots
-    let seed = qrKey;
-    const seededRandom = () => {
-      seed = (seed * 9301 + 49297) % 233280;
-      return seed / 233280;
-    };
-
-    ctx.fillStyle = "#111827";
-    for (let r = 0; r < moduleCount; r++) {
-      for (let c = 0; c < moduleCount; c++) {
-        if (
-          (r < 9 && c < 9) ||
-          (r < 9 && c > moduleCount - 10) ||
-          (r > moduleCount - 10 && c < 9)
-        ) {
-          continue;
-        }
-
-        const centerStart = Math.floor(moduleCount / 2) - 2;
-        const centerEnd = Math.floor(moduleCount / 2) + 2;
-        if (r >= centerStart && r <= centerEnd && c >= centerStart && c <= centerEnd) {
-          continue;
-        }
-
-        if (seededRandom() > 0.48) {
+          // White circular background border
+          ctx.save();
           ctx.beginPath();
-          ctx.roundRect(c * moduleSize + 0.5, r * moduleSize + 0.5, moduleSize - 1, moduleSize - 1, 1);
+          ctx.arc(centerX, centerY, avatarRadius + 4, 0, Math.PI * 2);
+          ctx.fillStyle = "#FFFFFF";
           ctx.fill();
+
+          // Purple avatar background circle
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, avatarRadius, 0, Math.PI * 2);
+          ctx.fillStyle = PURPLE_PRIMARY;
+          ctx.fill();
+
+          // If avatar image is available, draw image, otherwise draw initial letter
+          if (userAvatar && userAvatar.startsWith("http")) {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(centerX, centerY, avatarRadius, 0, Math.PI * 2);
+              ctx.clip();
+              ctx.drawImage(
+                img,
+                centerX - avatarRadius,
+                centerY - avatarRadius,
+                avatarRadius * 2,
+                avatarRadius * 2
+              );
+              ctx.restore();
+            };
+            img.src = userAvatar;
+          } else {
+            // Initial letter
+            ctx.fillStyle = "#FFFFFF";
+            ctx.font = "bold 20px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(displayName?.[0]?.toUpperCase() || "U", centerX, centerY + 1);
+          }
+          ctx.restore();
         }
+      } catch (err) {
+        console.error("Error generating QR code:", err);
+      } finally {
+        setIsGenerating(false);
       }
-    }
+    };
 
-    // Draw center circle for avatar
-    const centerX = size / 2;
-    const centerY = size / 2;
-    const avatarRadius = 20;
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, avatarRadius + 3, 0, Math.PI * 2);
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, avatarRadius, 0, Math.PI * 2);
-    ctx.fillStyle = PURPLE_PRIMARY;
-    ctx.fill();
-    ctx.restore();
-  }, [activeTab, isQRCodeModalOpen, qrKey, displayName]);
+    void generateRealQRCode();
+  }, [activeTab, isQRCodeModalOpen, qrKey, inviteLink, displayName, userAvatar]);
 
   // Camera stream for scanning
   useEffect(() => {
@@ -167,13 +168,9 @@ export const QRCodeModal: React.FC = () => {
         })
         .catch((err) => {
           console.warn("Camera access denied or unavailable:", err);
-          setCameraError("Camera access was not granted. You can still scan an image file below.");
+          setCameraError("Camera is unavailable or permission was not granted. You can scan or upload a QR image from device below.");
         })
         .finally(() => setIsScanning(false));
-    } else {
-      if (stream) {
-        (stream as MediaStream).getTracks().forEach((track) => track.stop());
-      }
     }
 
     return () => {
@@ -194,21 +191,29 @@ export const QRCodeModal: React.FC = () => {
   };
 
   const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/invite?id=${userId}`;
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${displayName}'s Contact QR Code`,
-          text: `Scan or open this link to chat with ${displayName} on Chatty:`,
-          url: shareUrl,
+          title: `Connect with ${displayName} on Chatty`,
+          text: `Scan my QR code or click this link to chat with me on Chatty:`,
+          url: inviteLink,
         });
-        showToast(SUCCESS, "Shared successfully!");
+        showToast(SUCCESS, "Invite shared!");
       } catch {
-        // User dismissed
+        // User cancelled share
       }
     } else {
-      await navigator.clipboard.writeText(shareUrl);
-      showToast(SUCCESS, "Contact invite link copied to clipboard!");
+      await navigator.clipboard.writeText(inviteLink);
+      showToast(SUCCESS, "Profile invite link copied to clipboard!");
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      showToast(SUCCESS, "Invite link copied to clipboard!");
+    } catch {
+      showToast(FAILED, "Failed to copy link");
     }
   };
 
@@ -217,10 +222,10 @@ export const QRCodeModal: React.FC = () => {
     if (!canvas) return;
     const url = canvas.toDataURL("image/png");
     const link = document.createElement("a");
-    link.download = `${displayName.replace(/\s+/g, "_")}_QR.png`;
+    link.download = `${displayName.replace(/\s+/g, "_")}_Chatty_QR.png`;
     link.href = url;
     link.click();
-    showToast(SUCCESS, "QR Code downloaded as PNG");
+    showToast(SUCCESS, "QR Code image downloaded");
   };
 
   const handlePrint = () => {
@@ -230,7 +235,7 @@ export const QRCodeModal: React.FC = () => {
   const handleScanFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      showToast(SUCCESS, `Scanned code from "${file.name}"! User added to contacts.`);
+      showToast(SUCCESS, `QR code file "${file.name}" selected! Opening chat...`);
       handleClose();
     }
   };
@@ -239,7 +244,7 @@ export const QRCodeModal: React.FC = () => {
     <Dialog
       open={isQRCodeModalOpen}
       onClose={handleClose}
-      maxWidth={isFullscreen ? false : "sm"}
+      maxWidth={isFullscreen ? false : "xs"}
       fullScreen={isFullscreen}
       slotProps={{
         paper: {
@@ -249,7 +254,7 @@ export const QRCodeModal: React.FC = () => {
             overflow: "hidden",
             backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : "#FFFFFF",
             boxShadow: "0 10px 40px rgba(0,0,0,0.18)",
-            width: isFullscreen ? "100%" : "480px",
+            width: isFullscreen ? "100%" : "440px",
             maxWidth: "100%",
           },
         },
@@ -286,7 +291,7 @@ export const QRCodeModal: React.FC = () => {
       {/* ── Content ── */}
       <DialogContent sx={{ p: 2.5, overflowY: "auto" }}>
         {/* Tabs: My Code / Scan Code */}
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 2.5 }}>
           <Tabs
             value={activeTab}
             onChange={(_, val) => setActiveTab(val)}
@@ -342,16 +347,16 @@ export const QRCodeModal: React.FC = () => {
         </Box>
 
         {activeTab === "my-code" ? (
-          /* ── MY CODE TAB matching PDF Page 7 ── */
+          /* ── MY CODE TAB ── */
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-            {/* QR Code Canvas with Centered Embedded Avatar */}
+            {/* Real QR Code Canvas */}
             <Box
               sx={{
-                p: 2,
+                p: 1.5,
                 borderRadius: "16px",
                 backgroundColor: "#FFFFFF",
                 border: `1px solid ${theme.palette.divider}`,
-                boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
                 position: "relative",
                 display: "inline-flex",
                 alignItems: "center",
@@ -359,47 +364,79 @@ export const QRCodeModal: React.FC = () => {
                 mb: 2,
               }}
             >
-              <canvas ref={canvasRef} style={{ width: 200, height: 200, display: "block" }} />
-
-              {/* Embedded Center Avatar */}
-              <Avatar
-                src={userAvatar}
-                alt={displayName}
-                sx={{
-                  position: "absolute",
-                  width: 38,
-                  height: 38,
-                  border: "2px solid #FFFFFF",
-                  backgroundColor: PURPLE_PRIMARY,
-                  color: "#FFFFFF",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                }}
-              >
-                {displayName?.[0]?.toUpperCase()}
-              </Avatar>
+              {isGenerating ? (
+                <Box sx={{ width: 220, height: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <CircularProgress size={32} />
+                </Box>
+              ) : (
+                <canvas
+                  ref={canvasRef}
+                  style={{
+                    width: 220,
+                    height: 220,
+                    display: "block",
+                    borderRadius: "8px",
+                  }}
+                />
+              )}
             </Box>
 
-            {/* Name & Details */}
+            {/* Name & Username */}
             <Typography variant="h6" sx={{ fontWeight: 700, fontSize: "1.05rem" }}>
               {displayName}
             </Typography>
 
             <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: "block", fontSize: "0.78rem" }}>
-              {username}
+              {username || (loginUser?.email ? loginUser.email : "")}
             </Typography>
 
-            <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: "block", fontSize: "0.75rem", mt: 0.25 }}>
-              User ID: {userId || "—"}
-            </Typography>
+            {/* Link Preview with Copy Button */}
+            <Box
+              sx={{
+                mt: 1.5,
+                mb: 1.5,
+                px: 1.5,
+                py: 0.75,
+                borderRadius: "8px",
+                backgroundColor: theme.palette.mode === "dark" ? alpha("#FFFFFF", 0.04) : "#F3F4F6",
+                border: `1px solid ${theme.palette.divider}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                maxWidth: 320,
+              }}
+            >
+              <Typography
+                variant="caption"
+                noWrap
+                sx={{
+                  color: theme.palette.text.secondary,
+                  fontSize: "0.72rem",
+                  fontFamily: "monospace",
+                  flex: 1,
+                  textAlign: "left",
+                  mr: 1,
+                }}
+              >
+                {inviteLink}
+              </Typography>
+              <Tooltip title="Copy Link">
+                <IconButton size="small" onClick={handleCopyLink} sx={{ color: PURPLE_PRIMARY, p: 0.25 }}>
+                  <ContentCopyRoundedIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
+            </Box>
 
             {/* Privacy Disclaimer */}
-            <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: "0.72rem", mt: 1.5, mb: 3, maxWidth: 320 }}>
-              Your code is private. Only people you share it with can add you.
+            <Typography
+              variant="caption"
+              sx={{ color: theme.palette.text.secondary, fontSize: "0.72rem", mb: 2.5, maxWidth: 300 }}
+            >
+              Scan this code with any phone camera or QR reader to connect on Chatty.
             </Typography>
 
-            {/* 5 Action Buttons matching PDF Page 7 */}
+            {/* 5 Action Buttons */}
             <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", justifyContent: "center", gap: 1 }}>
               <Button
                 variant="outlined"
@@ -493,7 +530,13 @@ export const QRCodeModal: React.FC = () => {
                 variant="contained"
                 size="small"
                 onClick={() => setIsFullscreen(!isFullscreen)}
-                startIcon={isFullscreen ? <FullscreenExitRoundedIcon sx={{ fontSize: 16 }} /> : <FullscreenRoundedIcon sx={{ fontSize: 16 }} />}
+                startIcon={
+                  isFullscreen ? (
+                    <FullscreenExitRoundedIcon sx={{ fontSize: 16 }} />
+                  ) : (
+                    <FullscreenRoundedIcon sx={{ fontSize: 16 }} />
+                  )
+                }
                 sx={{
                   borderRadius: "8px",
                   backgroundColor: PURPLE_PRIMARY,

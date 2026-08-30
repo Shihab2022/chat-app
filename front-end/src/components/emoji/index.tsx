@@ -13,64 +13,73 @@ import { addEmoji } from "../../services/message";
 
 const EmojiPicker = ({
   onEmojiChanges,
-  onEmojiChangesFromMessage,
 }: {
-  onEmojiChanges?: any;
-  onEmojiChangesFromMessage?: any;
+  onEmojiChanges?: (emoji: string) => void;
 }) => {
+  const dispatch = useDispatch();
   const { isEmojiOpen, anchorElEmoji, isOneIcon, receiverId, selectedMessage } =
     useSelector((state: RootState) => state?.message);
   const { loginUser } = useSelector((state: RootState) => state?.auth);
-  const { id: myId } = loginUser;
+  const myId = loginUser?.id;
 
-  const handleEmoji = async (emoji: string) => {
+  const handleReactionEmoji = async (emoji: string) => {
+    if (!selectedMessage?.id || String(selectedMessage.id).startsWith("local-")) {
+      return;
+    }
+
     const params = {
-      messageId: selectedMessage?.id,
+      messageId: selectedMessage.id,
       userId: myId,
       emoji,
       receiverId,
     };
+
     try {
       const res = await addEmoji(params);
       if (res?.success) {
         dispatch(SET_EMOJI_WITH_DATA(res?.data));
       }
     } catch (error) {
-      console.log({ error });
+      console.error("Failed to add reaction:", error);
     }
   };
-  const dispatch = useDispatch();
+
   return (
-    <>
-      <Menu
-        id="basic-menu"
-        open={isEmojiOpen}
-        anchorEl={anchorElEmoji}
-        onClose={() => {
-          dispatch(SET_EMOJI_ANCHOR_EL(null));
-          dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
-        }}
-      >
-        {isEmojiOpen && (
-          <Box sx={{ p: 0.5, minWidth: 352, maxWidth: "calc(100vw - 24px)" }}>
-            <Picker
-              data={data}
-              onEmojiSelect={(emoji: { native: string }) => {
-                if (isOneIcon) {
-                  handleEmoji(emoji.native);
-                  dispatch(SET_EMOJI_ANCHOR_EL(null));
-                  dispatch(SET_EMOJI_STATUS(!isEmojiOpen));
-                }
-                isOneIcon
-                  ? onEmojiChangesFromMessage(emoji.native)
-                  : onEmojiChanges(emoji.native);
-              }}
-              previewPosition="none"
-            />
-          </Box>
-        )}
-      </Menu>
-    </>
+    <Menu
+      id="message-emoji-menu"
+      open={isEmojiOpen}
+      anchorEl={anchorElEmoji}
+      onClose={() => {
+        dispatch(SET_EMOJI_ANCHOR_EL(null));
+        dispatch(SET_EMOJI_STATUS(false));
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 2,
+            overflow: "hidden",
+          },
+        },
+      }}
+    >
+      {isEmojiOpen && (
+        <Box sx={{ p: 0.5, minWidth: 352, maxWidth: "calc(100vw - 24px)" }}>
+          <Picker
+            data={data}
+            onEmojiSelect={(emoji: { native: string }) => {
+              if (isOneIcon) {
+                void handleReactionEmoji(emoji.native);
+              } else {
+                onEmojiChanges?.(emoji.native);
+              }
+              dispatch(SET_EMOJI_ANCHOR_EL(null));
+              dispatch(SET_EMOJI_STATUS(false));
+            }}
+            previewPosition="none"
+          />
+        </Box>
+      )}
+    </Menu>
   );
 };
 

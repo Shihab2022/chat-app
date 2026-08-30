@@ -1,15 +1,27 @@
-import { useState, useEffect, useRef } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { Box, Paper, Stack, Typography, Tooltip } from "@mui/material";
+import {
+  Box,
+  Paper,
+  Stack,
+  Typography,
+  Tooltip,
+  Link,
+  Dialog,
+  DialogContent,
+} from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 import DoneIcon from "@mui/icons-material/Done";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PictureAsPdfRoundedIcon from "@mui/icons-material/PictureAsPdfRounded";
+import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
 
 import { RootState } from "../../redux/store";
 import { TMessage, TUser } from "../../types";
 import { formatTimes } from "../../utils/timeFormat";
-import { CHATTY_INCOMING_BUBBLE, CHATTY_OUTGOING_BUBBLE } from "../../theme";
+import { PURPLE_PRIMARY } from "../../theme";
 import MessageIcons from "./messageIcons";
 import ShowingEmoji from "./showingEmoji";
 import { ImgViewer } from "../imgViewer";
@@ -20,7 +32,7 @@ interface ShowingMessageProps {
   messageEndRef: React.RefObject<HTMLDivElement>;
 }
 
-const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
+export const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
   const theme = useTheme();
   const {
     text,
@@ -31,39 +43,41 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
     seen,
     seen_at,
     pending,
+    image,
+    file,
+    fileName,
   } = mess;
+
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+  const resolvedReplyId = replyId || (mess as any).reply_id;
 
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const { loginUser, allUsers } = useSelector(
-    (state: RootState) => state?.auth,
-  );
+  const { loginUser, allUsers = [] } = useSelector((state: RootState) => state?.auth);
   const { messages = {}, receiverId } = useSelector((state: RootState) => state?.message);
-  const myId = loginUser?.id;
-  const isOwn = sender_id === myId;
+  const myId = String(loginUser?.id || "");
+  const isOwn = String(sender_id) === myId;
   const time = formatTimes(created_at);
   const seenTime = seen_at ? formatTimes(seen_at) : null;
 
-  const userInfo = allUsers.find((user: TUser) => user.id === sender_id);
+  const userInfo = allUsers.find((user: TUser) => String(user.id) === String(sender_id));
   const activeChat = allUsers.find((u: TUser) => String(u.id) === String(receiverId));
   const isGroupChat = !!activeChat?.isGroup;
-  const senderName = isGroupChat && !isOwn ? userInfo?.name || "Unknown" : "";
+  const senderName = isGroupChat && !isOwn ? userInfo?.name || "Member" : "";
 
-  // Find replied message details
-  const repliedMessage = replyId
+  // Replied message details
+  const repliedMessage = resolvedReplyId
     ? (Object.values(messages) as TMessage[][])
         .flat()
-        .find((m) => m.id === replyId)
+        .find((m) => String(m.id) === String(resolvedReplyId))
     : undefined;
 
   const replyUser = repliedMessage
-    ? allUsers.find((user: TUser) => user.id === repliedMessage.sender_id)
+    ? allUsers.find((user: TUser) => String(user.id) === String(repliedMessage.sender_id))
     : undefined;
 
-  // -------------------------------------------------------------
-  // Automatic Seen Observer: Emits when an unread message is visible
-  // -------------------------------------------------------------
+  // Automatic seen observer
   useEffect(() => {
     if (isOwn || seen || !containerRef.current) return;
 
@@ -78,24 +92,20 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
           }
         });
       },
-      { threshold: 0.6 },
+      { threshold: 0.6 }
     );
 
     observer.observe(containerRef.current);
-
     return () => observer.disconnect();
   }, [isOwn, seen, mess]);
 
-  // Render checkmark / status icon for outgoing messages
   const renderStatusIcon = () => {
     if (!isOwn) return null;
 
     if (pending) {
       return (
         <Tooltip title="Sending...">
-          <AccessTimeIcon
-            sx={{ fontSize: 13, color: theme.palette.text.disabled }}
-          />
+          <AccessTimeIcon sx={{ fontSize: 13, color: alpha("#FFFFFF", 0.7) }} />
         </Tooltip>
       );
     }
@@ -103,29 +113,38 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
     if (seen) {
       return (
         <Tooltip title={seenTime ? `Read at ${seenTime}` : "Seen"}>
-          <DoneAllIcon sx={{ fontSize: 15, color: theme.palette.primary.main }} />
+          <DoneAllIcon sx={{ fontSize: 14, color: "#93C5FD" }} />
         </Tooltip>
       );
     }
 
     return (
       <Tooltip title="Sent">
-        <DoneIcon sx={{ fontSize: 15, color: theme.palette.text.disabled }} />
+        <DoneIcon sx={{ fontSize: 14, color: alpha("#FFFFFF", 0.75) }} />
       </Tooltip>
     );
   };
 
+  const isDarkMode = theme.palette.mode === "dark";
+
+  // Bubble colors
+  const outgoingBg = `linear-gradient(135deg, ${PURPLE_PRIMARY} 0%, #6366F1 100%)`;
+  const incomingBg = isDarkMode ? alpha("#FFFFFF", 0.08) : "#F3F4F6";
+
   const bubbleBackground = isDeleted
     ? "transparent"
     : isOwn
-    ? CHATTY_OUTGOING_BUBBLE
-    : CHATTY_INCOMING_BUBBLE;
+    ? outgoingBg
+    : incomingBg;
+
   const bubbleBorder = isDeleted
     ? `1px dashed ${alpha(theme.palette.error.main, 0.4)}`
     : isOwn
     ? "none"
-    : `1px solid ${alpha(theme.palette.common.black, 0.06)}`;
-  const bubbleRadius = isOwn ? "18px 4px 18px 18px" : "4px 18px 18px 18px";
+    : `1px solid ${isDarkMode ? alpha("#FFFFFF", 0.08) : "#E5E7EB"}`;
+
+  const bubbleRadius = isOwn ? "16px 16px 4px 16px" : "16px 16px 16px 4px";
+  const hasReactions = mess?.reactions && mess.reactions.length > 0;
 
   return (
     <Stack
@@ -137,6 +156,7 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
         position: "relative",
         justifyContent: isOwn ? "flex-end" : "flex-start",
         alignItems: "flex-end",
+        mb: hasReactions ? 1.75 : 0.5,
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -145,9 +165,9 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
 
       {/* Avatar for incoming messages */}
       {!isOwn && (
-        <Box sx={{ mb: 0.5 }}>
+        <Box sx={{ mb: 0.25, flexShrink: 0 }}>
           <ImgViewer
-            img={userInfo?.img}
+            img={userInfo?.img || userInfo?.avatar}
             tooltipText={userInfo?.name || "User"}
           />
         </Box>
@@ -156,8 +176,12 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
       {/* Main Message Block */}
       <Stack
         direction={isOwn ? "row-reverse" : "row"}
-        spacing={1}
-        sx={{ maxWidth: { xs: "85%", sm: "70%", alignItems: "center" } }}
+        spacing={0.75}
+        sx={{
+          maxWidth: { xs: "88%", sm: "75%", md: "68%" },
+          alignItems: "flex-end",
+          minWidth: 0,
+        }}
       >
         <Paper
           elevation={0}
@@ -166,25 +190,29 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
             px: 1.75,
             py: 1,
             borderRadius: bubbleRadius,
-            backgroundColor: bubbleBackground,
-            color: theme.palette.text.primary,
+            background: bubbleBackground,
+            color: isOwn ? "#FFFFFF" : theme.palette.text.primary,
             border: bubbleBorder,
-            boxShadow: `0 1px 4px ${alpha(theme.palette.common.black, 0.06)}`,
+            boxShadow: isOwn
+              ? "0 2px 8px rgba(124, 58, 237, 0.25)"
+              : "0 1px 3px rgba(0,0,0,0.05)",
             position: "relative",
-            minWidth: 100,
+            minWidth: 64,
             maxWidth: "100%",
-            wordBreak: "break-word",
+            overflow: "visible", // Ensures reactions pill is never cut off
+            transition: "all 150ms ease",
           }}
         >
-          {/* Sender name for group chats */}
+          {/* Group Sender Name */}
           {senderName && (
             <Typography
               variant="caption"
               sx={{
                 fontWeight: 700,
+                fontSize: "0.75rem",
                 display: "block",
-                mb: 0.25,
-                color: theme.palette.primary.main,
+                mb: 0.5,
+                color: isDarkMode ? "#A78BFA" : PURPLE_PRIMARY,
               }}
             >
               {senderName}
@@ -192,64 +220,183 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
           )}
 
           {/* Replied Message Preview */}
-          {replyId && (
+          {resolvedReplyId && (
             <Box
               sx={{
-                borderLeft: `3px solid ${theme.palette.primary.main}`,
-                pl: 1.5,
-                py: 0.5,
+                borderLeft: `3px solid ${isOwn ? "#FFFFFF" : PURPLE_PRIMARY}`,
+                pl: 1.25,
+                py: 0.35,
                 mb: 1,
-                borderRadius: 1,
+                borderRadius: "4px",
                 backgroundColor: isOwn
-                  ? alpha(theme.palette.primary.main, 0.12)
-                  : alpha(theme.palette.action.hover, 0.08),
+                  ? alpha("#000000", 0.15)
+                  : alpha(PURPLE_PRIMARY, 0.08),
               }}
             >
               <Typography
                 variant="caption"
                 sx={{
                   fontWeight: 700,
+                  fontSize: "0.72rem",
                   display: "block",
-                  color: theme.palette.primary.main,
+                  color: isOwn ? "#FFFFFF" : PURPLE_PRIMARY,
                 }}
               >
-                {replyUser?.id === myId ? "You" : replyUser?.name || "User"}
+                {String(replyUser?.id) === myId ? "You" : replyUser?.name || "User"}
               </Typography>
               <Typography
                 variant="body2"
                 noWrap
-                sx={{ fontSize: "0.75rem", color: theme.palette.text.secondary }}
+                sx={{
+                  fontSize: "0.75rem",
+                  color: isOwn ? alpha("#FFFFFF", 0.85) : theme.palette.text.secondary,
+                }}
               >
-                {repliedMessage?.text || "Original message"}
+                {repliedMessage?.text || (repliedMessage?.image ? "Photo" : repliedMessage?.file ? "PDF" : "Message")}
               </Typography>
             </Box>
           )}
 
-          {/* Text Content */}
+          {/* Message Content */}
           {isDeleted ? (
             <Typography
               variant="body2"
               sx={{
                 fontStyle: "italic",
+                fontSize: "0.825rem",
                 color: theme.palette.text.secondary,
               }}
             >
               This message was deleted
             </Typography>
           ) : (
-            <Typography
-              variant="body1"
-              sx={{
-                fontSize: "0.95rem",
-                lineHeight: 1.4,
-                wordBreak: "break-word",
-              }}
-            >
-              {text}
-            </Typography>
+            <>
+              {/* Image Preview */}
+              {image && (
+                <Box
+                  sx={{
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    mb: text ? 0.75 : 0,
+                    cursor: "pointer",
+                    position: "relative",
+                  }}
+                  onClick={() => setLightboxImg(image)}
+                >
+                  <Box
+                    component="img"
+                    src={image}
+                    alt="Shared"
+                    sx={{
+                      width: "100%",
+                      maxHeight: 280,
+                      objectFit: "cover",
+                      display: "block",
+                      borderRadius: "10px",
+                      transition: "transform 200ms ease",
+                      "&:hover": { transform: "scale(1.02)" },
+                    }}
+                  />
+                </Box>
+              )}
+
+              {/* PDF Document Card */}
+              {file && (
+                <Link
+                  href={file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="none"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.25,
+                    p: 1.25,
+                    mb: text ? 0.75 : 0,
+                    borderRadius: "10px",
+                    backgroundColor: isOwn
+                      ? alpha("#FFFFFF", 0.15)
+                      : isDarkMode
+                      ? alpha("#FFFFFF", 0.05)
+                      : "#FFFFFF",
+                    border: `1px solid ${
+                      isOwn
+                        ? alpha("#FFFFFF", 0.25)
+                        : isDarkMode
+                        ? alpha("#FFFFFF", 0.1)
+                        : "#E5E7EB"
+                    }`,
+                    color: isOwn ? "#FFFFFF" : theme.palette.text.primary,
+                    transition: "all 150ms ease",
+                    "&:hover": {
+                      backgroundColor: isOwn
+                        ? alpha("#FFFFFF", 0.22)
+                        : alpha(PURPLE_PRIMARY, 0.06),
+                    },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: "8px",
+                      backgroundColor: "#EF4444",
+                      color: "#FFFFFF",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <PictureAsPdfRoundedIcon sx={{ fontSize: 22 }} />
+                  </Box>
+                  <Box sx={{ minWidth: 0, flex: 1 }}>
+                    <Typography
+                      variant="body2"
+                      noWrap
+                      sx={{ fontWeight: 600, fontSize: "0.825rem" }}
+                    >
+                      {fileName || "Document.pdf"}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: isOwn ? alpha("#FFFFFF", 0.75) : theme.palette.text.secondary,
+                        fontSize: "0.7rem",
+                      }}
+                    >
+                      PDF Document
+                    </Typography>
+                  </Box>
+                  <FileDownloadRoundedIcon
+                    sx={{
+                      fontSize: 18,
+                      color: isOwn ? alpha("#FFFFFF", 0.8) : theme.palette.text.secondary,
+                    }}
+                  />
+                </Link>
+              )}
+
+              {/* Text Message */}
+              {text && (
+                <Typography
+                  variant="body2"
+                  component="div"
+                  sx={{
+                    fontSize: "0.875rem",
+                    lineHeight: 1.45,
+                    wordBreak: "break-word",
+                    overflowWrap: "anywhere",
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {text}
+                </Typography>
+              )}
+            </>
           )}
 
-          {/* Footer: Time & Read Status Text Indicator */}
+          {/* Footer Metadata */}
           <Stack
             direction="row"
             spacing={0.5}
@@ -257,46 +404,73 @@ const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => {
               mt: 0.5,
               alignItems: "center",
               justifyContent: "flex-end",
+              userSelect: "none",
             }}
           >
             <Typography
               variant="caption"
               sx={{
                 fontSize: "0.68rem",
-                color: theme.palette.text.secondary,
+                color: isOwn ? alpha("#FFFFFF", 0.75) : theme.palette.text.secondary,
               }}
             >
               {time}
             </Typography>
 
-            {/* Text Label Indicator for Seen Status */}
             {isOwn && seen && !isDeleted && (
               <Typography
                 variant="caption"
                 sx={{
                   fontSize: "0.65rem",
                   fontWeight: 600,
-                  color: theme.palette.primary.main,
+                  color: "#93C5FD",
                   ml: 0.25,
                 }}
               >
-                • {seenTime ? `Read at ${seenTime}` : "Seen"}
+                • {seenTime ? `Read ${seenTime}` : "Seen"}
               </Typography>
             )}
 
-            {/* Checkmark Icon */}
             {!isDeleted && renderStatusIcon()}
           </Stack>
 
-          {/* Reactions Badge */}
-          {mess?.reactions && mess.reactions.length > 0 && !isDeleted && (
+          {/* Reactions Pill Badge (fully visible, elevated with z-index) */}
+          {hasReactions && !isDeleted && (
             <ShowingEmoji mess={mess} myId={myId} />
           )}
         </Paper>
 
-        {/* Hover Action Icons */}
+        {/* Hover Quick Action Icons */}
         {isHovered && !isDeleted && <MessageIcons mess={mess} myId={myId} />}
       </Stack>
+
+      {/* Lightbox Dialog */}
+      <Dialog
+        open={Boolean(lightboxImg)}
+        onClose={() => setLightboxImg(null)}
+        maxWidth="md"
+        slotProps={{
+          paper: {
+            sx: { backgroundColor: "transparent", boxShadow: "none", p: 0 },
+          },
+        }}
+      >
+        <DialogContent sx={{ p: 0, textAlign: "center" }}>
+          {lightboxImg && (
+            <Box
+              component="img"
+              src={lightboxImg}
+              alt="Preview"
+              sx={{
+                maxWidth: "90vw",
+                maxHeight: "85vh",
+                borderRadius: "12px",
+                boxShadow: "0 10px 40px rgba(0,0,0,0.6)",
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Stack>
   );
 };

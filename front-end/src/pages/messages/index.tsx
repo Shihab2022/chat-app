@@ -73,8 +73,11 @@ export default function ChatContainer() {
       if (usersResponse?.success) {
         const users = (usersResponse?.data || []).map((d: TUser) => ({
           ...d,
+          id: String(d.id),
           img: d?.img || "",
           name: toStartCaseStr(d?.name),
+          unreadCount: d?.unreadCount ?? 0,
+          isFavourite: !!d?.isFavourite,
         }));
         const groups = (groupsResponse?.success ? groupsResponse.data : []).map(
           (group: TUser) => ({

@@ -48,14 +48,31 @@ export const formateMessageAndUpdate = (
   newMessage: any,
   allMessage: Record<string, TMessage[]>,
 ) => {
-  const formattedDate = formatDate(newMessage.created_at);
+  const normalized = {
+    ...newMessage,
+    id: String(newMessage.id),
+    isDeleted: Boolean(newMessage.is_deleted ?? newMessage.isDeleted),
+    replyId: newMessage.reply_id ? String(newMessage.reply_id) : newMessage.replyId,
+  };
+  const formattedDate = formatDate(normalized.created_at);
   const messagesForUpdate = get(allMessage, formattedDate, []);
-  const newMessages = messagesForUpdate.map((item: TMessage) =>
-    item.id === newMessage.id ? newMessage : item,
+  const messageId = String(normalized.id);
+  const existingDateKey = Object.keys(allMessage).find((dateKey) =>
+    allMessage[dateKey]?.some((item) => String(item.id) === messageId),
   );
-  const updatedMessages = { ...allMessage, [formattedDate]: newMessages };
+  const targetDate = existingDateKey || formattedDate;
+  const targetMessages = existingDateKey
+    ? [...(allMessage[targetDate] || [])]
+    : [...messagesForUpdate];
 
-  return updatedMessages;
+  const hasMessage = targetMessages.some((item) => String(item.id) === messageId);
+  const newMessages = hasMessage
+    ? targetMessages.map((item) =>
+        String(item.id) === messageId ? { ...item, ...normalized } : item,
+      )
+    : [...targetMessages, normalized];
+
+  return { ...allMessage, [targetDate]: newMessages };
 };
 
 export const formattedSideBarData = (allUsers: any) => {
@@ -79,7 +96,7 @@ export const getLastMessagePreview = (lastMessage: unknown): string => {
     if (typeof text === "string" && text.trim()) return text;
     if (msg.image) return "Photo";
     if (msg.audio) return "Audio message";
-    if (msg.file) return "File";
+    if (msg.file || msg.file_url) return "File";
   }
 
   return "";

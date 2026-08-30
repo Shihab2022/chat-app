@@ -10,6 +10,7 @@ import {
   Divider,
   Stack,
   Tooltip,
+  CircularProgress,
 } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
 import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
@@ -30,14 +31,18 @@ import {
   SET_EDIT_PROFILE_MODAL_OPEN,
   UPDATE_PROFILE_USER_DATA,
 } from "../../redux/features/settings/settingsSlice";
+import { setUser } from "../../redux/features/auth/authSlice";
+import { uploadMessageAttachmentAPI } from "../../services/message";
+import { updateUserInfoAPI } from "../../services/auth";
 import { PURPLE_PRIMARY, STATUS_ONLINE } from "../../theme";
 import { showToast } from "../../utils/toast";
-import { SUCCESS } from "../../constants/common";
+import { SUCCESS, FAILED } from "../../constants/common";
 
 export const ProfileSidebar: React.FC = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = React.useState(false);
 
   const { profileUserData } = useSelector((state: RootState) => state.settings);
   const { loginUser } = useSelector((state: RootState) => state.auth);
@@ -53,16 +58,32 @@ export const ProfileSidebar: React.FC = () => {
   const role = profileUserData.role;
   const lastSeen = profileUserData.lastSeen;
 
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        dispatch(UPDATE_PROFILE_USER_DATA({ avatar: base64 }));
+    if (!file) return;
+
+    try {
+      setIsUploadingAvatar(true);
+      const uploadRes = await uploadMessageAttachmentAPI(file);
+      if (uploadRes?.success && uploadRes.data?.url) {
+        const imageUrl = uploadRes.data.url;
+        const updateRes = await updateUserInfoAPI({ img: imageUrl });
+        if (updateRes?.success && updateRes.data) {
+          dispatch(setUser(updateRes.data));
+        } else {
+          dispatch(setUser({ ...loginUser, img: imageUrl }));
+        }
+        dispatch(UPDATE_PROFILE_USER_DATA({ avatar: imageUrl }));
         showToast(SUCCESS, "Avatar updated successfully!");
-      };
-      reader.readAsDataURL(file);
+      } else {
+        showToast(FAILED, uploadRes?.message || "Failed to upload avatar");
+      }
+    } catch (err) {
+      console.error("Avatar upload failed:", err);
+      showToast(FAILED, "Failed to upload avatar");
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -185,7 +206,8 @@ export const ProfileSidebar: React.FC = () => {
             variant="outlined"
             size="small"
             onClick={() => fileInputRef.current?.click()}
-            startIcon={<PhotoCameraRoundedIcon sx={{ fontSize: 15 }} />}
+            disabled={isUploadingAvatar}
+            startIcon={isUploadingAvatar ? <CircularProgress size={14} color="inherit" /> : <PhotoCameraRoundedIcon sx={{ fontSize: 15 }} />}
             sx={{
               borderColor: PURPLE_PRIMARY,
               color: PURPLE_PRIMARY,
@@ -200,7 +222,7 @@ export const ProfileSidebar: React.FC = () => {
               },
             }}
           >
-            Change Avatar
+            {isUploadingAvatar ? "Uploading..." : "Change Avatar"}
           </Button>
 
           <Tooltip title="View or Share QR Code" arrow>

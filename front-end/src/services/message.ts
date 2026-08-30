@@ -220,3 +220,15 @@ export const sendGroupMessageAPI = async (params: any) => {
     params,
   });
 };
+
+export const uploadMessageAttachmentAPI = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return apiHandler({
+    baseURL: import.meta.env.VITE_BASE_API_URL,
+    path: "/message/upload",
+    axiosMethod: httpMethod.POST,
+    formData: true,
+    params: formData,
+  });
+};

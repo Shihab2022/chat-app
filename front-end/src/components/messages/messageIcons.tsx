@@ -45,7 +45,9 @@ const MessageIcons = ({ mess, myId }: MessageIconsProps) => {
   const moreActionOpen = Boolean(moreAnchorEl);
 
   const handleEmoji = async (emoji: string) => {
-    const params = { messageId: mess?.id, userId: myId, emoji, receiverId };
+    if (!mess?.id || String(mess.id).startsWith("local-")) return;
+
+    const params = { messageId: mess.id, userId: myId, emoji, receiverId };
     try {
       const res = await addEmoji(params);
       if (res?.success) {
