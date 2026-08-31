@@ -13,5 +13,9 @@ export default defineConfig({
       "@emotion/react",
       "@emotion/styled",
     ],
+    // harper.js resolves its WebAssembly binary with
+    // `new URL("harper_wasm_bg.wasm", import.meta.url)`, which only works when
+    // the package is served as-is (not pre-bundled into node_modules/.vite).
+    exclude: ["harper.js"],
   },
 });

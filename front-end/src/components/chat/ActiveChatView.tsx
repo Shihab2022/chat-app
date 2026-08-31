@@ -34,6 +34,7 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
+import PictureAsPdfRoundedIcon from "@mui/icons-material/PictureAsPdfRounded";
 
 import { RootState } from "../../redux/store";
 import {
@@ -66,6 +67,8 @@ import {
 } from "../../theme";
 import Message from "../messages/message";
 import EmojiPicker from "../emoji";
+import TextSuggestionsPopup from "../ui/TextSuggestionsPopup";
+import { useSmartSuggestions } from "../../utils/smartSuggest/useSmartSuggestions";
 import useDebouncedText from "../../utils/debouncedSearch";
 import { groupMessagesByDate } from "../../utils/timeFormat";
 import { showToast } from "../../utils/toast";
@@ -86,6 +89,15 @@ const getWritingSuggestion = (value: string) => {
   const capitalized = normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1) : normalized;
   return capitalized !== value ? capitalized : null;
 };
+
+interface StagedAttachment {
+  id: string;
+  file: File;
+  name: string;
+  isImage: boolean;
+  previewUrl: string | null;
+  status: "uploading" | "uploaded" | "failed";
+}
 
 export const ActiveChatView: React.FC = () => {
   const theme = useTheme();
@@ -111,6 +123,16 @@ export const ActiveChatView: React.FC = () => {
 
   const { handleInputChange, message: inputMessage, stopTypingEvent } = useDebouncedText(receiverId);
   const writingSuggestion = getWritingSuggestion(inputMessage || "");
+
+  // Harper.js powered spelling / grammar / word-completion popup (English;
+  // Bangla text is safely passed through untouched).
+  const smart = useSmartSuggestions({
+    onApply: (value) => handleInputChange(value),
+  });
+
+  // Files picked from the attachment button upload immediately and auto-send
+  // (WhatsApp / Messenger flow); entries here only track upload progress.
+  const [stagedFiles, setStagedFiles] = useState<StagedAttachment[]>([]);
 
   // Find active chat user / group
   const activeChat: TUser | undefined = useMemo(() => {
@@ -312,31 +334,56 @@ export const ActiveChatView: React.FC = () => {
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !receiverId) return;
+    const selected = Array.from(e.target.files || []);
+    // Reset the input so the same files can be picked again later.
+    e.target.value = "";
+    if (!selected.length || !receiverId) return;
 
-    const isImage = file.type.startsWith("image/");
-    const isPdf = file.type === "application/pdf";
-    if (!isImage && !isPdf) {
+    const validFiles = selected.filter(
+      (file) => file.type.startsWith("image/") || file.type === "application/pdf"
+    );
+    if (validFiles.length !== selected.length) {
       showToast(FAILED, "Only images and PDF files are supported");
-      return;
     }
+    if (!validFiles.length) return;
 
+    // WhatsApp / Messenger flow: upload immediately after picking, then send
+    // automatically — staged entries below only show upload progress.
+    const staged: StagedAttachment[] = validFiles.map((file, index) => ({
+      id: `${Date.now()}-${index}-${file.name}`,
+      file,
+      name: file.name,
+      isImage: file.type.startsWith("image/"),
+      previewUrl: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+      status: "uploading" as const,
+    }));
+    setStagedFiles((prev) => [...prev, ...staged]);
     setIsUploading(true);
+
     try {
-      const uploadRes = await uploadMessageAttachmentAPI(file);
-      if (!uploadRes?.success || !uploadRes.data?.url) {
-        showToast(FAILED, uploadRes?.message || "Failed to upload file");
-        return;
+      // Sequential so messages are sent in the same order the files were picked.
+      for (const item of staged) {
+        try {
+          const uploadRes = await uploadMessageAttachmentAPI(item.file);
+          if (!uploadRes?.success || !uploadRes.data?.url) {
+            throw new Error(uploadRes?.message || "Failed to upload file");
+          }
+          await sendAttachmentMessage({
+            url: uploadRes.data.url,
+            fileName: item.name,
+            fileType: item.isImage ? "image" : "pdf",
+          });
+          showToast(SUCCESS, item.isImage ? "Photo sent" : "PDF sent");
+        } catch (err) {
+          console.error("Upload failed:", err);
+          showToast(FAILED, `Failed to send ${item.name}`);
+        } finally {
+          if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+          setStagedFiles((prev) => prev.filter((p) => p.id !== item.id));
+        }
       }
-      await sendAttachmentMessage(uploadRes.data);
-      showToast(SUCCESS, isPdf ? "PDF sent" : "Photo sent");
-    } catch (err) {
-      console.error("Upload failed:", err);
-      showToast(FAILED, "Failed to upload file");
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -389,6 +436,7 @@ export const ActiveChatView: React.FC = () => {
         ref={fileInputRef}
         onChange={handleFileUpload}
         accept="image/*,application/pdf"
+        multiple
         style={{ display: "none" }}
       />
 
@@ -772,6 +820,49 @@ export const ActiveChatView: React.FC = () => {
           </Box>
         )}
 
+        <Box ref={smart.anchorRef} sx={{ position: "relative" }}>
+          {stagedFiles.length > 0 && (
+            <Stack direction="row" spacing={1} sx={{ mb: 0.75, flexWrap: "wrap" }}>
+              {stagedFiles.map((item) => (
+                <Box
+                  key={item.id}
+                  sx={{
+                    position: "relative",
+                    width: 64,
+                    height: 64,
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    border: `1px solid ${theme.palette.divider}`,
+                    backgroundColor: theme.palette.background.default,
+                    flexShrink: 0,
+                  }}
+                >
+                  {item.previewUrl ? (
+                    <Box
+                      component="img"
+                      src={item.previewUrl}
+                      alt={item.name}
+                      sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <Stack sx={{ height: "100%", alignItems: "center", justifyContent: "center", p: 0.5 }}>
+                      <PictureAsPdfRoundedIcon sx={{ fontSize: 22, color: "#EF4444" }} />
+                      <Typography variant="caption" noWrap sx={{ fontSize: "0.55rem", maxWidth: "100%" }}>
+                        {item.name}
+                      </Typography>
+                    </Stack>
+                  )}
+                  {item.status === "uploading" && (
+                    <CircularProgress
+                      size={18}
+                      sx={{ position: "absolute", top: "50%", left: "50%", mt: "-9px", ml: "-9px", color: PURPLE_PRIMARY }}
+                    />
+                  )}
+                </Box>
+              ))}
+            </Stack>
+          )}
+
         <Paper
           elevation={0}
           component="form"
@@ -817,10 +908,22 @@ export const ActiveChatView: React.FC = () => {
           <InputBase
             fullWidth
             disabled={isBlocked}
+            inputRef={smart.inputRef}
             placeholder={isBlocked ? "Unblock contact to send message" : "Type Your Message"}
             value={inputMessage}
-            onChange={(e) => handleInputChange(e.target.value)}
+            onChange={(e) => {
+              handleInputChange(e.target.value);
+              smart.handleChange(
+                e.target.value,
+                (e.target as HTMLInputElement).selectionStart ?? undefined
+              );
+            }}
+            onFocus={(e) => smart.handleFocus(e.target as HTMLInputElement)}
+            onBlur={smart.handleBlur}
             onKeyDown={(e) => {
+              // When the suggestion popup is open, ↑↓/Enter/Esc/Tab are consumed
+              // by it (Enter applies the correction instead of sending).
+              if (!isBlocked && smart.handleKeyDown(e)) return;
               if (e.key === "Enter" && !e.shiftKey && !isBlocked) {
                 e.preventDefault();
                 handleSendMessage();
@@ -869,6 +972,14 @@ export const ActiveChatView: React.FC = () => {
             <SendRoundedIcon sx={{ fontSize: 17 }} />
           </IconButton>
         </Paper>
+
+          <TextSuggestionsPopup
+            items={smart.items}
+            activeIndex={smart.activeIndex}
+            position={smart.position}
+            onApply={(index) => smart.applySuggestion(index)}
+          />
+        </Box>
 
         <EmojiPicker />
       </Box>

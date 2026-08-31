@@ -1,6 +1,6 @@
 import { useState, MouseEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { IconButton, Menu, Stack, Tooltip } from "@mui/material";
+import { IconButton, Menu, Stack, Tooltip, Divider } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -64,13 +64,14 @@ const MessageIcons = ({ mess, myId }: MessageIconsProps) => {
     <>
       <Stack
         direction="row"
-        spacing={0.5}
+        spacing={0.25}
         sx={{
-          backgroundColor: alpha(theme.palette.background.paper, 0.8),
+          backgroundColor: alpha(theme.palette.background.paper, 0.92),
           backdropFilter: "blur(8px)",
-          borderRadius: "12px",
-          px: 0.35,
+          borderRadius: "18px",
+          px: 0.4,
           py: 0.2,
+          alignItems: "center",
           border: `1px solid ${theme.palette.divider}`,
           boxShadow: `0 6px 18px ${alpha(theme.palette.common.black, 0.12)}`,
         }}
@@ -94,6 +95,8 @@ const MessageIcons = ({ mess, myId }: MessageIconsProps) => {
             <ReplyIcon fontSize="small" />
           </IconButton>
         </Tooltip>
+
+        <Divider orientation="vertical" flexItem sx={{ my: 0.6, mx: 0.25 }} />
 
         <Tooltip title="More">
           <IconButton

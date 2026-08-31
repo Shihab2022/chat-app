@@ -11,29 +11,44 @@ import { useState } from "react";
 import DeleteConformations from "./deleteConformations";
 import { moreActionsConfig, moreActionsConfigMyActions } from "../../config";
 import ForwardMessage from "./forwardMessage";
+import { PURPLE_PRIMARY } from "../../theme";
 
 const CCard = ({ c, handleClick }: any) => {
   const { icon, title } = c;
+  const isDestructive = title === "Delete";
   return (
-    <Box sx={{ minWidth: "160px" }}>
+    <Box sx={{ minWidth: "180px" }}>
       <Stack
         direction="row"
         spacing={1.5}
         sx={{
           justifyContent: "flex-start",
           alignItems: "center",
-          paddingY: "9px",
-          paddingX: "14px",
+          paddingY: "8px",
+          paddingX: "12px",
           marginX: "6px",
           borderRadius: 1.5,
           cursor: "pointer",
           transition: "background-color 150ms ease",
-          "&:hover": { backgroundColor: "action.hover" },
+          "&:hover": {
+            backgroundColor: isDestructive ? alpha("#EF4444", 0.08) : "action.hover",
+          },
         }}
         onClick={() => handleClick(title)}
       >
-        <ListItemIcon sx={{ minWidth: 28, color: "inherit" }}>{icon}</ListItemIcon>
-        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+        <ListItemIcon
+          sx={{
+            minWidth: 30,
+            color: isDestructive ? "#EF4444" : PURPLE_PRIMARY,
+            "& .MuiSvgIcon-root": { fontSize: 19 },
+          }}
+        >
+          {icon}
+        </ListItemIcon>
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: 500, color: isDestructive ? "#EF4444" : "text.primary" }}
+        >
           {title}
         </Typography>
       </Stack>
