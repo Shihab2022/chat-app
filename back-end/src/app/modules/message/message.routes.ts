@@ -19,6 +19,8 @@ router.post('/reply', auth(userRole?.USER), MessageController.replyMessage);
 router.post('/clear', auth(userRole?.USER), MessageController.clearMessage);
 router.delete('/delete', auth(userRole?.USER), MessageController.deleteAllMessages);
 
+router.get('/stats', auth(userRole?.USER), MessageController.conversationStats);
+
 router.get('/groups', auth(userRole?.USER), MessageController.listGroups);
 router.post('/groups', auth(userRole?.USER), MessageController.createGroup);
 router.post('/groups/:groupId/members', auth(userRole?.USER), MessageController.addGroupMember);

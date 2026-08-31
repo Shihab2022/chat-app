@@ -1024,6 +1024,57 @@ const getGroupMessages = async (payload: any, currentUser?: any) => {
   return normalizeMessageRows(rows);
 };
 
+// ── Conversation statistics (shared media/files/links) ──
+const getConversationStats = async (
+  payload: {
+    peerId?: string | number;
+    groupId?: string | number;
+    userId?: string | number;
+    myId?: string | number;
+  },
+  currentUser?: any,
+) => {
+  const currentUserId = parseUserId(
+    currentUser?.id ?? payload.userId ?? payload.myId,
+  );
+  const peerId = parseUserId(payload.peerId);
+  const groupId = parseUserId(payload.groupId);
+
+  if (!currentUserId) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Current user is required');
+  }
+
+  // Messages belonging to a 1-on-1 conversation between currentUserId & peerId
+  const oneToOneFilter = `
+    ${peerId ? `(m.sender_id = $1 AND m.receiver_id = $2) OR (m.sender_id = $2 AND m.receiver_id = $1)` : 'FALSE'}
+  `;
+
+  // Messages belonging to a group conversation
+  const groupFilter = groupId ? `m.group_id = $1` : 'FALSE';
+
+  const { rows } = await pool.query(
+    `
+      SELECT
+        COUNT(*) FILTER (WHERE m.image IS NOT NULL AND m.image != '') AS media,
+        COUNT(*) FILTER (WHERE m.file_url IS NOT NULL AND m.file_url != '') AS files,
+        COUNT(*) FILTER (WHERE m.file_url IS NULL AND m.file_name IS NULL
+          AND m.image IS NULL
+          AND m.text ~* 'https?://[^\\s]+') AS links
+      FROM messages m
+      WHERE ${peerId ? oneToOneFilter : groupFilter}
+        AND ${MESSAGE_NOT_EXPIRED}
+    `,
+    peerId ? [currentUserId, peerId] : [groupId],
+  );
+
+  const row = rows[0] || { media: 0, files: 0, links: 0 };
+  return {
+    media: parseInt(row.media, 10) || 0,
+    files: parseInt(row.files, 10) || 0,
+    links: parseInt(row.links, 10) || 0,
+  };
+};
+
 const uploadAttachment = async (file: Express.Multer.File) => {
   if (!file) {
     throw new AppError(httpStatus.BAD_REQUEST, 'File is required');
@@ -1065,6 +1116,7 @@ export const MessageServices = {
   leaveGroup,
   deleteGroup,
   sendGroupMessage,
-  getGroupMessages,
+     getGroupMessages,
+  getConversationStats,
   uploadAttachment,
 };

@@ -382,6 +382,27 @@ const uploadAttachment = async (
   }
 };
 
+const conversationStats = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.getConversationStats(
+      { ...req.query, ...req.params },
+      req.user,
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Conversation stats retrieved successfully',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const MessageController = {
   sendMessage,
   getMessage,
@@ -408,5 +429,6 @@ export const MessageController = {
   deleteGroup,
   sendGroupMessage,
   getGroupMessages,
+  conversationStats,
   uploadAttachment,
 };
