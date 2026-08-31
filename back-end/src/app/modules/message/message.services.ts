@@ -330,6 +330,12 @@ const getUsersForSidebar = async (payload: any, currentUser?: any) => {
       u.email,
       u.img,
       u.bio,
+      COALESCE(u.username, '') AS username,
+      COALESCE(u.phone, '') AS phone,
+      COALESCE(u.country, '') AS country,
+      COALESCE(u.about, '') AS about,
+      COALESCE(u.date_of_birth, '') AS date_of_birth,
+      COALESCE(u.website, '') AS website,
       u.role,
       u.status,
       u.is_account_verified,
@@ -392,6 +398,12 @@ const getUsersForSidebar = async (payload: any, currentUser?: any) => {
     email: row.email,
     img: row.img,
     bio: row.bio,
+    username: row.username,
+    phone: row.phone,
+    country: row.country,
+    about: row.about,
+    date_of_birth: row.date_of_birth,
+    website: row.website,
     role: row.role,
     status: row.status,
     isAccountVerified: row.is_account_verified,
@@ -962,8 +974,9 @@ const sendGroupMessage = async (payload: any, currentUser?: any) => {
   const groupId = parseUserId(payload.groupId ?? payload.group_id);
   const text = String(payload.text || '').trim();
 
-  if (!currentUserId || !groupId || !text) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Group message text is required');
+  const hasAttachment = Boolean(payload.image || payload.file_url || payload.fileUrl);
+  if (!currentUserId || !groupId || (!text && !hasAttachment)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'A group message needs text, an image, or a file');
   }
 
   await assertGroupMember(groupId, currentUserId);
@@ -1075,6 +1088,35 @@ const getConversationStats = async (
   };
 };
 
+const getSharedConversationContent = async (
+  payload: { peerId?: string | number; groupId?: string | number },
+  currentUser?: any,
+) => {
+  const currentUserId = parseUserId(currentUser?.id);
+  const peerId = parseUserId(payload.peerId);
+  const groupId = parseUserId(payload.groupId);
+  if (!currentUserId || (!peerId && !groupId)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Conversation is required');
+  }
+
+  if (groupId) await assertGroupMember(groupId, currentUserId);
+  if (peerId) await assertDirectChatAllowed(currentUserId, peerId);
+
+  const values = groupId ? [groupId] : [currentUserId, peerId];
+  const conversationFilter = groupId
+    ? 'm.group_id = $1'
+    : '((m.sender_id = $1 AND m.receiver_id = $2) OR (m.sender_id = $2 AND m.receiver_id = $1))';
+  const { rows } = await pool.query(
+    `SELECT m.* FROM messages m
+     WHERE ${conversationFilter} AND ${MESSAGE_NOT_EXPIRED}
+       AND (m.image IS NOT NULL AND m.image != '' OR m.file_url IS NOT NULL AND m.file_url != ''
+         OR (m.file_url IS NULL AND m.file_name IS NULL AND m.image IS NULL AND m.text ~* 'https?://[^\\s]+'))
+     ORDER BY m.created_at DESC`,
+    values,
+  );
+  return normalizeMessageRows(rows);
+};
+
 const uploadAttachment = async (file: Express.Multer.File) => {
   if (!file) {
     throw new AppError(httpStatus.BAD_REQUEST, 'File is required');
@@ -1118,5 +1160,6 @@ export const MessageServices = {
   sendGroupMessage,
      getGroupMessages,
   getConversationStats,
+  getSharedConversationContent,
   uploadAttachment,
 };

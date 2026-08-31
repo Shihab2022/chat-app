@@ -403,6 +403,19 @@ const conversationStats = async (
   }
 };
 
+const sharedConversationContent = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await MessageServices.getSharedConversationContent(req.query as any, req.user);
+    sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Shared content retrieved successfully', data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const MessageController = {
   sendMessage,
   getMessage,
@@ -430,5 +443,6 @@ export const MessageController = {
   sendGroupMessage,
   getGroupMessages,
   conversationStats,
+  sharedConversationContent,
   uploadAttachment,
 };

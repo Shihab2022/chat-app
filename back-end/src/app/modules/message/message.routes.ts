@@ -20,6 +20,7 @@ router.post('/clear', auth(userRole?.USER), MessageController.clearMessage);
 router.delete('/delete', auth(userRole?.USER), MessageController.deleteAllMessages);
 
 router.get('/stats', auth(userRole?.USER), MessageController.conversationStats);
+router.get('/shared', auth(userRole?.USER), MessageController.sharedConversationContent);
 
 router.get('/groups', auth(userRole?.USER), MessageController.listGroups);
 router.post('/groups', auth(userRole?.USER), MessageController.createGroup);

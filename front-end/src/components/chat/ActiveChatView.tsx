@@ -33,6 +33,7 @@ import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
+import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
 
 import { RootState } from "../../redux/store";
 import {
@@ -71,6 +72,21 @@ import { showToast } from "../../utils/toast";
 import { SUCCESS, FAILED } from "../../constants/common";
 import { TUser } from "../../types";
 
+// Fast, private writing hints for common chat mistakes. A server-side AI provider
+// can be added later without changing the composer UI.
+const getWritingSuggestion = (value: string) => {
+  const normalized = value
+    .replace(/\s{2,}/g, " ")
+    .replace(/\bi\b/g, "I")
+    .replace(/\bdont\b/gi, "don't")
+    .replace(/\bcant\b/gi, "can't")
+    .replace(/\bim\b/gi, "I'm")
+    .replace(/\bteh\b/gi, "the")
+    .replace(/\brecieve\b/gi, "receive");
+  const capitalized = normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1) : normalized;
+  return capitalized !== value ? capitalized : null;
+};
+
 export const ActiveChatView: React.FC = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -94,6 +110,7 @@ export const ActiveChatView: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
 
   const { handleInputChange, message: inputMessage, stopTypingEvent } = useDebouncedText(receiverId);
+  const writingSuggestion = getWritingSuggestion(inputMessage || "");
 
   // Find active chat user / group
   const activeChat: TUser | undefined = useMemo(() => {
@@ -415,6 +432,15 @@ export const ActiveChatView: React.FC = () => {
             <Avatar
               src={activeChat?.avatar || activeChat?.img}
               alt={activeChat?.name}
+              onClick={() => dispatch(SET_CONTACT_DETAIL_MODAL({ open: true, contact: activeChat }))}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  dispatch(SET_CONTACT_DETAIL_MODAL({ open: true, contact: activeChat }));
+                }
+              }}
               sx={{
                 width: 42,
                 height: 42,
@@ -422,6 +448,7 @@ export const ActiveChatView: React.FC = () => {
                 fontWeight: 700,
                 backgroundColor: alpha(PURPLE_PRIMARY, 0.15),
                 color: PURPLE_PRIMARY,
+                cursor: "pointer",
               }}
             >
               {activeChat?.name?.[0]?.toUpperCase()}
@@ -732,6 +759,18 @@ export const ActiveChatView: React.FC = () => {
             />
           </Box>
         </Popover>
+
+        {writingSuggestion && !isBlocked && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 0.75, px: 1.25, py: 0.6, borderRadius: 2, backgroundColor: alpha(PURPLE_PRIMARY, 0.08), color: theme.palette.text.secondary }}>
+            <AutoFixHighRoundedIcon sx={{ fontSize: 17, color: PURPLE_PRIMARY }} />
+            <Typography variant="caption" sx={{ flex: 1 }} noWrap>
+              Suggested: {writingSuggestion}
+            </Typography>
+            <Button size="small" onClick={() => handleInputChange(writingSuggestion)} sx={{ minWidth: 0, px: 0.75, fontSize: "0.7rem", color: PURPLE_PRIMARY }}>
+              Apply
+            </Button>
+          </Box>
+        )}
 
         <Paper
           elevation={0}

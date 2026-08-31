@@ -204,6 +204,17 @@ export const getConversationStatsAPI = async (params: {
   });
 };
 
+export const getSharedConversationContentAPI = async (params: {
+  peerId?: string | number;
+  groupId?: string | number;
+}) => apiHandler({
+  baseURL: import.meta.env.VITE_BASE_API_URL,
+  path: "/message/shared",
+  axiosMethod: httpMethod.GET,
+  formData: false,
+  params,
+});
+
 export const deleteGroupAPI = async (groupId: string | number) => {
   return apiHandler({
     baseURL: import.meta.env.VITE_BASE_API_URL,

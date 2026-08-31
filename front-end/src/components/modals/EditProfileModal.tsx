@@ -70,20 +70,29 @@ export const EditProfileModal: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      // Attempt backend update
-      const res = await updateUserInfoAPI({ name, bio });
-      if (res?.success && res.data) {
-        dispatch(setUser(res.data));
+      const res = await updateUserInfoAPI({
+        name: name.trim(),
+        username: username.trim(),
+        bio: bio.trim(),
+        phone: phone.trim(),
+        about: about.trim(),
+        country: country.trim(),
+        website: website.trim(),
+        date_of_birth: dob,
+      });
+      if (!res?.success || !res.data) {
+        throw new Error(res?.message || "Unable to save profile");
       }
+      dispatch(setUser(res.data));
 
       dispatch(
         UPDATE_PROFILE_USER_DATA({
-          name,
-          username,
-          bio,
-          phone,
-          about,
-          country,
+          name: res.data.name,
+          username: res.data.username,
+          bio: res.data.bio,
+          phone: res.data.phone,
+          about: res.data.about,
+          country: res.data.country,
           role,
           dob,
           website,
@@ -94,21 +103,7 @@ export const EditProfileModal: React.FC = () => {
       handleClose();
     } catch (err) {
       console.error("Profile update error:", err);
-      dispatch(
-        UPDATE_PROFILE_USER_DATA({
-          name,
-          username,
-          bio,
-          phone,
-          about,
-          country,
-          role,
-          dob,
-          website,
-        })
-      );
-      showToast(SUCCESS, "Profile updated!");
-      handleClose();
+      showToast(FAILED, err instanceof Error ? err.message : "Failed to update profile");
     } finally {
       setIsSubmitting(false);
     }

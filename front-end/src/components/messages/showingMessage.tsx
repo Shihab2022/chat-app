@@ -17,6 +17,8 @@ import DoneAllIcon from "@mui/icons-material/DoneAll";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PictureAsPdfRoundedIcon from "@mui/icons-material/PictureAsPdfRounded";
 import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
+import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
+import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 
 import { RootState } from "../../redux/store";
 import { TMessage, TUser } from "../../types";
@@ -32,12 +34,15 @@ interface ShowingMessageProps {
   messageEndRef: React.RefObject<HTMLDivElement>;
 }
 
-// Cross-origin safe download that preserves the original file name and format
+// Download the exact response bytes and retain the uploaded PDF name/type.
 const downloadFile = async (url: string, fileName: string) => {
   try {
     const res = await fetch(url, { mode: "cors" });
     if (!res.ok) throw new Error("Download failed");
-    const blob = await res.blob();
+    const responseBlob = await res.blob();
+    const blob = new Blob([responseBlob], {
+      type: responseBlob.type || "application/pdf",
+    });
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = blobUrl;
@@ -45,10 +50,26 @@ const downloadFile = async (url: string, fileName: string) => {
     document.body.appendChild(link);
     link.click();
     link.remove();
-    URL.revokeObjectURL(blobUrl);
+    window.setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
   } catch {
-    // CORS or network failure fallback: open in a new tab
-    window.open(url, "_blank", "noopener,noreferrer");
+    // A normal anchor preserves the download attribute where the host permits it.
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
+};
+
+const getFirstUrl = (value?: string) => value?.match(/https?:\/\/[^\s]+/i)?.[0];
+
+const getLinkDetails = (url: string) => {
+  try {
+    const parsed = new URL(url);
+    return { host: parsed.hostname.replace(/^www\./, ""), title: parsed.pathname === "/" ? parsed.hostname : `${parsed.hostname}${parsed.pathname}` };
+  } catch {
+    return { host: url, title: url };
   }
 };
 
@@ -165,6 +186,8 @@ export const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => 
 
   const bubbleRadius = isOwn ? "16px 16px 4px 16px" : "16px 16px 16px 4px";
   const hasReactions = mess?.reactions && mess.reactions.length > 0;
+  const sharedUrl = !image && !file ? getFirstUrl(text) : undefined;
+  const linkDetails = sharedUrl ? getLinkDetails(sharedUrl) : undefined;
 
   return (
     <Stack
@@ -396,8 +419,39 @@ export const ShowingMessage = ({ mess, messageEndRef }: ShowingMessageProps) => 
                 </Link>
               )}
 
+              {/* Rich link preview */}
+              {sharedUrl && linkDetails && (
+                <Link
+                  href={sharedUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  underline="none"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.25,
+                    p: 1.25,
+                    mb: text === sharedUrl ? 0 : 0.75,
+                    borderRadius: "10px",
+                    color: isOwn ? "#FFFFFF" : theme.palette.text.primary,
+                    backgroundColor: isOwn ? alpha("#FFFFFF", 0.15) : alpha(PURPLE_PRIMARY, 0.06),
+                    border: `1px solid ${isOwn ? alpha("#FFFFFF", 0.25) : alpha(PURPLE_PRIMARY, 0.18)}`,
+                    "&:hover": { backgroundColor: isOwn ? alpha("#FFFFFF", 0.22) : alpha(PURPLE_PRIMARY, 0.1) },
+                  }}
+                >
+                  <Box sx={{ width: 38, height: 38, borderRadius: "9px", display: "grid", placeItems: "center", backgroundColor: isOwn ? alpha("#FFFFFF", 0.2) : alpha(PURPLE_PRIMARY, 0.15), color: isOwn ? "#FFFFFF" : PURPLE_PRIMARY }}>
+                    <LanguageRoundedIcon sx={{ fontSize: 21 }} />
+                  </Box>
+                  <Box sx={{ minWidth: 0, flex: 1 }}>
+                    <Typography variant="body2" noWrap sx={{ fontWeight: 700, fontSize: "0.8rem" }}>{linkDetails.title}</Typography>
+                    <Typography variant="caption" noWrap sx={{ display: "block", color: isOwn ? alpha("#FFFFFF", 0.75) : theme.palette.text.secondary }}>{linkDetails.host}</Typography>
+                  </Box>
+                  <OpenInNewRoundedIcon sx={{ fontSize: 18, opacity: 0.8 }} />
+                </Link>
+              )}
+
               {/* Text Message */}
-              {text && (
+              {text && text !== sharedUrl && (
                 <Typography
                   variant="body2"
                   component="div"

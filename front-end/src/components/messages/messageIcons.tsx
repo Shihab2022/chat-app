@@ -68,10 +68,11 @@ const MessageIcons = ({ mess, myId }: MessageIconsProps) => {
         sx={{
           backgroundColor: alpha(theme.palette.background.paper, 0.8),
           backdropFilter: "blur(8px)",
-          borderRadius: 6,
-          px: 0.5,
-          py: 0.25,
+          borderRadius: "12px",
+          px: 0.35,
+          py: 0.2,
           border: `1px solid ${theme.palette.divider}`,
+          boxShadow: `0 6px 18px ${alpha(theme.palette.common.black, 0.12)}`,
         }}
       >
         <Tooltip title="React">

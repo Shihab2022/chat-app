@@ -46,6 +46,8 @@ import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import AdminPanelSettingsRoundedIcon from "@mui/icons-material/AdminPanelSettingsRounded";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
+import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 
 import { RootState } from "../../redux/store";
 import {
@@ -65,12 +67,29 @@ import {
   uploadMessageAttachmentAPI,
   getGroupsAPI,
   getConversationStatsAPI,
+  getSharedConversationContentAPI,
 } from "../../services/message";
 import { blockUserAPI, unblockUserAPI, getFriends } from "../../services/auth";
 import { PURPLE_PRIMARY } from "../../theme";
 import { showToast } from "../../utils/toast";
 import { SUCCESS, FAILED } from "../../constants/common";
 import { TUser } from "../../types";
+
+const downloadSharedContent = async (url: string, fileName: string) => {
+  try {
+    const response = await fetch(url, { mode: "cors" });
+    if (!response.ok) throw new Error("Download failed");
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = fileName;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  } catch {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+};
 
 export const ContactDetailModal: React.FC = () => {
   const theme = useTheme();
@@ -108,6 +127,9 @@ export const ContactDetailModal: React.FC = () => {
   // Shared content statistics (media / files / links)
   const [sharedStats, setSharedStats] = useState({ media: 0, files: 0, links: 0 });
   const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [sharedContent, setSharedContent] = useState<any[]>([]);
+  const [sharedContentType, setSharedContentType] = useState<"media" | "files" | "links" | null>(null);
+  const [isLoadingSharedContent, setIsLoadingSharedContent] = useState(false);
 
   const contact = selectedContactForDetail;
   const isGroup = !!contact?.isGroup;
@@ -154,6 +176,24 @@ export const ContactDetailModal: React.FC = () => {
     }
   };
 
+  const handleOpenSharedContent = async (type: "media" | "files" | "links") => {
+    if (!contact?.id) return;
+    setSharedContentType(type);
+    setIsLoadingSharedContent(true);
+    try {
+      const res = await getSharedConversationContentAPI(
+        contact.isGroup ? { groupId: contact.id } : { peerId: contact.id }
+      );
+      if (res?.success) setSharedContent(res.data || []);
+      else showToast(FAILED, res?.message || "Failed to load shared content");
+    } catch (err) {
+      console.error("Failed to load shared content:", err);
+      showToast(FAILED, "Failed to load shared content");
+    } finally {
+      setIsLoadingSharedContent(false);
+    }
+  };
+
   useEffect(() => {
   if (isContactDetailModalOpen && isGroup && contact?.id) {
     void loadGroupDetails();
@@ -196,6 +236,8 @@ export const ContactDetailModal: React.FC = () => {
     setConfirmLeaveOpen(false);
     setConfirmDeleteOpen(false);
     setConfirmBlockOpen(false);
+    setSharedContentType(null);
+    setSharedContent([]);
   };
 
   const handleStartChat = () => {
@@ -841,8 +883,14 @@ export const ContactDetailModal: React.FC = () => {
 
             <Stack direction="row" spacing={1.5}>
               <Box
+                component="button"
+                type="button"
+                onClick={() => handleOpenSharedContent("media")}
                 sx={{
                   flex: 1,
+                  outline: 0,
+                  cursor: "pointer",
+                  font: "inherit",
                   p: 1.25,
                   borderRadius: "10px",
                   border: `1px solid ${theme.palette.divider}`,
@@ -862,8 +910,14 @@ export const ContactDetailModal: React.FC = () => {
               </Box>
 
               <Box
+                component="button"
+                type="button"
+                onClick={() => handleOpenSharedContent("files")}
                 sx={{
                   flex: 1,
+                  outline: 0,
+                  cursor: "pointer",
+                  font: "inherit",
                   p: 1.25,
                   borderRadius: "10px",
                   border: `1px solid ${theme.palette.divider}`,
@@ -883,8 +937,14 @@ export const ContactDetailModal: React.FC = () => {
               </Box>
 
               <Box
+                component="button"
+                type="button"
+                onClick={() => handleOpenSharedContent("links")}
                 sx={{
                   flex: 1,
+                  outline: 0,
+                  cursor: "pointer",
+                  font: "inherit",
                   p: 1.25,
                   borderRadius: "10px",
                   border: `1px solid ${theme.palette.divider}`,
@@ -906,6 +966,66 @@ export const ContactDetailModal: React.FC = () => {
           </Box>
         )}
       </DialogContent>
+
+      <Dialog
+        open={Boolean(sharedContentType)}
+        onClose={() => setSharedContentType(null)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>
+          Shared {sharedContentType === "media" ? "Media" : sharedContentType === "files" ? "Files" : "Links"}
+        </DialogTitle>
+        <DialogContent dividers>
+          {isLoadingSharedContent ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}><CircularProgress size={26} /></Box>
+          ) : (
+            <Stack spacing={1.25}>
+              {sharedContent
+                .filter((message) => sharedContentType === "media"
+                  ? Boolean(message.image)
+                  : sharedContentType === "files"
+                  ? Boolean(message.file || message.file_url)
+                  : !message.image && !(message.file || message.file_url) && /https?:\/\/\S+/i.test(message.text || ""))
+                .map((message) => {
+                  const url = sharedContentType === "media" ? message.image : message.file || message.file_url || (message.text.match(/https?:\/\/\S+/i) || [""])[0];
+                  return (
+                    <Box
+                      key={message.id}
+                      component="a"
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      sx={{ display: "block", p: 1.25, border: `1px solid ${theme.palette.divider}`, borderRadius: 2, color: "inherit", textDecoration: "none", backgroundColor: theme.palette.mode === "dark" ? alpha("#FFFFFF", 0.03) : "#FFFFFF", transition: "all 150ms ease", "&:hover": { borderColor: alpha(PURPLE_PRIMARY, 0.5), backgroundColor: alpha(PURPLE_PRIMARY, 0.04), transform: "translateY(-1px)" } }}
+                    >
+                      {sharedContentType === "media" ? (
+                        <>
+                          <Box component="img" src={url} alt="Shared media" sx={{ width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 1 }} />
+                          <Stack direction="row" sx={{ mt: 0.75, justifyContent: "flex-end" }}>
+                            <IconButton size="small" aria-label="Download image" onClick={(event) => { event.preventDefault(); event.stopPropagation(); void downloadSharedContent(url, "shared-image"); }}><FileDownloadRoundedIcon fontSize="small" /></IconButton>
+                          </Stack>
+                        </>
+                      ) : (
+                        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                          <Typography variant="body2" sx={{ wordBreak: "break-word", flex: 1, fontWeight: sharedContentType === "files" ? 700 : 400 }}>
+                            {sharedContentType === "files" ? message.fileName || message.file_name || "Document.pdf" : url}
+                          </Typography>
+                          {sharedContentType === "files" ? (
+                            <IconButton size="small" aria-label="Download file" onClick={(event) => { event.preventDefault(); event.stopPropagation(); void downloadSharedContent(url, message.fileName || message.file_name || "document.pdf"); }}><FileDownloadRoundedIcon fontSize="small" /></IconButton>
+                          ) : <OpenInNewRoundedIcon fontSize="small" color="action" />}
+                        </Stack>
+                      )}
+                    </Box>
+                  );
+                })}
+              {!sharedContent.filter((message) => sharedContentType === "media" ? Boolean(message.image) : sharedContentType === "files" ? Boolean(message.file || message.file_url) : !message.image && !(message.file || message.file_url) && /https?:\/\/\S+/i.test(message.text || "")).length && (
+                <Typography align="center" color="text.secondary" sx={{ py: 2 }}>No shared {sharedContentType} yet.</Typography>
+              )}
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions><Button onClick={() => setSharedContentType(null)}>Close</Button></DialogActions>
+      </Dialog>
 
       {/* ── Admin Menu on Group Member ── */}
       <Menu
