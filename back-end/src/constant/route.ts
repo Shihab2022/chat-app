@@ -4,7 +4,7 @@ import { appName } from '.';
 export const testingRoute = async (req: Request, res: Response) => {
   const query = 'Select * from users';
   res.send({
-    message: `Hi Guys, Welcome to ${appName} Server !`,
+    message: `Hi Guys, Welcome to ${appName} Server !!!`,
   });
 };
 

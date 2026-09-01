@@ -1,4 +1,5 @@
 import { Socket } from 'socket.io';
+import config from '../../../app/config';
 import { callServiceMessages, callStatus, callType } from '../../../constant';
 import { CallServices } from './call.services';
 import { CallType } from './call.interface';
@@ -13,7 +14,11 @@ import { CallType } from './call.interface';
  *   - 'completed' when both peers connected and the call is hung up
  * ───────────────────────────────────────────────────────────── */
 
-const RING_TIMEOUT_MS = 30_000;
+// Env-tunable (CALL_RING_TIMEOUT_MS), clamped to a sane 5s minimum.
+const RING_TIMEOUT_MS = Math.max(
+  5_000,
+  Number(config.call.ring_timeout_ms) || 30_000,
+);
 
 interface ActiveCall {
   callId: number;

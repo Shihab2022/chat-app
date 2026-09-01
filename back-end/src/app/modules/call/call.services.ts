@@ -1,4 +1,5 @@
 import { pool } from '../../../utils/pg';
+import config from '../../../app/config';
 import AppError from '../../error/appError';
 import httpStatus from 'http-status';
 import { callServiceMessages } from '../../../constant';
@@ -131,6 +132,12 @@ export const getCallHistory = async ({
           OR (cl.caller_id = $1 AND cl.receiver_id = $2))`
     : '';
 
+  // Env-tunable result cap (CALL_HISTORY_LIMIT), hard-clamped to 500.
+  const limit = Math.min(
+    Math.max(1, Number(config.call.history_limit) || 200),
+    500,
+  );
+
   const { rows } = await pool.query(
     `SELECT
         cl.*,
@@ -144,7 +151,7 @@ export const getCallHistory = async ({
       WHERE (cl.caller_id = $1 OR cl.receiver_id = $1)
         ${peerFilter}
       ORDER BY cl.created_at DESC
-      LIMIT 200`,
+      LIMIT ${limit}`,
     peerId ? [currentUserId, peerId] : [currentUserId],
   );
 

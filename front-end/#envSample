@@ -1,2 +1,16 @@
 VITE_BASE_API_URL=http://localhost:5000
 VITE_GOOGLE_CLIENT_ID=fdsfsdsdsfsas-7obdfsdsddfddfdfsd.apps.googleusercontent.com
+
+# ── Audio/Video Calling (WebRTC) ──────────────────────────────
+# Master switch for all calling UI. Set to "false" to hide call buttons
+# and the Calls tab without touching any code.
+VITE_CALL_ENABLED=true
+# How long an incoming call rings before auto-dismissing (milliseconds).
+VITE_CALL_RING_TIMEOUT_MS=30000
+# Extra STUN servers, comma separated (Google STUN is always included).
+VITE_STUN_SERVERS=
+# TURN relay for strict NAT / corporate networks. Recommended in production
+# (e.g. twilio: turn:global.turn.twilio.com:3478, or a coturn instance).
+VITE_TURN_URL=
+VITE_TURN_USERNAME=
+VITE_TURN_CREDENTIAL=

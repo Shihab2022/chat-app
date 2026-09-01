@@ -36,6 +36,7 @@ import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineR
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
 import PictureAsPdfRoundedIcon from "@mui/icons-material/PictureAsPdfRounded";
 
+import { CALL_ENABLED } from "../../constants/call";
 import { RootState } from "../../redux/store";
 import {
   SET_CONVERSATION,
@@ -539,7 +540,7 @@ export const ActiveChatView: React.FC = () => {
             </IconButton>
           </Tooltip>
 
-          {!activeChat?.isGroup && (
+          {CALL_ENABLED && !activeChat?.isGroup && (
             <>
               <Tooltip title={isBlocked ? "Unblock to call" : "Audio Call"} arrow>
                 <IconButton
