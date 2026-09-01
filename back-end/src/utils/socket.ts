@@ -3,6 +3,10 @@ import http from 'http';
 import express from 'express';
 import config from '../app/config';
 import { pool } from './pg';
+import {
+  handleUserDisconnect,
+  registerCallSocketHandlers,
+} from '../app/modules/call/call.socket';
 
 const app = express();
 const server = http.createServer(app);
@@ -18,6 +22,13 @@ export function getReceiverSocketId(userId: string) {
   return userSocketMap[userId];
 }
 
+const emitToUser = (targetUserId: string, event: string, payload: any) => {
+  const socketId = getReceiverSocketId(String(targetUserId));
+  if (socketId) io.to(socketId).emit(event, payload);
+};
+
+const isUserOnline = (userId: string) => Boolean(getReceiverSocketId(userId));
+
 export async function emitGroupEvent(groupId: number, event: string, payload: any) {
   const result = await pool.query(
     `SELECT user_id FROM group_members WHERE group_id = $1`,
@@ -32,6 +43,9 @@ export async function emitGroupEvent(groupId: number, event: string, payload: an
 io.on('connection', (socket) => {
   const userId = socket.handshake.query.userId as string;
   if (userId) userSocketMap[userId] = socket.id;
+
+  // Live audio/video calling (WebRTC signaling + call-log tracking).
+  registerCallSocketHandlers(socket, userId, { emitToUser, isUserOnline });
 
   socket.on('typing', ({ receiverId }) => {
     const receiverSocketId = getReceiverSocketId(receiverId);
@@ -77,6 +91,8 @@ WHERE
   io.emit('getOnlineUsers', Object.keys(userSocketMap));
   socket.on('disconnect', () => {
     delete userSocketMap[userId];
+    // Finalize any live call the user was part of & notify the peer.
+    void handleUserDisconnect(userId, { emitToUser, isUserOnline });
     io.emit('getOnlineUsers', Object.keys(userSocketMap));
   });
 });

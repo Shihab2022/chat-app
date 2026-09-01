@@ -19,6 +19,7 @@ import ContactsSidebar from "../../components/sidebars/ContactsSidebar";
 import GroupsSidebar from "../../components/sidebars/GroupsSidebar";
 import ProfileSidebar from "../../components/sidebars/ProfileSidebar";
 import SettingsSidebar from "../../components/sidebars/SettingsSidebar";
+import CallsSidebar from "../../components/sidebars/CallsSidebar";
 
 import EmptyStateView from "../../components/chat/EmptyStateView";
 import ActiveChatView from "../../components/chat/ActiveChatView";
@@ -105,6 +106,8 @@ export default function ChatContainer() {
         return <ContactsSidebar />;
       case "groups":
         return <GroupsSidebar />;
+      case "calls":
+        return <CallsSidebar />;
       case "profile":
         return <ProfileSidebar />;
       case "settings":

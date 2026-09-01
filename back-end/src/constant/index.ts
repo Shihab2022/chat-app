@@ -78,6 +78,32 @@ export const messageServiceMessages = {
 export const authorizationError = {
   UN_AUTHORIZED: 'You are not authorized',
 };
+
+export const callStatus = {
+  RECEIVED: 'received',
+  REJECTED: 'rejected',
+  MISSED: 'missed',
+  COMPLETED: 'completed',
+} as const;
+
+export const callType = {
+  AUDIO: 'audio',
+  VIDEO: 'video',
+} as const;
+
+export const callServiceMessages = {
+  CALL_HISTORY_GET: 'Call history retrieved successfully',
+  CALL_CREATED: 'Call log created successfully',
+  CALL_UPDATED: 'Call log updated successfully',
+  CALLER_NOT_FOUND: 'Caller is not found',
+  RECEIVER_NOT_FOUND: 'Receiver is not found',
+  CALL_NOT_FOUND: 'Call log is not found',
+  INVALID_CALL_TYPE: 'Call type must be "audio" or "video"',
+  INVALID_CALL_STATUS:
+    'Call status must be one of received, rejected, missed, completed',
+  RECEIVER_OFFLINE: 'User is offline right now',
+  ALREADY_IN_CALL: 'You already have an active call',
+};
 export const emailSenderMessages = {
   FROM_JOIN_EMAIL: 'shihab@gmail.com',
   WELCOME_EMAIL_SUBJECT: 'Welcome to Chatty! Confirm your email address',

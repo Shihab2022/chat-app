@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import conversationSlice from "./features/chat/conversationSlice";
 import authSlice from "./features/auth/authSlice";
 import activitiesSlice from "./features/userActivities";
+import callSlice from "./features/call/callSlice";
 
 import settingsSlice from "./features/settings/settingsSlice";
 
@@ -10,6 +11,7 @@ export const store = configureStore({
     message: conversationSlice,
     auth: authSlice,
     activities: activitiesSlice,
+    call: callSlice,
     settings: settingsSlice,
   },
   // middleware: (getDefaultMiddleware) =>

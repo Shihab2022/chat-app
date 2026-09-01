@@ -74,6 +74,7 @@ import { groupMessagesByDate } from "../../utils/timeFormat";
 import { showToast } from "../../utils/toast";
 import { SUCCESS, FAILED } from "../../constants/common";
 import { TUser } from "../../types";
+import { useCall } from "../call/CallProvider";
 
 // Fast, private writing hints for common chat mistakes. A server-side AI provider
 // can be added later without changing the composer UI.
@@ -114,6 +115,7 @@ export const ActiveChatView: React.FC = () => {
   const { wallpaperStyle, disappearingMessages } = useSelector(
     (state: RootState) => state.settings
   );
+  const { startAudioCall, startVideoCall } = useCall();
 
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [emojiAnchorEl, setEmojiAnchorEl] = useState<HTMLElement | null>(null);
@@ -537,17 +539,31 @@ export const ActiveChatView: React.FC = () => {
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Audio Call" arrow>
-            <IconButton size="small" sx={{ color: theme.palette.text.secondary }}>
-              <LocalPhoneOutlinedIcon sx={{ fontSize: 20 }} />
-            </IconButton>
-          </Tooltip>
+          {!activeChat?.isGroup && (
+            <>
+              <Tooltip title={isBlocked ? "Unblock to call" : "Audio Call"} arrow>
+                <IconButton
+                  size="small"
+                  disabled={isBlocked}
+                  onClick={() => void startAudioCall(activeChat)}
+                  sx={{ color: theme.palette.text.secondary }}
+                >
+                  <LocalPhoneOutlinedIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+              </Tooltip>
 
-          <Tooltip title="Video Call" arrow>
-            <IconButton size="small" sx={{ color: theme.palette.text.secondary }}>
-              <VideocamOutlinedIcon sx={{ fontSize: 20 }} />
-            </IconButton>
-          </Tooltip>
+              <Tooltip title={isBlocked ? "Unblock to call" : "Video Call"} arrow>
+                <IconButton
+                  size="small"
+                  disabled={isBlocked}
+                  onClick={() => void startVideoCall(activeChat)}
+                  sx={{ color: theme.palette.text.secondary }}
+                >
+                  <VideocamOutlinedIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
 
           <Tooltip title="Contact Details" arrow>
             <IconButton

@@ -8,6 +8,7 @@ import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import GroupAddRoundedIcon from "@mui/icons-material/GroupAddRounded";
+import CallRoundedIcon from "@mui/icons-material/CallRounded";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -162,6 +163,26 @@ export const EmptyStateView: React.FC<Props> = ({ tab }) => {
               variant: "outlined" as const,
               icon: <PaletteOutlinedIcon sx={{ fontSize: 14 }} />,
               onClick: () => dispatch(SET_SETTINGS_SECTION("appearance")),
+            },
+          ],
+        };
+
+      case "calls":
+        return {
+          icon: <CallRoundedIcon sx={{ fontSize: 32, color: theme.palette.text.secondary }} />,
+          title: "Calls",
+          subtitle: "Your audio and video call history appears here.",
+          buttons: [
+            {
+              label: "Start a Call",
+              variant: "contained" as const,
+              icon: <CallRoundedIcon sx={{ fontSize: 14 }} />,
+              onClick: () => dispatch(SET_ACTIVE_NAV_TAB("chats")),
+            },
+            {
+              label: "All Calls",
+              variant: "outlined" as const,
+              onClick: () => {},
             },
           ],
         };
