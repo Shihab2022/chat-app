@@ -6,7 +6,7 @@ databases:
 services:
   # 1. Internal Backend Service
   - type: pserv
-    name: backend
+    name: back-end
     runtime: docker
     dockerfilePath: .docker/backend.Dockerfile
     dockerContext: .
@@ -20,7 +20,7 @@ services:
 
   # 2. Internal Frontend Service
   - type: pserv
-    name: frontend
+    name: front-end
     runtime: docker
     dockerfilePath: .docker/frontend.Dockerfile
     dockerContext: .
