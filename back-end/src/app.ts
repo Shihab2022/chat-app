@@ -19,9 +19,9 @@ app.use(notFound);
 
 async function startServer() {
   try {
-    if (process.env.NODE_ENV !== 'production') {
-      await runMigrations();
-    }
+    // if (process.env.NODE_ENV !== 'production') {
+    //   // await runMigrations();
+    // }
     server.listen(config.port, () => {
       console.log(`Server is running on port ${config.port}`);
     });
