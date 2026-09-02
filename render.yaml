@@ -1,7 +1,6 @@
 databases:
   - name: postgres-db
     databaseName: chat_db
-    user: postgres
 
 services:
   # 1. Internal Backend Service
