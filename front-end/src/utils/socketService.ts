@@ -25,11 +25,38 @@ import { getGroupDetailsAPI } from "../services/message";
 let lastStopTypingId: string | null = null;
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
 let socket: Socket | null = null;
+let currentSocketUserId: string | null = null;
+
+function getSocketBaseUrl(apiBaseUrl: string) {
+  try {
+    const url = new URL(apiBaseUrl, window.location.origin);
+    if (url.pathname.replace(/\/$/, "") === "/api") {
+      url.pathname = "/";
+    }
+    url.search = "";
+    url.hash = "";
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return apiBaseUrl.replace(/\/api\/?$/, "");
+  }
+}
 
 export function connectSocket(userId: string, dispatch: any) {
+  const normalizedUserId = String(userId || "");
+  if (!normalizedUserId) return socket;
+
+  if (socket && currentSocketUserId !== normalizedUserId) {
+    socket.disconnect();
+    socket = null;
+    currentSocketUserId = null;
+  }
+
   if (socket && socket.connected) return socket;
-  socket = io(BASE_URL, {
-    query: { userId },
+
+  currentSocketUserId = normalizedUserId;
+  socket = io(getSocketBaseUrl(BASE_URL), {
+    path: "/socket.io",
+    query: { userId: normalizedUserId },
   });
 
   const applyGroupToSidebar = (group: any) => {
@@ -112,6 +139,10 @@ export function connectSocket(userId: string, dispatch: any) {
 
   socket.on(SOCKET_EVENTS.CONNECT, () => {
     console.log("✅ Socket connected");
+  });
+
+  socket.on(SOCKET_EVENTS.DISCONNECT, () => {
+    currentSocketUserId = null;
   });
 
   socket.on(SOCKET_EVENTS.GET_ONLINE_USERS, (userIds) => {
@@ -226,8 +257,9 @@ export function connectSocket(userId: string, dispatch: any) {
 export function disconnectSocket() {
   if (socket?.connected) {
     socket.disconnect();
-    socket = null;
   }
+  socket = null;
+  currentSocketUserId = null;
 }
 export function emitTyping(receiverId: string) {
   if (lastStopTypingId === receiverId) {

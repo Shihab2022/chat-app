@@ -17,14 +17,19 @@ const io = new Server(server, {
   },
 });
 
-const userSocketMap: any = {};
+const userSocketMap: Record<string, Set<string>> = {};
 export function getReceiverSocketId(userId: string) {
-  return userSocketMap[userId];
+  return Array.from(userSocketMap[userId] || [])[0];
 }
 
-const emitToUser = (targetUserId: string, event: string, payload: any) => {
-  const socketId = getReceiverSocketId(String(targetUserId));
-  if (socketId) io.to(socketId).emit(event, payload);
+function getReceiverSocketIds(userId: string) {
+  return Array.from(userSocketMap[userId] || []);
+}
+
+export const emitToUser = (targetUserId: string, event: string, payload: any) => {
+  for (const socketId of getReceiverSocketIds(String(targetUserId))) {
+    io.to(socketId).emit(event, payload);
+  }
 };
 
 const isUserOnline = (userId: string) => Boolean(getReceiverSocketId(userId));
@@ -35,31 +40,31 @@ export async function emitGroupEvent(groupId: number, event: string, payload: an
     [groupId],
   );
   for (const member of result.rows) {
-    const socketId = getReceiverSocketId(String(member.user_id));
-    if (socketId) io.to(socketId).emit(event, payload);
+    emitToUser(String(member.user_id), event, payload);
   }
 }
 
 io.on('connection', (socket) => {
   const userId = socket.handshake.query.userId as string;
-  if (userId) userSocketMap[userId] = socket.id;
+  if (userId) {
+    let socketIds = userSocketMap[userId];
+    if (!socketIds) {
+      socketIds = new Set();
+      userSocketMap[userId] = socketIds;
+    }
+    socketIds.add(socket.id);
+  }
 
   // Live audio/video calling (WebRTC signaling + call-log tracking).
   registerCallSocketHandlers(socket, userId, { emitToUser, isUserOnline });
 
   socket.on('typing', ({ receiverId }) => {
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('userTyping', { sender_id: userId });
-    }
+    emitToUser(receiverId, 'userTyping', { sender_id: userId });
   });
 
   // ✅ Handle stop typing event
   socket.on('stopTyping', ({ receiverId }) => {
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('userStopTyping', { sender_id: userId });
-    }
+    emitToUser(receiverId, 'userStopTyping', { sender_id: userId });
   });
   socket.on('messageSeen', async ({ messageId }) => {
     // Only the actual recipient can mark a message as read. The socket user id
@@ -79,20 +84,25 @@ WHERE
     const result = await pool.query(query, [messageId, userId]);
     const updated = result.rows[0];
     if (!updated) return;
-    const senderSocketId = getReceiverSocketId(String(updated.sender_id));
     const event = {
       messageId,
       seen_at: updated.seen_at,
     };
-    if (senderSocketId) io.to(senderSocketId).emit('messageSeenUpdate', event);
+    emitToUser(String(updated.sender_id), 'messageSeenUpdate', event);
     socket.emit('messageSeenUpdate', event);
   });
   // io.emit() is used to send events to all the connected clients
   io.emit('getOnlineUsers', Object.keys(userSocketMap));
   socket.on('disconnect', () => {
-    delete userSocketMap[userId];
+    const socketIds = userId ? userSocketMap[userId] : undefined;
+    if (socketIds) {
+      socketIds.delete(socket.id);
+      if (socketIds.size === 0) delete userSocketMap[userId];
+    }
     // Finalize any live call the user was part of & notify the peer.
-    void handleUserDisconnect(userId, { emitToUser, isUserOnline });
+    if (!isUserOnline(userId)) {
+      void handleUserDisconnect(userId, { emitToUser, isUserOnline });
+    }
     io.emit('getOnlineUsers', Object.keys(userSocketMap));
   });
 });

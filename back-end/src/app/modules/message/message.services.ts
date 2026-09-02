@@ -1,5 +1,8 @@
 import { TMessages } from './message.interface';
-import { emitGroupEvent, getReceiverSocketId, io } from '../../../utils/socket';
+import {
+  emitGroupEvent,
+  emitToUser,
+} from '../../../utils/socket';
 import { pool } from '../../../utils/pg';
 import AppError from '../../error/appError';
 import httpStatus from 'http-status';
@@ -87,12 +90,8 @@ const normalizeMessageRows = (rows: any[]) => rows.map(normalizeMessageRow);
 
 const emitDirectMessageEvent = (event: string, message: any, peerUserId?: number | string) => {
   const normalized = normalizeMessageRow(message);
-  const receiverSocketId = getReceiverSocketId(String(peerUserId ?? message.receiver_id));
-  const senderSocketId = getReceiverSocketId(String(message.sender_id));
-  if (receiverSocketId) io.to(receiverSocketId).emit(event, normalized);
-  if (senderSocketId && senderSocketId !== receiverSocketId) {
-    io.to(senderSocketId).emit(event, normalized);
-  }
+  emitToUser(String(peerUserId ?? message.receiver_id), event, normalized);
+  emitToUser(String(message.sender_id), event, normalized);
 };
 
 const getAcceptedFriendshipRows = async (userA: number, userB: number) => {
@@ -275,14 +274,24 @@ const getMessageFromDB = async (payload: Partial<TMessages>, currentUser?: any) 
 
   await assertDirectChatAllowed(currentUserId, otherUserId);
 
-  await pool.query(
+  const seenResult = await pool.query(
     `
       UPDATE messages
       SET seen = true, seen_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
       WHERE sender_id = $1 AND receiver_id = $2 AND seen = false
+      RETURNING id, sender_id, seen_at
     `,
     [otherUserId, currentUserId],
   );
+
+  for (const message of seenResult.rows) {
+    const event = {
+      messageId: String(message.id),
+      seen_at: message.seen_at,
+    };
+    emitToUser(String(message.sender_id), 'messageSeenUpdate', event);
+    emitToUser(String(currentUserId), 'messageSeenUpdate', event);
+  }
 
   await pool.query(
     `
@@ -596,10 +605,7 @@ const ForwardMessage = async (payload: any, currentUser?: any) => {
   const { rows: savedMessages } = await pool.query(query, values);
 
   for (const msg of savedMessages) {
-    const receiverSocketId = getReceiverSocketId(String(msg.receiver_id));
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('forwardMessage', msg);
-    }
+    emitToUser(String(msg.receiver_id), 'forwardMessage', normalizeMessageRow(msg));
   }
 
   return savedMessages;
@@ -626,14 +632,7 @@ const replyMessage = async (payload: TMessages, currentUser?: any) => {
     rows: [newMessage],
   } = await pool.query(insertQuery, [sender_id, receiverId, payload.text || '', '', replyId]);
 
-  const receiverSocketId = getReceiverSocketId(String(receiverId));
-  if (receiverSocketId) {
-    io.to(receiverSocketId).emit('newMessage', normalizeMessageRow(newMessage));
-  }
-  const senderSocketId = getReceiverSocketId(String(sender_id));
-  if (senderSocketId) {
-    io.to(senderSocketId).emit('newMessage', normalizeMessageRow(newMessage));
-  }
+  emitDirectMessageEvent('newMessage', newMessage, receiverId);
 
   const fetchQuery = `
     SELECT * FROM messages
@@ -963,8 +962,7 @@ const deleteGroup = async (payload: any, currentUser?: any) => {
   );
   await pool.query(`DELETE FROM chat_groups WHERE id=$1`, [groupId]);
   for (const member of members.rows) {
-    const socketId = getReceiverSocketId(String(member.user_id));
-    if (socketId) io.to(socketId).emit('groupDeleted', { groupId });
+    emitToUser(String(member.user_id), 'groupDeleted', { groupId });
   }
   return { groupId, deleted: true };
 };
@@ -1004,10 +1002,7 @@ const sendGroupMessage = async (payload: any, currentUser?: any) => {
   );
 
   for (const member of members.rows) {
-    const socketId = getReceiverSocketId(String(member.user_id));
-    if (socketId) {
-      io.to(socketId).emit('newGroupMessage', message);
-    }
+    emitToUser(String(member.user_id), 'newGroupMessage', message);
   }
 
   return message;

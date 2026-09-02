@@ -2,7 +2,8 @@ import config from '../app/config';
 
 export const appName = 'Chat app';
 export const corsAllowOrigin = {
-  origin: [config?.front_end_base_url as string, 'http://localhost:3000'],
+  origin: '*',
+  // origin: [config?.front_end_base_url as string, 'http://localhost:3000'],
   credentials: true,
 };
 
