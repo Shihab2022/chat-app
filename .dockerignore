@@ -1,0 +1,19 @@
+# Git & CI
+.git
+.github
+
+# Environments & secrets (runtime env comes from compose env_file)
+.env
+**/.env
+**/#envSample
+
+# Dependencies — installed fresh inside the image via npm ci
+**/node_modules
+
+# Build outputs — rebuilt inside the image
+**/dist
+
+# Docs & local-only files
+*.md
+*.pdf
+docker-compose.yml

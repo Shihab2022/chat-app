@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-chat_db}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-chat_db}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: .docker/backend.Dockerfile
+    restart: always
+    env_file:
+      - .env
+    deploy:
+      replicas: 2
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: .docker/frontend.Dockerfile
+      args:
+        VITE_BASE_API_URL: ${VITE_BASE_API_URL}
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+        VITE_CALL_ENABLED: ${VITE_CALL_ENABLED}
+        VITE_CALL_RING_TIMEOUT_MS: ${VITE_CALL_RING_TIMEOUT_MS}
+        VITE_STUN_SERVERS: ${VITE_STUN_SERVERS}
+        VITE_TURN_URL: ${VITE_TURN_URL}
+        VITE_TURN_USERNAME: ${VITE_TURN_USERNAME}
+        VITE_TURN_CREDENTIAL: ${VITE_TURN_CREDENTIAL}
+    restart: always
+
+  nginx:
+    image: nginx:alpine
+    container_name: load_balancer
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./.docker/loadbalancer-nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  pgdata:
+    driver: local
