@@ -1,4 +1,4 @@
-import { MigrationBuilder } from 'node-pg-migrate';
+import type { MigrationBuilder } from 'node-pg-migrate';
 
 export function up(pgm: MigrationBuilder): void {
   pgm.sql(`
@@ -23,5 +23,7 @@ export function up(pgm: MigrationBuilder): void {
 }
 
 export function down(pgm: MigrationBuilder): void {
-  pgm.sql('ALTER TABLE group_members DROP CONSTRAINT IF EXISTS group_members_role_check');
+  pgm.sql(
+    'ALTER TABLE group_members DROP CONSTRAINT IF EXISTS group_members_role_check',
+  );
 }
