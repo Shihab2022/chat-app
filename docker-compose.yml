@@ -7,10 +7,10 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-chat_db}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
     healthcheck:
       test:
         [
@@ -60,7 +60,3 @@ services:
     depends_on:
       - backend
       - frontend
-
-volumes:
-  pgdata:
-    driver: local
