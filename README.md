@@ -1,73 +1,138 @@
-## Hey Guys , Welcome to chat app .
+# 💬 Chatty — Real-Time Group Messaging & Communication Engine
 
-### This is real time chat app. You can chat each of another . There have some step to start chart to other person .
+> **Real-Time Group Messaging & Communication Engine** — a high-throughput instant messaging system supporting concurrent group channels, message forwarding, reply threading, presence tracking, and cloud media pipelines.
 
-# First login with your Gmail .
+A full-stack, real-time chat application (**Chatty**) with instant 1:1 and group messaging, live presence, typing indicators, read receipts, emoji reactions, media sharing, auth via JWT / Google OAuth, and **audio/video calling over WebRTC** — all pushed through **Socket.io** for sub-50ms bidirectional message sync.
 
-# After that , You have to invite some one for chat bay his/her gmail.
+---
 
-# He/She gets a gmail , then he login by this gmail .
+## ✨ Features
 
-# Then you and he/she can chat each on other .
+### 💬 Real-Time Messaging (Socket.io)
+- **Direct (1:1) chats and group chats** — real-time bidirectional delivery.
+- **Sub-50ms latency** message synchronization across active rooms (Redux optimistic updates give instant feedback).
+- **Typing indicators** — `typing` / `userTyping`, `stopTyping` / `userStopTyping`.
+- **Read receipts** — messages silently marked `seen` with `seen_at` via `messageSeen` / `messageSeenUpdate`.
+- **Online presence** — live `getOnlineUsers` broadcast, online/offline dots everywhere.
 
-# Chat App
+### 📝 Message Tooling
+- **Emoji reactions** — add/remove reactionsin realtime with the Emoji Mart picker (`newEmoji` / `removeEmoji`).
+- **Edit / Delete** messages (soft-delete, `editMessage` / `deletedMessage` events).
+- **Reply threading** — quoted replies with `reply_id` chains.
+- **Forward messages** — re-share messages to any chat (`forwardMessage` event).
+- **Clear chat & delete all** — per-conversation hygiene.
 
-Welcome to the Chat App project! This application is designed to provide users with a seamless and real-time messaging experience similar to popular messaging apps like Messenger.
+### 👥 Group Chats
+- **Create groups** — name, description, image/avatar.
+- **Group administration** — add/remove members, **member roles（admin / member）**, promote/reassign admins with automatic admin hand-off on leave.
+- **Group invitations** — email-based pending invitations + accept flow.
+- **Update / leave / delete groups** — full lifecycle with live `groupCreated` / `groupMemberChanged` / `groupUpdated` / `groupDeleted` socket events.
+- **Group message feeds** — separate group timelines + realtime `newGroupMessage`.
+- **Disappearing messages** — per-user `off / 24h / 7d / 30d`, auto-expired server-side.
 
-## Table of Contents
+### 🔐 Auth, Accounts & Safety
+- **JWT authentication** — protected routes via express middleware.
+- **Google OAuth 2.0** — sign-in / register with Google.
+- **Email + password signup** with one-time **email confirmation** links (Nodemailer / SMTP).
+- **Forgot / reset password** — email PIN + secure token flow.
+- **Invite friends by email** — accept-invite flow, friend list, accept/decline.
+- **Block / unblock contacts** — blocked users are barred from messaging and calling.
+- **Profile management** — name, avatar, bio, settings (theme, wallpaper, font size, compact list).
+- **QR code connect** — show your code / scan another users code with camera or file import.
 
-- [Features](#features)
-- [Technologies](#technologies)
-- [Setup](#setup)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+### 🖼️ Media & Files
+- **Cloud media pipeline** — Multer in-memory uploads (10 MB cap) → **Cloudinary**, for images, videos, and PDFs (raw resource type).
+- **Shared conversation media viewer** — browse all media/PDFs in a chat (`GET /api/message/shared`).
+- **Inline previews** — PDFs, images, videos render directly in the message thread.
 
-## Features
+### 📞 Audio & Video Calls (WebRTC)
+- **Audio calls and video calls** between accepted friends (toggle via `VITE_CALL_ENABLED`).
+- **Socket.io signaling** — `webrtc:offer` / `webrtc:answer` / `webrtc:ice-candidate` relays, plus full lifecycle: `call:starting`, `call:incoming`, `call:accepted`, `call:rejected`, `call:missed`, `call:timeout`, `call:ended`.
+- **Call history & logs** — every call tracked in PostgreSQL (`call_logs`: received / rejected / missed / completed, with durations).
+- **Configurable ring timeout** (`CALL_RING_TIMEOUT_MS` — missed-call auto-finalize). Offline callee → instant missed-call log.
+- **STUN / TURN configurable** — Google STUN out-of-the-box; optional TURN relay for strict NATs.
+- **Polished call UI** — incoming/outgoing overlays with Framer Motion animations.
 
-- **Real-Time Messaging**: Instant messaging with real-time updates.
-- **User Authentication**: Secure login and registration using JWT.
-- **One-on-One Chats**: Private messaging between users.
-- **Group Chats**: Create and manage group conversations.
-- **Media Sharing**: Send and receive images, videos, and files.
-- **Online Status**: See which friends are online.
-- **Notifications**: Get notified of new messages.
-- **Search**: Find contacts and messages quickly.
-- **User Profiles**: View and edit user profiles.
-- **Emoji Support**: Send and receive emojis in messages.
+### 🎨 UI / UX
+- **React + TypeScript + Vite**, Material UI (MUI), **Framer Motion** animations, **Emoji Mart** picker.
+- **Dark / light themes**, custom wallpapers, compact list, font sizes — persisted via Redux + server sync.
+- **Smart text suggestions** — Harper.js-powered spelling, grammar,and word-completion popup (Bangla-safe: Bangla text passes through untouched).
+- **Debounced search** across chats/contacts, date-grouped message timelines, Toast notifications.
+- **Landing pages** — Features, How It Works, Preview, Testimonials.
 
-## Technologies
+---
 
-- **Frontend**: React, HTML, CSS, JavaScript
-- **Backend**: Node.js, Express
-- **Database**: MongoDB
-- **Websockets**: Socket.io for real-time communication
-- **Authentication**: JWT
+## 🛠️ Tech Stack
 
-## Setup
+| Layer | Technologies |
+| --- | --- |
+| **Frontend** | React 18, TypeScript, Vite, Redux Toolkit (optimistic updates), MUI, Framer Motion, Emoji Mart, Harper.js, qrcode, socket.io-client |
+| **Backend** | Node.js, Express, TypeScript, Socket.io, JWT, bcrypt, Nodemailer, Multer, Cloudinary |
+| **Database** | PostgreSQL (primary — users, friendships, group_members, messages, call_logs; with migrations and indexed queries), pg Pool |
+| **Auth** | JWT + Google OAuth 2.0 + email confirmation |
+| **DevOps / Deploy** | Docker (multi-stage), docker-compose, Render Blueprint (nginx load-balancer + frontend + backend), nginx WebSocket upgrade proxying |
 
-To get a local copy up and running, follow these simple steps.
+## 🧠 Architecture & Performance
+
+- **Architecture details**: Built with a PostgreSQL-first data model - users, friendships, group memberships, messages(with reply threading)and call logs all live in PostgreSQL, accessed through parameterized queriesand managed with versioned migrations;the React client uses Redux Toolkit optimistic updates for instant message feedback.
+- **Challenge tackled**: Managing sub-50ms bi-directional message synchronization across active group rooms while keeping user sessions synchronized with JWT and handling concurrent media upload streams.
+- **Performance**: Implemented optimized PostgreSQL queries, Redux optimistic updates, and Google OAuth, JWT authentication.
+
+## 🚀 Getting Started (Local)
 
 ### Prerequisites
+- Node.js (20+), npm, a PostgreSQL database (or Docker), anda Cloudinary + SMTP account for full functionality.
 
-- Node.js
-- npm or yarn
-- MongoDB
+### 1. Clone & install
+```sh
+git clone https://github.com/Shihab2027/chat-app.git
+cd chat-app
 
-### Installation
+# Backend
+cd back-end
+npm ci
+cp #envSample .env            # then fill in real credentials
 
-1. Clone the repository
-   ```sh
-   git clone https://github.com/your-username/chat-app.git
-   ```
+# Frontend (new terminal)
+cd ../front-end
+npm ci
+cp #envSample .env
+```
 
-### For get impression from this github and you tube chanel
+### 2. Configure `.env`
+- **Backend** (`back-end/.env`): `PORT`, `DATABASE_URL` (PostgreSQL), `FRONT_END_BASE_URL`, `JWT_ACCESS_SECRET`, SMTP creds, optional `CALL_RING_TIMEOUT_MS`, `CALL_HISTORY_LIMIT` — see `back-end/#envSample`.
+- **Frontend** (`front-end/.env`): `VITE_BASE_API_URL`, `VITE_GOOGLE_CLIENT_ID`, and calling vars (`VITE_CALL_ENABLED` etc.) — see `front-end/#envSample`.
 
-`https://github.com/burakorkmez/fullstack-chat-app `
-`https://youtu.be/ntKkVrQqBYY?si=OUmNm1jL7eiSsnzM `
+### 3. Run
+```sh
+# backend (uses PostgreSQL — migrations run via `npm run migrate`)
+cd back-end && npm run dev
 
-`https://github.com/burakorkmez/slack-clone/tree/master`
-`https://www.youtube.com/watch?v=qsFdE4okEfw `
+# frontend (new terminal)
+cd front-end && npm run dev
+```
 
-`https://github.com/burakorkmez`
+## ☁️ Deploying on Render (incl. Socket.io)
+The app is a 3-service architecture: public **nginx load-balancer** (proxies `/api/*` and `/socket.io/*` with WebSocket upgrades), internal **frontend** (nginx SPA), and internal **backend** (Socket.io/Express on port 5000).
+
+**Critical env vars (see `render.yaml`):**
+- Backend: `PORT`, `DATABASE_URL`, `FRONT_END_BASE_URL` (= public URL — used for Socket.io CORS).
+- Frontend (build-time args): `VITE_BASE_API_URL` (= `<public>/api`), `VITE_GOOGLE_CLIENT_ID`, `VITE_CALL_ENABLED`.
+
+The nginx load-balancer already handles the WebSocket `Upgrade` handshake (see `.docker/loadbalancer-nginx.conf`), so Socket.io works through HTTPS in production.
+
+## 📡 API & Socket Highlights
+
+**REST modules** — `/api/user/*` (auth, friends, block, profile), `/api/message/*` (messages, groups, media), `/api/call/*` (history, logs).
+
+**Socket events** — `newMessage`, `newGroupMessage`, `typing`/`userTyping`, `stopTyping`/`userStopTyping`, `messageSeen`/`messageSeenUpdate`, `getOnlineUsers`, `newEmoji`/`removeEmoji`, `editMessage`, `deletedMessage`, `forwardMessage`, `groupCreated`, `groupMemberChanged`, `groupUpdated`, `groupDeleted`, `call:start/accept/reject/end`, `webrtc:offer/answer/ice-candidate`.
+
+## 🧩 Project Card (JSON)
+See **`chatty-app.json`** in the repo root — a ready-to-use project/portfolio card with full tech breakdown, features, challenges,and accomplishments. A plain-text feature sheet is also available in **`CHATTY_FEATURES.txt`**.
+
+## 🔗 Links
+- **GitHub**: https://github.com/Shihab2027/chat-app
+- **Live**: https://chat-apcel.app/
+
+---
+Made with ❤️ — Chatty
