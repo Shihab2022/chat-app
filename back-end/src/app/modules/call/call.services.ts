@@ -37,6 +37,29 @@ export const getPeerInfo = async (userId: number | string): Promise<TCallPeerInf
   return { id: String(row.id), name: row.name || 'Unknown', img: row.img || '' };
 };
 
+export const getPeerConnectionPermission = async (
+  callerId: number | string,
+  receiverId: number | string,
+) => {
+  return pool.query(
+    `SELECT f.is_blocked
+     FROM friendships f
+     WHERE UPPER(f.invite_status) = 'ACCEPTED'
+       AND (
+         (f.sender_id = $1 AND (
+           f.receiver_id = $2
+           OR f.receiver_email = (SELECT email FROM users WHERE id = $2)
+         ))
+         OR
+         (f.sender_id = $2 AND (
+           f.receiver_id = $1
+           OR f.receiver_email = (SELECT email FROM users WHERE id = $1)
+         ))
+       )`,
+    [callerId, receiverId],
+  );
+};
+
 /**
  * Insert a call attempt with status 'received'. `start_time` records
  * the moment the attempt was made so completed duration = end - start.
@@ -71,11 +94,13 @@ export const createCallLog = async ({
  */
 export const updateCallLog = async ({
   callId,
+  currentUserId,
   status,
   setEndTime = false,
   durationSeconds,
 }: {
   callId: number | string;
+  currentUserId?: number | string;
   status: CallStatus;
   setEndTime?: boolean;
   durationSeconds?: number | null;
@@ -89,9 +114,11 @@ export const updateCallLog = async ({
                  EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP
                    - COALESCE(start_time, CURRENT_TIMESTAMP)))::int),
              updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1 AND call_status = 'received'
+       WHERE id = $1
+         AND call_status = 'received'
+         AND ($4::int IS NULL OR caller_id = $4 OR receiver_id = $4)
        RETURNING *`,
-      [callId, status, durationSeconds ?? null],
+      [callId, status, durationSeconds ?? null, currentUserId ?? null],
     );
     return normalizeCallLog(rows[0]);
   }
@@ -99,9 +126,11 @@ export const updateCallLog = async ({
   const { rows } = await pool.query(
     `UPDATE call_logs
        SET call_status = $2, updated_at = CURRENT_TIMESTAMP
-     WHERE id = $1 AND call_status = 'received'
+     WHERE id = $1
+       AND call_status = 'received'
+       AND ($3::int IS NULL OR caller_id = $3 OR receiver_id = $3)
      RETURNING *`,
-    [callId, status],
+    [callId, status, currentUserId ?? null],
   );
   return normalizeCallLog(rows[0]);
 };
@@ -170,4 +199,5 @@ export const CallServices = {
   getCallLogById,
   getCallHistory,
   getPeerInfo,
+  getPeerConnectionPermission,
 };

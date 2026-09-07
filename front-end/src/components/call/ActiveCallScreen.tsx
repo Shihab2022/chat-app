@@ -107,6 +107,13 @@ export const ActiveCallScreen: React.FC = () => {
     [localStream],
   );
 
+  const setRemoteAudioRef = useCallback(
+    (node: HTMLAudioElement | null) => {
+      if (node) node.srcObject = remoteStream;
+    },
+    [remoteStream],
+  );
+
   return (
     <Box
       role="dialog"
@@ -161,6 +168,14 @@ export const ActiveCallScreen: React.FC = () => {
       </Box>
 
       {/* Main video area */}
+      {!isVideo && (
+        <audio
+          ref={setRemoteAudioRef}
+          autoPlay
+          playsInline
+          style={{ display: "none" }}
+        />
+      )}
       <Box
         sx={{
           flex: 1,

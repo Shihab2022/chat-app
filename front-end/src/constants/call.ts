@@ -66,17 +66,19 @@ export const CALL_RING_TIMEOUT_MS = positiveNumber(
   30_000,
 );
 
-const turnUrl = String(import.meta.env.VITE_TURN_URL || "").trim();
+const turnUrls = parseUrlList(
+  import.meta.env.VITE_TURN_URL || import.meta.env.VITE_TURN_URLS,
+);
 
-/** ICE servers: default Google STUN + optional extras + optional TURN relay. */
+/** ICE servers: public STUN plus optional custom STUN/TURN relay servers. */
 export const ICE_SERVERS: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" },
   ...parseUrlList(import.meta.env.VITE_STUN_SERVERS).map((urls) => ({ urls })),
-  ...(turnUrl
+  ...(turnUrls.length > 0
     ? [
         {
-          urls: turnUrl,
+          urls: turnUrls,
           username: import.meta.env.VITE_TURN_USERNAME || undefined,
           credential: import.meta.env.VITE_TURN_CREDENTIAL || undefined,
         },

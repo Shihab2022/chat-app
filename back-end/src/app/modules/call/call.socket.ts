@@ -50,6 +50,19 @@ const hasActiveCallParticipant = (userId: string): boolean =>
       String(call.calleeId) === String(userId),
   );
 
+const assertCallPermission = async (callerId: string, receiverId: string) => {
+  const { rows } = await CallServices.getPeerConnectionPermission(
+    callerId,
+    receiverId,
+  );
+  if (!rows.length) {
+    throw new Error('Calls are allowed only between accepted friends');
+  }
+  if (rows.some((row: { is_blocked: boolean }) => row.is_blocked)) {
+    throw new Error('This user is blocked or has blocked you');
+  }
+};
+
 /**
  * Marks a call with its final status, stamps end_time and computes
  * duration. SQL guard (`call_status = 'received'`) makes this
@@ -116,6 +129,12 @@ export function registerCallSocketHandlers(
       });
       return;
     }
+    if (String(receiverId) === callerId) {
+      emitToUser(callerId, 'call:error', {
+        message: 'You cannot call yourself',
+      });
+      return;
+    }
     if (![callType.AUDIO, callType.VIDEO].includes(requestedType)) {
       emitToUser(callerId, 'call:error', {
         message: callServiceMessages.INVALID_CALL_TYPE,
@@ -130,6 +149,7 @@ export function registerCallSocketHandlers(
     }
 
     try {
+      await assertCallPermission(callerId, String(receiverId));
       const callerInfo = await CallServices.getPeerInfo(callerId);
       const receiverInfo = await CallServices.getPeerInfo(receiverId);
 
@@ -223,7 +243,12 @@ export function registerCallSocketHandlers(
   socket.on('call:accept', async (payload: any = {}) => {
     const { callId } = payload || {};
     const active = activeCalls.get(Number(callId));
-    if (!active || String(active.calleeId) !== String(userId)) return;
+    if (!active || String(active.calleeId) !== String(userId)) {
+      emitToUser(String(userId), 'call:error', {
+        message: 'This call is no longer available',
+      });
+      return;
+    }
 
     active.answered = true;
     clearRingTimer(active);
@@ -255,7 +280,10 @@ export function registerCallSocketHandlers(
     clearRingTimer(active);
     activeCalls.delete(active.callId);
     await finalizeCall(active.callId, callStatus.REJECTED, 0);
-    emitToUser(active.callerId, 'call:rejected', { callId: active.callId });
+    emitToUser(active.callerId, 'call:rejected', {
+      callId: active.callId,
+      message: 'Call declined by the recipient',
+    });
   });
 
   /* ── Either participant hangs up ─────────────────────────── */

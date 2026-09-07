@@ -57,6 +57,25 @@ const createCallLog = async (
         callServiceMessages.INVALID_CALL_TYPE,
       );
     }
+    if (String(callerId) === String(receiverId)) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'You cannot call yourself');
+    }
+    const permission = await CallServices.getPeerConnectionPermission(
+      callerId,
+      receiverId,
+    );
+    if (!permission.rows.length) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        'Calls are allowed only between accepted friends',
+      );
+    }
+    if (permission.rows.some((row: { is_blocked: boolean }) => row.is_blocked)) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        'This user is blocked or has blocked you',
+      );
+    }
 
     const result = await CallServices.createCallLog({
       callerId,
@@ -106,6 +125,7 @@ const updateCallLog = async (
 
     const result = await CallServices.updateCallLog({
       callId,
+      currentUserId: req.user?.id,
       status: requestedStatus,
       setEndTime: Boolean(setEndTime),
       durationSeconds:

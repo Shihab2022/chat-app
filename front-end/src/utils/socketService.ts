@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from "socket.io-client";
+import { getToken } from "./auth";
 import {
   SET_ACTIVE_USERS,
   SET_ALL_USERS,
@@ -58,6 +59,7 @@ export function connectSocket(userId: string, dispatch: any) {
   currentSocketUserId = normalizedUserId;
   socket = io(SOCKET_URL || getSocketBaseUrl(BASE_URL), {
     path: SOCKET_PATH,
+    auth: { token: getToken() },
     query: { userId: normalizedUserId },
     transports: ["websocket", "polling"],
     withCredentials: true,
@@ -66,6 +68,9 @@ export function connectSocket(userId: string, dispatch: any) {
     reconnectionDelay: 1000,
     reconnectionDelayMax: 10_000,
     timeout: 20_000,
+  });
+  socket.io.on("reconnect_attempt", () => {
+    if (socket) socket.auth = { token: getToken() };
   });
 
   const applyGroupToSidebar = (group: any) => {

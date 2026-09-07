@@ -1,7 +1,9 @@
 import { Server } from 'socket.io';
 import http from 'http';
+import { Secret } from 'jsonwebtoken';
 import express from 'express';
 import config from '../app/config';
+import { jwtVerify } from './auth';
 import { pool } from './pg';
 import {
   handleUserDisconnect,
@@ -74,7 +76,16 @@ export async function emitGroupEvent(groupId: number, event: string, payload: an
 }
 
 io.on('connection', (socket) => {
-  const userId = socket.handshake.query.userId as string;
+  const token = socket.handshake.auth?.token as string | undefined;
+  let userId: string;
+  try {
+    const verified = jwtVerify(token || '', config.jwt_access_secret as Secret);
+    userId = String(verified.userId || '');
+    if (!userId) throw new Error('Socket user is missing');
+  } catch {
+    socket.disconnect(true);
+    return;
+  }
   if (userId) {
     let socketIds = userSocketMap[userId];
     if (!socketIds) {

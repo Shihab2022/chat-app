@@ -4,13 +4,34 @@ VITE_GOOGLE_CLIENT_ID=fdsfsdsdsfsas-7obdfsdsddfddfdfsd.apps.googleusercontent.co
 # ── Audio/Video Calling (WebRTC) ──────────────────────────────
 # Master switch for all calling UI. Set to "false" to hide call buttons
 # and the Calls tab without touching any code.
+#
+#   ▶ REQUIRED to enable the calling feature.
+#   ▶ No account needed — it's just a boolean you set yourself.
 VITE_CALL_ENABLED=true
+
 # How long an incoming call rings before auto-dismissing (milliseconds).
+# Optional — defaults to 30000. No account needed.
 VITE_CALL_RING_TIMEOUT_MS=30000
+
 # Extra STUN servers, comma separated (Google STUN is always included).
+# Optional — leave empty and Google's public STUN servers (free, no account)
+# are used automatically: stun:stun.l.google.com:19302 / stun1.
 VITE_STUN_SERVERS=
-# TURN relay for strict NAT / corporate networks. Recommended in production
-# (e.g. twilio: turn:global.turn.twilio.com:3478, or a coturn instance).
-VITE_TURN_URL=
+
+# TURN relay for strict NAT / corporate networks. Recommended in production.
+# Vite reads these values only when the frontend is built. After changing
+# them in Vercel, deploy a new frontend build.
+# You can get free TURN credentials from https://openrelay.metered.ca,
+# or paid ones from:
+#   - Twilio  https://www.twilio.com/en-us/webrtc
+#   - Metered https://www.metered.ca
+#   - Xirsys  https://www.xirsys.com
+#   - coturn  self-hosted (install coturn on your own server)
+# Examples:
+# You may provide several comma-separated URLs for UDP, TCP, and TLS fallback.
+VITE_TURN_URL=turn:openrelay.metered.ca:80,turn:openrelay.metered.ca:443,turns:openrelay.metered.ca:443
 VITE_TURN_USERNAME=
 VITE_TURN_CREDENTIAL=
+
+# Optional alias for VITE_TURN_URL. Use one or the other, not both.
+# VITE_TURN_URLS=

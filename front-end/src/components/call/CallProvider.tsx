@@ -154,6 +154,7 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
       pcRef.current = null;
     }
     isInitiatorRef.current = false;
+    directionRef.current = null;
     callIdRef.current = null;
     peerIdRef.current = null;
     pendingCandidatesRef.current = [];
