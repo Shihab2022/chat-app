@@ -24,6 +24,8 @@ import { getGroupDetailsAPI } from "../services/message";
 // import { TMessage } from "../types";
 let lastStopTypingId: string | null = null;
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+const SOCKET_PATH = import.meta.env.VITE_SOCKET_PATH || "/socket.io";
 let socket: Socket | null = null;
 let currentSocketUserId: string | null = null;
 
@@ -54,9 +56,16 @@ export function connectSocket(userId: string, dispatch: any) {
   if (socket && socket.connected) return socket;
 
   currentSocketUserId = normalizedUserId;
-  socket = io(getSocketBaseUrl(BASE_URL), {
-    path: "/socket.io",
+  socket = io(SOCKET_URL || getSocketBaseUrl(BASE_URL), {
+    path: SOCKET_PATH,
     query: { userId: normalizedUserId },
+    transports: ["websocket", "polling"],
+    withCredentials: true,
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 10_000,
+    timeout: 20_000,
   });
 
   const applyGroupToSidebar = (group: any) => {
@@ -139,6 +148,10 @@ export function connectSocket(userId: string, dispatch: any) {
 
   socket.on(SOCKET_EVENTS.CONNECT, () => {
     console.log("✅ Socket connected");
+  });
+
+  socket.on("connect_error", (error) => {
+    console.error("Socket connection failed:", error.message);
   });
 
   socket.on(SOCKET_EVENTS.DISCONNECT, () => {

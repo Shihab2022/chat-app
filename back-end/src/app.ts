@@ -22,8 +22,9 @@ async function startServer() {
     // if (process.env.NODE_ENV !== 'production') {
     //   // await runMigrations();
     // }
-    server.listen(config.port, () => {
-      console.log(`Server is running on port ${config.port}`);
+    const port = Number(config.port) || 5000;
+    server.listen(port, '0.0.0.0', () => {
+      console.log(`Server is running on port ${port}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

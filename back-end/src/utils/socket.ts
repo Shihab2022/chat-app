@@ -21,19 +21,29 @@ const server = http.createServer(app);
  * Supports a comma-separated list too: "https://a.com,https://b.com".
  */
 function resolveSocketCorsOrigin() {
-  const configured = config?.front_end_base_url as string | undefined;
-  if (!configured) return '*';
+  const configured = [
+    config?.front_end_base_url,
+    process.env.SOCKET_CORS_ORIGINS,
+  ]
+    .filter(Boolean)
+    .join(',');
   const origins = configured
     .split(',')
-    .map((o: string) => o.trim())
-    .filter((o: string) => o.length > 0);
-  return origins.length > 0 ? origins : '*';
+    .map((origin: string) => origin.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+  return origins.length > 0 ? origins : true;
 }
 
 const io = new Server(server, {
   cors: {
     origin: resolveSocketCorsOrigin(),
+    methods: ['GET', 'POST'],
+    credentials: true,
   },
+  transports: ['websocket', 'polling'],
+  allowEIO3: true,
+  pingInterval: 25_000,
+  pingTimeout: 20_000,
 });
 
 const userSocketMap: Record<string, Set<string>> = {};

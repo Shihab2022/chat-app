@@ -1,9 +1,19 @@
 import config from '../app/config';
 
 export const appName = 'Chat app';
+const socketCorsOrigins = [
+  config?.front_end_base_url as string,
+  ...(process.env.SOCKET_CORS_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+]
+  .filter(Boolean)
+  .map((origin) => origin.replace(/\/$/, ''));
+
 export const corsAllowOrigin = {
-  origin: '*',
-  // origin: [config?.front_end_base_url as string, 'http://localhost:3000'],
+  origin: socketCorsOrigins.length > 0 ? socketCorsOrigins : true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
 };
 
