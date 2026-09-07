@@ -11,9 +11,28 @@ import {
 const app = express();
 const server = http.createServer(app);
 
+/**
+ * Allowed Socket.IO origins.
+ *
+ * Local:   FRONT_END_BASE_URL=http://localhost:5173 matches the browser origin.
+ * Render:  the browser origin is the public load-balancer URL (https://<app>.onrender.com).
+ *          If FRONT_END_BASE_URL is unset we default to '*' (same as the REST cors)
+ *          so Socket.IO behind the nginx load balancer is never CORS-blocked.
+ * Supports a comma-separated list too: "https://a.com,https://b.com".
+ */
+function resolveSocketCorsOrigin() {
+  const configured = config?.front_end_base_url as string | undefined;
+  if (!configured) return '*';
+  const origins = configured
+    .split(',')
+    .map((o: string) => o.trim())
+    .filter((o: string) => o.length > 0);
+  return origins.length > 0 ? origins : '*';
+}
+
 const io = new Server(server, {
   cors: {
-    origin: [config?.front_end_base_url as string],
+    origin: resolveSocketCorsOrigin(),
   },
 });
 

@@ -16,8 +16,20 @@ services:
         fromDatabase:
           name: postgres-db
           property: connectionString
+      # ── REQUIRED for Socket.IO to work in production ─────────────────
+      # This must be the PUBLIC load-balancer URL (the browser origin the
+      # user sees), e.g. https://<load-balancer-name>.onrender.com
+      # The backend uses it for Socket.IO CORS + links in emails.
+      - key: FRONT_END_BASE_URL
+        sync: false
 
   # 2. Internal Frontend Service
+  # ── IMPORTANT ───────────────────────────────────────────────────────
+  # The VITE_* values must be baked into the SPA at BUILD time, so they
+  # are set inside the Render service's "Build" settings as build args
+  # (or via a Dockerfile that reads them from the build env). These are
+  # NOT plain runtime env vars. Set at least:
+  #   VITE_BASE_API_URL = https://<load-balancer-name>.onrender.com/api
   - type: pserv
     name: front-end
     runtime: docker
