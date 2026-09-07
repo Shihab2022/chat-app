@@ -22,6 +22,8 @@ import {
 } from "../redux/features/chat/conversationSlice";
 import { SOCKET_EVENTS } from "../constants/socket";
 import { getGroupDetailsAPI } from "../services/message";
+import { showToast } from "./toast";
+import { INFO, SUCCESS } from "../constants/common";
 // import { TMessage } from "../types";
 let lastStopTypingId: string | null = null;
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
@@ -165,6 +167,20 @@ export function connectSocket(userId: string, dispatch: any) {
 
   socket.on(SOCKET_EVENTS.GET_ONLINE_USERS, (userIds) => {
     dispatch(SET_ACTIVE_USERS(userIds));
+  });
+  socket.on("friendRequestReceived", (payload) => {
+    showToast(
+      INFO,
+      `${payload?.sender?.name || "Someone"} sent you a friend request`,
+    );
+    window.dispatchEvent(new CustomEvent("friend-request-received", { detail: payload }));
+  });
+  socket.on("friendRequestAccepted", (payload) => {
+    showToast(
+      SUCCESS,
+      `${payload?.user?.name || "Your friend"} accepted your invitation`,
+    );
+    window.dispatchEvent(new CustomEvent("friend-request-accepted", { detail: payload }));
   });
   socket.on(SOCKET_EVENTS.NEW_MESSAGE, (msg) => {
     dispatch((innerDispatch: any, getState: any) => {

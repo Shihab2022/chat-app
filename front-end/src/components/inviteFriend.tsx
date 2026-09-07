@@ -44,7 +44,12 @@ export default function InviteUser() {
     try {
       const response = await inviteUserApi(data);
       if (response?.success) {
-        showToast(SUCCESS, INVITATION_SENT_MESSAGE);
+        showToast(
+          response?.data?.emailSent === false ? WARNING : SUCCESS,
+          response?.data?.emailSent === false
+            ? "Invitation saved, but the email could not be sent. Please try again."
+            : INVITATION_SENT_MESSAGE,
+        );
         reset();
         navigate("/manageUser");
       }

@@ -154,6 +154,21 @@ const acceptInvite = async (payload: {
   }
 
   const normalizedEmail = String(email).trim().toLowerCase();
+  const inviteRelation = await pool.query(
+    `SELECT id
+     FROM friendships
+     WHERE sender_id = $1
+       AND receiver_email = $2
+       AND invite_token = $3
+       AND invite_status = $4
+       AND is_deleted = false
+     LIMIT 1`,
+    [userId, normalizedEmail, token, FriendshipStatus.PENDING],
+  );
+  if (!inviteRelation.rows.length) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Invitation is invalid or already used');
+  }
+
   const existingUser = await pool.query(
     `SELECT id FROM users WHERE email = $1`,
     [normalizedEmail],
@@ -304,7 +319,7 @@ const LoginUserIntoDB = async (payload: Partial<TUser>) => {
   if (user?.status === userStatus?.INACTIVE) {
     throw new AppError(httpStatus.LOCKED, userServiceMessages.USER_INACTIVE);
   }
-  if (user?.isAccountVerified === false) {
+  if (user?.is_account_verified === false) {
     throw new AppError(httpStatus.LOCKED, userServiceMessages.NOT_VERIFIED);
   }
   const isPassMatch = await bcrypt.compare(
@@ -514,7 +529,7 @@ const sendEmail = async (payload: { email: string }) => {
 
   const result = await pool.query(
     `SELECT id, name FROM users WHERE email = $1 LIMIT 1`,
-    [email],
+    [String(email).trim().toLowerCase()],
   );
 
   const createdUser = result.rows[0];
@@ -538,7 +553,7 @@ const sendEmail = async (payload: { email: string }) => {
     config.jwt_access_expire_in as number | undefined,
   );
   const notifyMsg = {
-    to: [email],
+    to: [String(email).trim().toLowerCase()],
     from: emailSenderMessages.FROM_JOIN_EMAIL,
     subject: emailSenderMessages.WELCOME_EMAIL_SUBJECT,
     text: emailSenderMessages.CONFIRM_EMAIL_MESSAGE,
@@ -645,26 +660,28 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     config.invite_expire_in as number | undefined,
   );
 
-  const inviteUrl =
-    targetUserInfo
-      ? `${config?.front_end_base_url}/chat`
-      : `${config?.front_end_base_url}/accept-invite?token=${accessToken}`;
+  const inviteUrl = targetUserInfo
+    ? `${config?.front_end_base_url}/manageUser`
+    : `${config?.front_end_base_url}/accept-invite?token=${accessToken}`;
 
   // Existing users must explicitly accept the request; never auto-accept them.
+  let friendshipId = existing?.id ?? null;
   if (existing) {
     await pool.query(
       `UPDATE friendships
        SET receiver_id = COALESCE(receiver_id, $1), message = $2, invite_token = $3,
            updated_at = CURRENT_TIMESTAMP
        WHERE id = $4`,
-      [targetUserInfo?.id ?? null, message || '', inviteUrl, existing.id],
+      [targetUserInfo?.id ?? null, message || '', accessToken, existing.id],
     );
   } else {
-    await pool.query(
+    const insertedRelation = await pool.query(
       `INSERT INTO friendships (sender_id, receiver_email, receiver_id, message, invite_token, invite_status, is_blocked, is_deleted)
-       VALUES ($1, $2, $3, $4, $5, $6, false, false)`,
-      [id, normalizedEmail, targetUserInfo?.id ?? null, message || '', inviteUrl, FriendshipStatus.PENDING],
+       VALUES ($1, $2, $3, $4, $5, $6, false, false)
+       RETURNING id`,
+      [id, normalizedEmail, targetUserInfo?.id ?? null, message || '', accessToken, FriendshipStatus.PENDING],
     );
+    friendshipId = insertedRelation.rows[0]?.id ?? null;
   }
 
   let emailSent = false;
@@ -692,7 +709,13 @@ const inviteUser = async (payload: TInviteUser, userIInfo: Partial<TUser>) => {
     console.error("Failed to send invite email:", emailError);
   }
 
-  return { ...payload, inviteUrl, emailSent };
+  return {
+    ...payload,
+    inviteUrl,
+    emailSent,
+    recipientId: targetUserInfo?.id ?? null,
+    friendshipId,
+  };
 };
 
 const updateUserInfo = async (
@@ -812,7 +835,7 @@ const googleLogin = async (payload: {
   );
 
   const user = result.rows[0];
-  if (user?.isGoogleLogin) {
+  if (user?.is_google_login) {
     const { id, role } = user;
     const jwtPayload = {
       userId: id,
@@ -826,7 +849,7 @@ const googleLogin = async (payload: {
     );
     const { password, ...newData } = user;
     return { data: newData, accessToken };
-  } else if (user && !user?.isGoogleLogin) {
+  } else if (user && !user?.is_google_login) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       'User exists but is not registered with Google login',
@@ -894,7 +917,8 @@ const googleRegister = async (payload: {
     config.jwt_access_expire_in as number | undefined,
   );
 
-  return token;
+  const { password, ...newData } = createdUser;
+  return { data: newData, accessToken: token };
 };
 
 const getAllRegisteredUsers = async (payload: Partial<TUser>) => {
@@ -996,7 +1020,10 @@ const acceptFriend = async (payload: { friendshipId?: number; userId?: number },
     `UPDATE friendships f SET invite_status = $1, accepted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
      WHERE f.invite_status = $2
        AND (f.id = $3 OR ($4 IS NOT NULL AND f.sender_id = $4 AND f.receiver_id = $5))
-       AND f.receiver_id = $5
+       AND (
+         f.receiver_id = $5
+         OR f.receiver_email = (SELECT email FROM users WHERE id = $5)
+       )
      RETURNING *`,
     [FriendshipStatus.ACCEPTED, FriendshipStatus.PENDING, friendshipId, targetUserId, currentUserId],
   );
