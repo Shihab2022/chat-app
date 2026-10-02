@@ -1,6 +1,8 @@
 import Box from "@mui/material/Box";
 import { Navbar } from "../../components/Navbar";
+import { FloatingBlobs } from "../../components/FloatingBlobs";
 import { CTA } from "./CTA";
+import { DashboardShowcase } from "./DashboardShowcase";
 import { Features } from "./Features";
 import { Footer } from "./Footer";
 import { HeroSection } from "./Hero";
@@ -22,9 +24,13 @@ const HomePage = () => {
         position: "relative",
       }}
     >
+      {/* Ambient animated gradient blobs behind all content */}
+      <FloatingBlobs />
+
       <Navbar />
       <HeroSection />
       <Features />
+      <DashboardShowcase />
       <HowItWorks />
       <Preview />
       <Testimonials />

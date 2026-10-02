@@ -101,7 +101,8 @@ export const Features: React.FC = () => {
       <Container maxWidth="lg">
         <SectionTitle
           badge="FEATURES"
-          title="Why Choose Chatty"
+          title="Why choose"
+          gradientWord="Chatty"
           subtitle="Engineered for modern communication with cutting-edge speed, security, and delightful usability."
         />
 

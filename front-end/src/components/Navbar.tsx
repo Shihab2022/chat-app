@@ -22,15 +22,19 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import ForumIcon from "@mui/icons-material/Forum";
 import PersonIcon from "@mui/icons-material/Person";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { COLORS } from "../styles";
+import { COLORS, GRADIENTS } from "../styles";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { tokenKey } from "../constants/common";
 
 const navItems = [
   { label: "Features", href: "#features" },
+  { label: "Dashboard", href: "#dashboard" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Preview", href: "#preview" },
   { label: "Testimonials", href: "#testimonials" },
@@ -48,7 +52,7 @@ export const Navbar: React.FC = () => {
 
   // Check auth state on mount and update dynamically
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem(tokenKey);
     setIsAuthenticated(!!token);
 
     const handleScroll = () => {
@@ -72,7 +76,7 @@ export const Navbar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
+    localStorage.removeItem(tokenKey);
     setIsAuthenticated(false);
     handleMenuClose();
     if (mobileOpen) setMobileOpen(false);
@@ -84,11 +88,11 @@ export const Navbar: React.FC = () => {
       position="fixed"
       elevation={0}
       sx={{
-        backgroundColor: scrolled ? "rgba(255, 255, 255, 0.85)" : "transparent",
-        backdropFilter: scrolled ? "blur(16px)" : "none",
-        WebkitBackdropFilter: scrolled ? "blur(16px)" : "none",
+        backgroundColor: scrolled ? "rgba(7, 11, 24, 0.82)" : "transparent",
+        backdropFilter: scrolled ? "blur(18px)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(18px)" : "none",
         borderBottom: scrolled
-          ? "1px solid #E4E6EB"
+          ? "1px solid rgba(255, 255, 255, 0.08)"
           : "1px solid transparent",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         py: scrolled ? 0.5 : 1.5,
@@ -114,11 +118,11 @@ export const Navbar: React.FC = () => {
                 width: 40,
                 height: 40,
                 borderRadius: "12px",
-                background: "linear-gradient(135deg, #0066CC 0%, #00A884 100%)",
+                background: GRADIENTS.brand,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 4px 14px rgba(0, 102, 204, 0.25)",
+                boxShadow: "0 4px 16px rgba(124, 77, 255, 0.45)",
               }}
             >
               <ForumIcon sx={{ color: "#FFFFFF", fontSize: 24 }} />
@@ -129,7 +133,7 @@ export const Navbar: React.FC = () => {
                 fontWeight: 800,
                 fontSize: "1.4rem",
                 letterSpacing: "-0.5px",
-                color: "#111B21",
+                color: "#FFFFFF",
               }}
             >
               Chatty
@@ -145,13 +149,13 @@ export const Navbar: React.FC = () => {
                   component="a"
                   href={item.href}
                   sx={{
-                    color: COLORS.textSecondary || "#667781",
+                    color: "rgba(255, 255, 255, 0.72)",
                     textDecoration: "none",
                     fontSize: "0.95rem",
                     fontWeight: 500,
                     transition: "color 0.2s ease",
                     "&:hover": {
-                      color: "#0066CC",
+                      color: COLORS.secondary,
                     },
                   }}
                 >
@@ -163,13 +167,13 @@ export const Navbar: React.FC = () => {
                   component="a"
                   onClick={() => navigate("/chat")}
                   sx={{
-                    color: COLORS.textSecondary || "#667781",
+                    color: "rgba(255, 255, 255, 0.72)",
                     textDecoration: "none",
                     fontSize: "0.95rem",
                     fontWeight: 500,
                     transition: "color 0.2s ease",
                     "&:hover": {
-                      color: "#0066CC",
+                      color: COLORS.secondary,
                     },
                   }}
                 >
@@ -188,10 +192,10 @@ export const Navbar: React.FC = () => {
                     onClick={handleMenuOpen}
                     sx={{
                       p: 0.5,
-                      border: "2px solid #E4E6EB",
+                      border: "2px solid rgba(255, 255, 255, 0.15)",
                       transition: "all 0.2s ease",
                       "&:hover": {
-                        borderColor: "#0066CC",
+                        borderColor: COLORS.secondary,
                         transform: "scale(1.05)",
                       },
                     }}
@@ -200,9 +204,8 @@ export const Navbar: React.FC = () => {
                       sx={{
                         width: 36,
                         height: 36,
-                        background:
-                        "linear-gradient(135deg, #0066CC 0%, #00A884 100%)",
-                        color: "#111B21",
+                        background: GRADIENTS.brand,
+                        color: "#FFFFFF",
                         fontWeight: 700,
                         fontSize: "0.95rem",
                       }}
@@ -221,13 +224,13 @@ export const Navbar: React.FC = () => {
                       paper: {
                         sx: {
                           mt: 1.5,
-                          width: 200,
-                          backgroundColor: "#FFFFFF",
+                          width: 210,
+                          backgroundColor: "rgba(17, 24, 39, 0.96)",
                           backdropFilter: "blur(20px)",
-                          border: "1px solid #E4E6EB",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
                           borderRadius: "16px",
-                          boxShadow: "0 10px 30px rgba(15, 23, 42, 0.12)",
-                          color: "#111B21",
+                          boxShadow: "0 16px 40px rgba(2, 6, 23, 0.6)",
+                          color: "#F8FAFC",
                           overflow: "visible",
                           "&:before": {
                             content: '""',
@@ -237,11 +240,11 @@ export const Navbar: React.FC = () => {
                             right: 18,
                             width: 10,
                             height: 10,
-                            bgcolor: "#FFFFFF",
+                            bgcolor: "rgba(17, 24, 39, 0.96)",
                             transform: "translateY(-50%) rotate(45deg)",
                             zIndex: 0,
-                            borderTop: "1px solid #E4E6EB",
-                            borderLeft: "1px solid #E4E6EB",
+                            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                            borderLeft: "1px solid rgba(255, 255, 255, 0.1)",
                           },
                         },
                       },
@@ -252,38 +255,18 @@ export const Navbar: React.FC = () => {
                     <Box sx={{ px: 2, py: 1.5 }}>
                       <Typography
                         variant="subtitle2"
-                        sx={{ fontWeight: 700, color: "#111B21" }}
+                        sx={{ fontWeight: 700, color: "#FFFFFF" }}
                       >
-                        Logged In
+                        {userInfo?.name || "Logged In"}
                       </Typography>
                       <Typography
                         variant="caption"
-                        sx={{ color: "#667781" }}
+                        sx={{ color: COLORS.textSecondary }}
                       >
-                        User Account
+                        {userInfo?.email || "User Account"}
                       </Typography>
                     </Box>
-                    <Divider
-                      sx={{ borderColor: "#E4E6EB", my: 0.5 }}
-                    />
-                    <MenuItem
-                      onClick={() => navigate(`/profile/id=${myId}`)}
-                      sx={{
-                        py: 1,
-                        px: 2,
-                        borderRadius: "8px",
-                        "&:hover": {
-                          backgroundColor: "rgba(0, 102, 204, 0.06)",
-                        },
-                      }}
-                    >
-                      <ListItemIcon
-                        sx={{ color: "#667781", minWidth: 32 }}
-                      >
-                        <PersonIcon fontSize="small" />
-                      </ListItemIcon>
-                      Profile
-                    </MenuItem>
+                    <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.08)", my: 0.5 }} />
                     <MenuItem
                       onClick={() => navigate("/chat")}
                       sx={{
@@ -291,33 +274,77 @@ export const Navbar: React.FC = () => {
                         px: 2,
                         borderRadius: "8px",
                         "&:hover": {
-                          backgroundColor: "rgba(0, 102, 204, 0.06)",
+                          backgroundColor: "rgba(124, 77, 255, 0.16)",
                         },
                       }}
                     >
-                      <ListItemIcon
-                        sx={{ color: "#667781", minWidth: 32 }}
-                      >
+                      <ListItemIcon sx={{ color: COLORS.primaryLight, minWidth: 32 }}>
                         <ChatBubbleIcon fontSize="small" />
                       </ListItemIcon>
                       Dashboard
                     </MenuItem>
-                    <Divider
-                      sx={{ borderColor: "#E4E6EB", my: 0.5 }}
-                    />
+                    <MenuItem
+                      onClick={() => navigate(`/profile/id=${myId}`)}
+                      sx={{
+                        py: 1,
+                        px: 2,
+                        borderRadius: "8px",
+                        "&:hover": {
+                          backgroundColor: "rgba(124, 77, 255, 0.16)",
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: COLORS.primaryLight, minWidth: 32 }}>
+                        <PersonIcon fontSize="small" />
+                      </ListItemIcon>
+                      Profile
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => navigate("/inviteUser")}
+                      sx={{
+                        py: 1,
+                        px: 2,
+                        borderRadius: "8px",
+                        "&:hover": {
+                          backgroundColor: "rgba(124, 77, 255, 0.16)",
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: COLORS.primaryLight, minWidth: 32 }}>
+                        <PersonAddIcon fontSize="small" />
+                      </ListItemIcon>
+                      Invite User
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => navigate("/manageUser")}
+                      sx={{
+                        py: 1,
+                        px: 2,
+                        borderRadius: "8px",
+                        "&:hover": {
+                          backgroundColor: "rgba(124, 77, 255, 0.16)",
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: COLORS.primaryLight, minWidth: 32 }}>
+                        <ManageAccountsIcon fontSize="small" />
+                      </ListItemIcon>
+                      Manage Users
+                    </MenuItem>
+                    <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.08)", my: 0.5 }} />
                     <MenuItem
                       onClick={handleLogout}
                       sx={{
                         py: 1,
                         px: 2,
                         borderRadius: "8px",
-                        color: "#FF5252",
+                        color: "#FF6B6B",
                         "&:hover": {
-                          backgroundColor: "rgba(255, 82, 82, 0.1)",
+                          backgroundColor: "rgba(255, 82, 82, 0.14)",
                         },
                       }}
                     >
-                      <ListItemIcon sx={{ color: "#FF5252", minWidth: 32 }}>
+                      <ListItemIcon sx={{ color: "#FF6B6B", minWidth: 32 }}>
                         <LogoutIcon fontSize="small" />
                       </ListItemIcon>
                       Logout
@@ -331,13 +358,13 @@ export const Navbar: React.FC = () => {
                     variant="outlined"
                     sx={{
                       borderRadius: "12px",
-                      borderColor: "#D6DBE1",
-                      color: "#111B21",
+                      borderColor: "rgba(255, 255, 255, 0.2)",
+                      color: "#FFFFFF",
                       textTransform: "none",
                       fontWeight: 600,
                       "&:hover": {
-                        borderColor: COLORS.primary || "#0066CC",
-                        backgroundColor: "rgba(0, 102, 204, 0.06)",
+                        borderColor: COLORS.secondary,
+                        backgroundColor: "rgba(0, 229, 255, 0.08)",
                       },
                     }}
                   >
@@ -348,15 +375,14 @@ export const Navbar: React.FC = () => {
                     variant="contained"
                     sx={{
                       borderRadius: "12px",
-                      background:
-                        "linear-gradient(135deg, #0066CC 0%, #00A884 100%)",
-                      color: "#111B21",
+                      background: GRADIENTS.brand,
+                      color: "#FFFFFF",
                       fontWeight: 700,
                       textTransform: "none",
-                      boxShadow: "0 4px 14px rgba(0, 102, 204, 0.3)",
+                      boxShadow: "0 4px 16px rgba(124, 77, 255, 0.4)",
                       "&:hover": {
                         transform: "translateY(-2px)",
-                        boxShadow: "0 6px 18px rgba(0, 102, 204, 0.35)",
+                        boxShadow: "0 6px 20px rgba(0, 229, 255, 0.45)",
                       },
                     }}
                   >
@@ -373,7 +399,7 @@ export const Navbar: React.FC = () => {
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ color: "#111B21" }}
+              sx={{ color: "#FFFFFF" }}
             >
               {mobileOpen ? <CloseIcon /> : <MenuIcon />}
             </IconButton>
@@ -390,9 +416,9 @@ export const Navbar: React.FC = () => {
           paper: {
             sx: {
               width: "280px",
-              backgroundColor: "#FFFFFF",
+              backgroundColor: "#0B1224",
               backdropFilter: "blur(20px)",
-              borderLeft: "1px solid #E4E6EB",
+              borderLeft: "1px solid rgba(255, 255, 255, 0.08)",
               pt: 8,
               px: 3,
             },
@@ -406,7 +432,7 @@ export const Navbar: React.FC = () => {
               component="a"
               href={item.href}
               onClick={handleDrawerToggle}
-              sx={{ py: 1.5, px: 0, color: "#111B21" }}
+              sx={{ py: 1.5, px: 0, color: "#F8FAFC" }}
             >
               <ListItemText
                 primary={item.label}
@@ -420,7 +446,7 @@ export const Navbar: React.FC = () => {
             <ListItem
               component="a"
               onClick={() => navigate("/chat")}
-              sx={{ py: 1.5, px: 0, color: "#111B21" }}
+              sx={{ py: 1.5, px: 0, color: "#F8FAFC" }}
             >
               <ListItemText
                 primary={"Dashboard"}
@@ -462,8 +488,8 @@ export const Navbar: React.FC = () => {
                 sx={{
                   py: 1.2,
                   borderRadius: "12px",
-                  color: "#111B21",
-                  borderColor: "#D6DBE1",
+                  color: "#FFFFFF",
+                  borderColor: "rgba(255, 255, 255, 0.2)",
                 }}
               >
                 Login
@@ -478,9 +504,9 @@ export const Navbar: React.FC = () => {
                 sx={{
                   py: 1.2,
                   borderRadius: "12px",
-                  background:
-                    "linear-gradient(135deg, #0066CC 0%, #00A884 100%)",
+                  background: GRADIENTS.brand,
                   fontWeight: 700,
+                  color: "#FFFFFF",
                 }}
               >
                 Get Started

@@ -83,8 +83,9 @@ export const Testimonials: React.FC = () => {
       <Container maxWidth="lg">
         <SectionTitle
           badge="TESTIMONIALS"
-          title="Loved by Teams Worldwide"
-          subtitle="Here is what founders, developers, and designers say about their experience with Chatty."
+          title="Loved by teams"
+          gradientWord="worldwide"
+          subtitle="Here is what founders, developers and designers say about building on Chatty."
         />
 
         {/* Interactive Avatar Bar / Picker */}
