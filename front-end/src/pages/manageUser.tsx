@@ -140,6 +140,18 @@ export default function ManageUser() {
     loadFriends();
   }, []);
 
+  useEffect(() => {
+    const refresh = () => {
+      void loadFriends();
+    };
+    window.addEventListener("friend-request-received", refresh);
+    window.addEventListener("friend-request-accepted", refresh);
+    return () => {
+      window.removeEventListener("friend-request-received", refresh);
+      window.removeEventListener("friend-request-accepted", refresh);
+    };
+  }, []);
+
   const userName = useMemo(() => {
     return loginUser?.name || loginUser?.userName || "User";
   }, [loginUser]);
@@ -162,7 +174,12 @@ export default function ManageUser() {
       });
 
       if (response?.success) {
-        showToast(SUCCESS, "Invitation sent successfully!");
+        showToast(
+          response?.data?.emailSent === false ? FAILED : SUCCESS,
+          response?.data?.emailSent === false
+            ? "Invitation saved, but the email could not be sent. Please try again."
+            : "Invitation sent successfully!",
+        );
         setEmail("");
         setMessage("Hi! I would like to connect with you on Chatty.");
         navigate("/manageUser");

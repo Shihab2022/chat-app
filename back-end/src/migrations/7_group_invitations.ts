@@ -1,4 +1,4 @@
-import { MigrationBuilder } from 'node-pg-migrate';
+import type { MigrationBuilder } from 'node-pg-migrate';
 
 export function up(pgm: MigrationBuilder): void {
   pgm.sql(`
@@ -14,7 +14,9 @@ export function up(pgm: MigrationBuilder): void {
       UNIQUE (group_id, email)
     )
   `);
-  pgm.sql('CREATE INDEX IF NOT EXISTS idx_group_invitations_email ON group_invitations (email, status)');
+  pgm.sql(
+    'CREATE INDEX IF NOT EXISTS idx_group_invitations_email ON group_invitations (email, status)',
+  );
 }
 
 export function down(pgm: MigrationBuilder): void {

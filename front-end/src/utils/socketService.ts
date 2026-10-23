@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from "socket.io-client";
+import { getToken } from "./auth";
 import {
   SET_ACTIVE_USERS,
   SET_ALL_USERS,
@@ -21,15 +22,57 @@ import {
 } from "../redux/features/chat/conversationSlice";
 import { SOCKET_EVENTS } from "../constants/socket";
 import { getGroupDetailsAPI } from "../services/message";
+import { showToast } from "./toast";
+import { INFO, SUCCESS } from "../constants/common";
 // import { TMessage } from "../types";
 let lastStopTypingId: string | null = null;
 const BASE_URL = import.meta.env.VITE_BASE_API_URL;
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+const SOCKET_PATH = import.meta.env.VITE_SOCKET_PATH || "/socket.io";
 let socket: Socket | null = null;
+let currentSocketUserId: string | null = null;
+
+function getSocketBaseUrl(apiBaseUrl: string) {
+  try {
+    const url = new URL(apiBaseUrl, window.location.origin);
+    if (url.pathname.replace(/\/$/, "") === "/api") {
+      url.pathname = "/";
+    }
+    url.search = "";
+    url.hash = "";
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return apiBaseUrl.replace(/\/api\/?$/, "");
+  }
+}
 
 export function connectSocket(userId: string, dispatch: any) {
+  const normalizedUserId = String(userId || "");
+  if (!normalizedUserId) return socket;
+
+  if (socket && currentSocketUserId !== normalizedUserId) {
+    socket.disconnect();
+    socket = null;
+    currentSocketUserId = null;
+  }
+
   if (socket && socket.connected) return socket;
-  socket = io(BASE_URL, {
-    query: { userId },
+
+  currentSocketUserId = normalizedUserId;
+  socket = io(SOCKET_URL || getSocketBaseUrl(BASE_URL), {
+    path: SOCKET_PATH,
+    auth: { token: getToken() },
+    query: { userId: normalizedUserId },
+    transports: ["websocket", "polling"],
+    withCredentials: true,
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 10_000,
+    timeout: 20_000,
+  });
+  socket.io.on("reconnect_attempt", () => {
+    if (socket) socket.auth = { token: getToken() };
   });
 
   const applyGroupToSidebar = (group: any) => {
@@ -114,8 +157,30 @@ export function connectSocket(userId: string, dispatch: any) {
     console.log("✅ Socket connected");
   });
 
+  socket.on("connect_error", (error) => {
+    console.error("Socket connection failed:", error.message);
+  });
+
+  socket.on(SOCKET_EVENTS.DISCONNECT, () => {
+    currentSocketUserId = null;
+  });
+
   socket.on(SOCKET_EVENTS.GET_ONLINE_USERS, (userIds) => {
     dispatch(SET_ACTIVE_USERS(userIds));
+  });
+  socket.on("friendRequestReceived", (payload) => {
+    showToast(
+      INFO,
+      `${payload?.sender?.name || "Someone"} sent you a friend request`,
+    );
+    window.dispatchEvent(new CustomEvent("friend-request-received", { detail: payload }));
+  });
+  socket.on("friendRequestAccepted", (payload) => {
+    showToast(
+      SUCCESS,
+      `${payload?.user?.name || "Your friend"} accepted your invitation`,
+    );
+    window.dispatchEvent(new CustomEvent("friend-request-accepted", { detail: payload }));
   });
   socket.on(SOCKET_EVENTS.NEW_MESSAGE, (msg) => {
     dispatch((innerDispatch: any, getState: any) => {
@@ -226,8 +291,9 @@ export function connectSocket(userId: string, dispatch: any) {
 export function disconnectSocket() {
   if (socket?.connected) {
     socket.disconnect();
-    socket = null;
   }
+  socket = null;
+  currentSocketUserId = null;
 }
 export function emitTyping(receiverId: string) {
   if (lastStopTypingId === receiverId) {

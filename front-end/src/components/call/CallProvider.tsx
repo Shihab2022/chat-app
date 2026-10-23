@@ -14,7 +14,7 @@ import {
   CALL_SOCKET_EVENTS,
   CALL_TYPE,
   CALL_RING_TIMEOUT_MS,
-  STUN_SERVERS,
+  ICE_SERVERS,
 } from "../../constants/call";
 import { getSocket } from "../../utils/socketService";
 import { showToast } from "../../utils/toast";
@@ -154,13 +154,14 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
       pcRef.current = null;
     }
     isInitiatorRef.current = false;
+    directionRef.current = null;
     callIdRef.current = null;
     peerIdRef.current = null;
     pendingCandidatesRef.current = [];
   };
 
   const createPeerConnection = (stream: MediaStream): RTCPeerConnection => {
-    const pc = new RTCPeerConnection({ iceServers: STUN_SERVERS });
+    const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
     pc.onicecandidate = (event) => {

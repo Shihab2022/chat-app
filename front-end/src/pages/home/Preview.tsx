@@ -49,7 +49,8 @@ export const Preview: React.FC = () => {
       <Container maxWidth="lg">
         <SectionTitle
           badge="INTERFACE PREVIEW"
-          title="Beautiful Across Every Device"
+          title="Beautiful across"
+          gradientWord="every device"
           subtitle="Immerse yourself in an ultra-clean layout crafted for clarity and effortless navigation."
         />
 

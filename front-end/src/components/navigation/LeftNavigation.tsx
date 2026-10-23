@@ -21,6 +21,7 @@ import {
 } from "../../redux/features/settings/settingsSlice";
 import { PURPLE_PRIMARY, STATUS_ONLINE } from "../../theme";
 import { persistUserSettings } from "../../utils/userSettings";
+import { CALL_ENABLED } from "../../constants/call";
 
 export const LeftNavigation: React.FC = () => {
   const theme = useTheme();
@@ -50,7 +51,9 @@ export const LeftNavigation: React.FC = () => {
     { id: "contacts" as NavTab, label: "Contacts", icon: PeopleAltRoundedIcon },
     { id: "groups" as NavTab, label: "Groups", icon: GroupsRoundedIcon },
     { id: "status" as NavTab, label: "Status", icon: DonutLargeRoundedIcon },
-    { id: "calls" as NavTab, label: "Calls", icon: CallRoundedIcon },
+    ...(CALL_ENABLED
+      ? [{ id: "calls" as NavTab, label: "Calls", icon: CallRoundedIcon }]
+      : []),
     { id: "saved" as NavTab, label: "Mentions & Saved", icon: AlternateEmailRoundedIcon },
     { id: "settings" as NavTab, label: "Settings", icon: SettingsRoundedIcon },
   ];

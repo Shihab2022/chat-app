@@ -48,8 +48,8 @@ export default function SignIn() {
         const accessToken = res?.data?.accessToken;
         const userData = res?.data?.data;
         const userId = res?.data?.data?.id;
-        connectSocket(userId, dispatch);
         setToken(accessToken);
+        connectSocket(userId, dispatch);
         showToast(SUCCESS, LOGIN_SUCCESS);
         dispatch(setUser(userData));
         navigate("/chat");
@@ -63,9 +63,21 @@ export default function SignIn() {
 
   const handleLogin = async (params: any) => {
     try {
-      await googleLoginApi(params);
+      setIsLoading(true);
+      const res = await googleLoginApi(params);
+      if (res?.success) {
+        const accessToken = res?.data?.accessToken;
+        const userData = res?.data?.data;
+        setToken(accessToken);
+        connectSocket(userData?.id, dispatch);
+        dispatch(setUser(userData));
+        showToast(SUCCESS, LOGIN_SUCCESS);
+        navigate("/chat");
+      }
     } catch (error) {
       console.log({ error });
+    } finally {
+      setIsLoading(false);
     }
   };
 

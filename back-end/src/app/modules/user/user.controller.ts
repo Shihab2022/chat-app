@@ -4,6 +4,7 @@ import httpStatus from 'http-status';
 import { UserServices } from './user.services';
 import { setTokenOnCookie } from '../../../utils/auth';
 import { userControllerMessages } from '../../../constant';
+import { emitToUser } from '../../../utils/socket';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -135,6 +136,17 @@ const inviteUser = async (
 ) => {
   try {
     const result = await UserServices.inviteUser(req.body, req?.user);
+    if (result?.recipientId) {
+      emitToUser(String(result.recipientId), 'friendRequestReceived', {
+        friendshipId: result.friendshipId,
+        sender: {
+          id: req.user?.id,
+          name: req.user?.name,
+          email: req.user?.email,
+        },
+        message: result.message,
+      });
+    }
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -230,6 +242,16 @@ const getAllRegisteredUsers = async (
 const acceptFriend = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
   try {
     const result = await UserServices.acceptFriend(req.body, req.user);
+    if (result?.sender_id) {
+      emitToUser(String(result.sender_id), 'friendRequestAccepted', {
+        friendshipId: result.id,
+        user: {
+          id: req.user?.id,
+          name: req.user?.name,
+          email: req.user?.email,
+        },
+      });
+    }
     sendResponse(res, { statusCode: httpStatus.OK, success: true, message: 'Friend request accepted', data: result });
   } catch (error) { next(error); }
 };

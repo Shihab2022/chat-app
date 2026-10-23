@@ -46,4 +46,11 @@ export default {
     user_name: process.env.SMTP_USERNAME,
     password: process.env.SMTP_PASSWORD,
   },
+  call: {
+    // How long an unanswered call rings before it is finalized as
+    // 'missed' (milliseconds; clamped to a 5s minimum by the consumer).
+    ring_timeout_ms: Number(process.env.CALL_RING_TIMEOUT_MS) || 30_000,
+    // Maximum rows returned by GET /api/call/history (clamped 1-500).
+    history_limit: Number(process.env.CALL_HISTORY_LIMIT) || 200,
+  },
 };

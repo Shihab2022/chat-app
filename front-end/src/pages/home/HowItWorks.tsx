@@ -86,8 +86,9 @@ export const HowItWorks: React.FC = () => {
       <Container maxWidth="lg">
         <SectionTitle
           badge="WORKFLOW"
-          title="Three Steps to Get Started"
-          subtitle="Get set up and chatting with your team or community in less than two minutes."
+          title="Three steps to"
+          gradientWord="get started"
+          subtitle="Create an account, invite your people and start chatting — most teams are live in under two minutes."
         />
 
         {/* Top Horizontal Step Selector / Progress Bar */}

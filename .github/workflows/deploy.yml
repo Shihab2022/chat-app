@@ -1,0 +1,65 @@
+name: Production CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Backend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./.docker/backend.Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/chat-backend:latest
+
+      - name: Build and Push Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./.docker/frontend.Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/chat-frontend:latest
+          build-args: |
+            VITE_BASE_API_URL=${{ secrets.VITE_BASE_API_URL }}
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+            VITE_CALL_ENABLED=${{ secrets.VITE_CALL_ENABLED }}
+            VITE_CALL_RING_TIMEOUT_MS=${{ secrets.VITE_CALL_RING_TIMEOUT_MS }}
+            VITE_STUN_SERVERS=${{ secrets.VITE_STUN_SERVERS }}
+            VITE_TURN_URL=${{ secrets.VITE_TURN_URL }}
+            VITE_TURN_USERNAME=${{ secrets.VITE_TURN_USERNAME }}
+            VITE_TURN_CREDENTIAL=${{ secrets.VITE_TURN_CREDENTIAL }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /path/to/your/app
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f

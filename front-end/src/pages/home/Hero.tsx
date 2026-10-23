@@ -10,16 +10,30 @@ import {
   IconButton,
   TextField,
   InputAdornment,
+  Chip,
+  Tooltip,
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { keyframes } from "@emotion/react";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import SendIcon from "@mui/icons-material/Send";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { glassStyle, COLORS } from "../../styles";
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
+import CallRoundedIcon from "@mui/icons-material/CallRounded";
+import MicRoundedIcon from "@mui/icons-material/MicRounded";
+import ReplyRoundedIcon from "@mui/icons-material/ReplyRounded";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
+import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
+import DoneAllRoundedIcon from "@mui/icons-material/DoneAllRounded";
+import { glassStyle, COLORS, GRADIENTS, gradientTextStyle } from "../../styles";
 import { useNavigate } from "react-router-dom";
+import { tokenKey } from "../../constants/common";
+import { useLandingStats } from "./useLandingStats";
 
 const pulse = keyframes`
   0% { box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.7); }
@@ -32,9 +46,28 @@ const bounce = keyframes`
   40% { transform: scale(1.0); }
 `;
 
+/** Slow pan on the hero gradient headline. */
+const shift = keyframes`
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+`;
+
+/** Real product capabilities, mirroring the dashboard feature set. */
+const HERO_CHIPS = [
+  { label: "Real-time socket chat", icon: <BoltRoundedIcon sx={{ fontSize: 15 }} /> },
+  { label: "Group chats & roles", icon: <GroupsRoundedIcon sx={{ fontSize: 15 }} /> },
+  { label: "Audio & video calls", icon: <VideocamRoundedIcon sx={{ fontSize: 15 }} /> },
+  { label: "Voice notes & files", icon: <MicRoundedIcon sx={{ fontSize: 15 }} /> },
+  { label: "Replies & forwards", icon: <ReplyRoundedIcon sx={{ fontSize: 15 }} /> },
+  { label: "Secure JWT auth", icon: <LockRoundedIcon sx={{ fontSize: 15 }} /> },
+];
+
 export const HeroSection: React.FC = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
+  const { stats, isLive } = useLandingStats();
+  const isAuthenticated = !!localStorage.getItem(tokenKey);
+
   const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const x = (clientX / window.innerWidth - 0.5) * 20;
@@ -65,20 +98,32 @@ export const HeroSection: React.FC = () => {
                   px: 2,
                   py: 0.8,
                   borderRadius: "30px",
-                  backgroundColor: "rgba(124, 77, 255, 0.12)",
-                  border: "1px solid rgba(124, 77, 255, 0.3)",
+                  backgroundColor: "rgba(124, 77, 255, 0.14)",
+                  border: "1px solid rgba(124, 77, 255, 0.38)",
+                  boxShadow: "0 0 26px rgba(124, 77, 255, 0.22)",
                   mb: 3,
                 }}
               >
-                <CheckCircleIcon
-                  sx={{ color: COLORS.secondary, fontSize: 18 }}
-                />
+                <CheckCircleIcon sx={{ color: COLORS.secondary, fontSize: 18 }} />
                 <Typography
                   variant="body2"
                   sx={{ color: "#E2E8F0", fontWeight: 600 }}
                 >
-                  Chatty v2.0 is officially live!
+                  Chats, groups, calls & files — one live workspace
                 </Typography>
+                <Chip
+                  label={isLive ? "LIVE DATA" : "v2.0"}
+                  size="small"
+                  sx={{
+                    height: 20,
+                    fontSize: "0.65rem",
+                    fontWeight: 800,
+                    letterSpacing: "0.06em",
+                    color: "#FFFFFF",
+                    background: GRADIENTS.brand,
+                    "& .MuiChip-label": { px: 1 },
+                  }}
+                />
               </Box>
 
               <Typography
@@ -95,11 +140,10 @@ export const HeroSection: React.FC = () => {
                 <Box
                   component="span"
                   sx={{
-                    background:
-                      "linear-gradient(135deg, #7C4DFF 0%, #00E5FF 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    display: "inline-block",
+                    ...gradientTextStyle,
+                    background: GRADIENTS.brand,
+                    backgroundSize: "220% 220%",
+                    animation: `${shift} 9s ease infinite`,
                   }}
                 >
                   Chat Without Limits.
@@ -115,17 +159,51 @@ export const HeroSection: React.FC = () => {
                   mb: 4,
                 }}
               >
-                Experience lightning-fast real-time messaging, beautiful
-                conversations, emoji support, secure authentication, and
-                seamless global communication.
+                Real-time socket messaging, group chats with roles and
+                invitations, HD audio & video calls, file and voice-note
+                sharing, emoji reactions, replies and forwards — all inside a
+                beautifully customisable workspace.
               </Typography>
+
+              {/* Capability Chips (mirrors dashboard features) */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 1,
+                  mb: 3.5,
+                  maxWidth: 560,
+                }}
+              >
+                {HERO_CHIPS.map((chip) => (
+                  <Chip
+                    key={chip.label}
+                    icon={chip.icon}
+                    label={chip.label}
+                    size="small"
+                    sx={{
+                      color: "#E2E8F0",
+                      backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(8px)",
+                      fontWeight: 600,
+                      fontSize: "0.78rem",
+                      "& .MuiChip-icon": { color: COLORS.secondary },
+                      "&:hover": {
+                        borderColor: "rgba(0, 229, 255, 0.5)",
+                        backgroundColor: "rgba(0, 229, 255, 0.08)",
+                      },
+                    }}
+                  />
+                ))}
+              </Box>
 
               {/* Action Buttons */}
               <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 6 }}>
                 <Button
                   variant="contained"
                   size="large"
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate(isAuthenticated ? "/chat" : "/SignUp")}
                   endIcon={<ArrowForwardIcon />}
                   sx={{
                     px: 4,
@@ -143,18 +221,21 @@ export const HeroSection: React.FC = () => {
                     },
                   }}
                 >
-                  Start Chatting
+                  {isAuthenticated ? "Open Dashboard" : "Get Started Free"}
                 </Button>
-                {/* <Button
+                <Button
                   variant="outlined"
                   size="large"
+                  onClick={() => navigate(isAuthenticated ? "/inviteUser" : "/login")}
+                  startIcon={<LoginRoundedIcon />}
                   sx={{
                     px: 4,
                     py: 1.5,
                     fontSize: "1rem",
+                    fontWeight: 600,
                     borderRadius: "12px",
                     textTransform: "none",
-                    borderColor: "rgba(255, 255, 255, 0.15)",
+                    borderColor: "rgba(255, 255, 255, 0.18)",
                     color: "#FFFFFF",
                     backgroundColor: "rgba(255, 255, 255, 0.03)",
                     backdropFilter: "blur(10px)",
@@ -165,27 +246,34 @@ export const HeroSection: React.FC = () => {
                     },
                   }}
                 >
-                  Learn More
-                </Button> */}
+                  {isAuthenticated ? "Invite a Friend" : "Sign In"}
+                </Button>
               </Box>
 
-              {/* Stats Bar */}
+              {/* Live product stats (real dashboard API data when signed in) */}
               <Grid container spacing={3}>
-                {[
-                  { value: "50K+", label: "Active Users" },
-                  { value: "2M+", label: "Messages Daily" },
-                  { value: "99.99%", label: "Uptime" },
-                ].map((stat, idx) => (
-                  <Grid size={{ xs: 4 }} key={idx}>
+                {stats.map((stat) => (
+                  <Grid size={{ xs: 6, sm: 3 }} key={stat.id}>
+                    <Box
+                      sx={{
+                        height: 3,
+                        width: 34,
+                        borderRadius: 2,
+                        mb: 1.2,
+                        background: GRADIENTS[stat.accent],
+                      }}
+                    />
                     <Typography
                       variant="h4"
                       sx={{
                         fontWeight: 800,
-                        fontSize: { xs: "1.5rem", sm: "1.8rem" },
+                        fontSize: { xs: "1.4rem", sm: "1.7rem" },
                         color: "#FFFFFF",
+                        lineHeight: 1.1,
                       }}
                     >
                       {stat.value}
+                      {stat.suffix}
                     </Typography>
                     <Typography
                       variant="caption"
@@ -268,6 +356,30 @@ export const HeroSection: React.FC = () => {
                       </Typography>
                     </Box>
                   </Box>
+
+                  {/* Call + menu actions — mirrors the dashboard chat header */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    {[
+                      { label: "Voice call", icon: <CallRoundedIcon fontSize="small" /> },
+                      { label: "Video call", icon: <VideocamRoundedIcon fontSize="small" /> },
+                      { label: "More", icon: <MoreVertRoundedIcon fontSize="small" /> },
+                    ].map((action) => (
+                      <Tooltip key={action.label} title={action.label} arrow>
+                        <IconButton
+                          size="small"
+                          sx={{
+                            color: "rgba(255,255,255,0.7)",
+                            "&:hover": {
+                              color: "#FFFFFF",
+                              backgroundColor: "rgba(0, 229, 255, 0.12)",
+                            },
+                          }}
+                        >
+                          {action.icon}
+                        </IconButton>
+                      </Tooltip>
+                    ))}
+                  </Box>
                 </Box>
 
                 {/* Messages */}
@@ -321,18 +433,27 @@ export const HeroSection: React.FC = () => {
                         Ready for today's meeting? 🚀
                       </Typography>
                     </Paper>
-                    <Typography
-                      variant="caption"
+                    <Box
                       sx={{
-                        color: COLORS.textSecondary,
-                        fontSize: "0.7rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                        gap: 0.5,
                         mr: 1,
-                        display: "block",
-                        textAlign: "right",
+                        mt: 0.25,
                       }}
                     >
-                      10:43 AM
-                    </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: COLORS.textSecondary,
+                          fontSize: "0.7rem",
+                        }}
+                      >
+                        10:43 AM
+                      </Typography>
+                      <DoneAllRoundedIcon sx={{ fontSize: 15, color: COLORS.secondary }} />
+                    </Box>
                   </Box>
 
                   <Box sx={{ alignSelf: "flex-start", maxWidth: "80%" }}>

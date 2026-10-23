@@ -1,11 +1,19 @@
 import React from "react";
-import { Box, Container, Typography, IconButton, Divider } from "@mui/material";
+import {
+  Box,
+  Container,
+  Typography,
+  IconButton,
+  Divider,
+  Chip,
+} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import ForumIcon from "@mui/icons-material/Forum";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import { COLORS } from "../../styles";
+import FiberManualRecordRoundedIcon from "@mui/icons-material/FiberManualRecordRounded";
+import { COLORS, GRADIENTS } from "../../styles";
 
 export const Footer: React.FC = () => {
   return (
@@ -68,12 +76,13 @@ export const Footer: React.FC = () => {
                 maxWidth: "460px",
               }}
             >
-              The modern real-time communication platform designed for
-              individuals and fast-growing teams worldwide.
+              The modern real-time communication platform with chats, groups,
+              HD calls, file sharing and deep customisation — built for
+              individuals and fast-growing teams.
             </Typography>
           </Grid>
 
-          {/* Right Side: Social Links (Right-aligned on desktop) */}
+          {/* Right Side: Quick links + social icons */}
           <Grid
             sx={{
               xs: 12,
@@ -92,8 +101,59 @@ export const Footer: React.FC = () => {
                 textAlign: { xs: "left", md: "right" },
               }}
             >
-              Connect With Us
+              Explore Chatty
             </Typography>
+
+            {/* Real in-page feature anchors */}
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 1.5,
+                mb: 3,
+                justifyContent: { xs: "flex-start", md: "flex-end" },
+              }}
+            >
+              {[
+                { label: "Features", href: "#features" },
+                { label: "Dashboard", href: "#dashboard" },
+                { label: "How It Works", href: "#how-it-works" },
+                { label: "Preview", href: "#preview" },
+                { label: "Testimonials", href: "#testimonials" },
+              ].map((item) => (
+                <Typography
+                  key={item.label}
+                  component="a"
+                  href={item.href}
+                  variant="body2"
+                  sx={{
+                    color: "rgba(255, 255, 255, 0.62)",
+                    textDecoration: "none",
+                    fontSize: "0.82rem",
+                    transition: "color 0.2s ease",
+                    "&:hover": { color: COLORS.secondary },
+                  }}
+                >
+                  {item.label}
+                </Typography>
+              ))}
+            </Box>
+
+            {/* Brand status chip */}
+            <Chip
+              icon={<FiberManualRecordRoundedIcon sx={{ fontSize: 10 }} />}
+              label="All systems operational"
+              size="small"
+              sx={{
+                mb: 2.5,
+                color: "#A7F3D0",
+                backgroundColor: "rgba(16, 185, 129, 0.12)",
+                border: "1px solid rgba(16, 185, 129, 0.35)",
+                fontWeight: 600,
+                fontSize: "0.72rem",
+                "& .MuiChip-icon": { color: COLORS.success },
+              }}
+            />
 
             <Box sx={{ display: "flex", gap: 1.5 }}>
               {[
@@ -109,14 +169,14 @@ export const Footer: React.FC = () => {
                   sx={{
                     color: "rgba(255, 255, 255, 0.7)",
                     backgroundColor: "rgba(255, 255, 255, 0.04)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
                     p: 1.2,
                     borderRadius: "12px",
                     transition: "all 0.3s ease",
                     "&:hover": {
                       color: "#FFF",
-                      backgroundColor: "rgba(124, 77, 255, 0.2)",
-                      borderColor: "#7C4DFF",
+                      background: GRADIENTS.brand,
+                      borderColor: "transparent",
                       transform: "translateY(-2px)",
                     },
                   }}

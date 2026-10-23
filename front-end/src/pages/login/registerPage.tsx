@@ -18,6 +18,10 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { COMMON_ERROR_MESSAGE, FAILED, REGISTER_SUCCESS, SUCCESS } from "../../constants/common";
 import { showToast } from "../../utils/toast";
 import { googleRegisterApi, registerUserApi } from "../../services/auth";
+import { setToken } from "../../utils/auth";
+import { connectSocket } from "../../utils/socketService";
+import { setUser } from "../../redux/features/auth/authSlice";
+import { useAppDispatch } from "../../redux/hooks";
 import AuthLayout from "../../components/ui/AuthLayout";
 import GoogleLoginCom from "./googleLoginCom";
 
@@ -30,6 +34,7 @@ interface SignUpFormInputs {
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -59,7 +64,16 @@ export default function SignUp() {
   const handleRegister = async (params: any) => {
     try {
       setIsLoading(true);
-      await googleRegisterApi(params);
+      const res = await googleRegisterApi(params);
+      if (res?.success) {
+        const accessToken = res?.data?.accessToken;
+        const userData = res?.data?.data;
+        setToken(accessToken);
+        dispatch(setUser(userData));
+        connectSocket(userData?.id, dispatch);
+        showToast(SUCCESS, REGISTER_SUCCESS);
+        navigate("/chat");
+      }
     } catch (error) {
       showToast(FAILED, COMMON_ERROR_MESSAGE);
     } finally {
